@@ -57,6 +57,7 @@ bool om_trace_read(OmTrace* self, OmTraceLogEntry* entry);
  */
 void om_trace_clear(OmTrace* self);
 
+bool om_trace_is_full(OmTrace* self);
 
 /// @brief Function to be called by application to provide trace timestamp
 /// @param elapse_usec 

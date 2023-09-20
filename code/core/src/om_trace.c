@@ -34,20 +34,24 @@ bool om_trace_write(OmTrace* self, const char *format, ...)
     {
         return false;
     }
+    else
+    {
+        // Set timestamp   
+        self->entry_list[self->write_index].timestamp_usec = self->elapsed_time_usec;
 
-    // Set timestamp   
-    self->entry_list[self->write_index].timestamp_usec = self->elapsed_time_usec;
+        // Format message
+        va_list args;
+        va_start(args, format);
+        vsnprintf(self->entry_list[self->write_index].message, (size_t)OM_TRACE_MAX_MESSAGE_LENGTH, format, args);
+        va_end(args);
 
-    // Format message
-    va_list args;
-    va_start(args, format);
-    vsnprintf(self->entry_list[self->write_index].message, (size_t)OM_TRACE_MAX_MESSAGE_LENGTH, format, args);
-    va_end(args);
+        // Update next write index
+        self->write_index = next_write_index;
 
-    // Update next write index
-    self->write_index = next_write_index;
+        return true;
 
-    return true;
+    }
+
 }
 
 
@@ -91,6 +95,31 @@ void om_trace_clear(OmTrace* self)
     self->write_index = 0;
 }
 
+bool om_trace_is_full(OmTrace* self)
+{
+    if (self == NULL)
+    {
+        // Tracing can be ignored for an object by setting its pointer to NULL
+        return false;
+    }
+    size_t next_write_index = self->write_index + 1;
+
+    if (next_write_index >= self->entry_list_size)
+    {
+        next_write_index = 0;
+    }
+
+    // Check for full
+    if (next_write_index == self->read_index)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+}
 
 void om_trace_tick(OmTrace* self, uint32_t elapsed_usec)
 {

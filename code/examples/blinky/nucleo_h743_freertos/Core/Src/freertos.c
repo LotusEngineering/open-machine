@@ -151,16 +151,19 @@ void StartDefaultTask(void *argument)
   
   /* Infinite loop */
   OmTraceLogEntry trace_record;
+  
   for(;;)
   {
+    if(om_trace_is_full(&blinky_trace))
+    {
+      printf("WARNING!! Blinky Trace is Full!\n");
+    }
     if(om_trace_read(&blinky_trace, &trace_record))
     {
       printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
-//      HAL_UART_Transmit(&huart3, (uint8_t *) trace_record.message, strnlen(trace_record.message, OM_TRACE_MAX_MESSAGE_LENGTH), HAL_MAX_DELAY);
-//      HAL_UART_Transmit(&huart3, (uint8_t *) "\n", 1, HAL_MAX_DELAY);
-//      printf("\n"); // Fun fact, seems it doesn't go out unless you put a LF
     }
-    osDelay(1);
+    
+    osDelay(10);
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -169,7 +172,7 @@ void StartDefaultTask(void *argument)
 void om_trace_timer_cb(void *argument)
 {
   /* USER CODE BEGIN om_trace_timer_cb */
-  om_trace_tick(&blinky_trace, OM_TRACE_TICK_MSEC);
+  om_trace_tick(&blinky_trace, OM_TRACE_TICK_MSEC * 1000);
   /* USER CODE END om_trace_timer_cb */
 }
 
