@@ -32,9 +32,13 @@ typedef OmStateResult (*OmStateHandler)(OmMachine * const self, OmEvent const * 
 typedef struct OmState
 {
     OmStateHandler handler;
-    const char* name;  
     struct OmState* parent;
+    const char* name;  
 }OmState;
+
+
+void om_state_ctor(OmState* self, OmState* parent, const char* name);
+
 
 // Helper macro to concatenate two tokens
 #define CONCAT(a, b) a ## b
@@ -46,15 +50,15 @@ typedef struct OmState
  * @note: Use without a semi-colon to define your handler
  * 
  */
-#define OM_STATE_DEFINE(state_name_, machine_) OmStateResult CONCAT(state_name_, _handler)(machine_ * const self, OmEvent const * const event)
+#define OM_STATE_DEFINE(machine_, state_name_ ) OmStateResult CONCAT(state_name_, _handler)(machine_ * const self, OmEvent const * const event)
 
 
 /**
  * @brief Used to declare and allocate a state handler
  * 
  */
-#define OM_STATE_DECLARE(state_name_, machine_, parent_ptr_)  OM_STATE_DEFINE(state_name_, machine_); \
-OmState state_name_ = { (OmStateHandler)CONCAT(state_name_, _handler), #state_name_, parent_ptr_};
+#define OM_STATE_DECLARE(machine_, state_name_, parent_ptr_)  OM_STATE_DEFINE(machine_, state_name_); \
+OmState state_name_ = { (OmStateHandler)CONCAT(state_name_, _handler), parent_ptr_, #state_name_};
 
 
 /**
@@ -74,35 +78,51 @@ OmState state_name_ = { (OmStateHandler)CONCAT(state_name_, _handler), #state_na
 #define OM_TRANS(new_state_)  (((OmMachine*)self)->target_state = &new_state_, OM_RES_TRANSITION)
 
 
+typedef enum 
+{
+    OM_TF_NONE = 0x00,
+    OM_TF_ENTER = 0x01,
+    OM_TF_HANDLED = 0x02,
+    OM_TF_IGNORED = 0x04,
+    OM_TF_TRANS = 0x08,
+    OM_TF_EXIT = 0x10,
+    OM_TF_UNHANDLED = 0x20,
+    OM_TF_ALL = OM_TF_ENTER | OM_TF_HANDLED | OM_TF_IGNORED | OM_TF_TRANS | OM_TF_EXIT | OM_TF_UNHANDLED
+}OmTraceFlags;
+
+
 typedef struct OneMachine_t
 {
-    OmInitHandler initial_trans;
     OmState* current_state;
     OmState* target_state;
     bool is_active; ///< State machine has been initialized and not exited
     int exit_code; ///< User defined exit code
-    OmTrace* trace;
-    const char* name;
     OmState* src_path[OM_MACHINE_MAX_STATE_DEPTH]; 
     OmState* dst_path[OM_MACHINE_MAX_STATE_DEPTH]; 
+
+    OmInitHandler initial_trans;
+    const char* name;
+    OmTrace* trace;
+    OmTraceFlags trace_flags;
 }OmMachine;
 
 
-/**
- * @brief Used to construct a state machine
- * 
- * @param self State machine instance
- * @param initial_state Initial target stateS
- * @param name State machine name
- * @param trace Pointer to INITIALIZED trace instance
- */
-void om_ctor(OmMachine * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace);
+/// @brief Construct state machine without tracing
+/// @param self State machine
+/// @param initial_trans Intial transition handler
+void om_ctor(OmMachine * const self, OmInitHandler initial_trans);
+
+/// @brief Construct state machine with tracing
+/// @param self State machine
+/// @param initial_trans Intial transition handler
+/// @param name Machine name
+/// @param trace Trace suppier
+/// @param flags Trace flags
+void om_ctor_trace(OmMachine * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags);
 
 
-/**
- * @brief Enters and initializes machine 
- * @param self 
- */
+/// @brief Enters the state machine via the intial transition provided in the constructor
+/// @param self State machine
 void om_enter(OmMachine * const self);
 
 

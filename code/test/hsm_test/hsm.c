@@ -1,39 +1,40 @@
-#include "mut.h"
+#include "hsm.h"
 
 OM_ASSERT_SET_FILE_NAME();
 
 // Declare initial trans
-static OmStateResult Mut_init_trans(Mut * const self);
+static OmStateResult Hsm_init_trans(Hsm * const self);
 
 // Declare all of the states and their parents
-OM_STATE_DECLARE(S1, Mut, OM_TOP_STATE);
-OM_STATE_DECLARE(S11, Mut, &S1);
-OM_STATE_DECLARE(S111, Mut, &S11);
-OM_STATE_DECLARE(S112, Mut, &S11);
+OM_STATE_DECLARE(Hsm, S1,   OM_TOP_STATE);
+OM_STATE_DECLARE(Hsm, S11,  &S1);
+OM_STATE_DECLARE(Hsm, S111, &S11);
+OM_STATE_DECLARE(Hsm, S112, &S11);
 
-OM_STATE_DECLARE(S2, Mut, OM_TOP_STATE);
-OM_STATE_DECLARE(S21, Mut, &S2);
+OM_STATE_DECLARE(Hsm, S2, OM_TOP_STATE);
+OM_STATE_DECLARE(Hsm, S21, &S2);
 
-OM_STATE_DECLARE(S3, Mut, OM_TOP_STATE);
-OM_STATE_DECLARE(S31, Mut, &S3);
-OM_STATE_DECLARE(S32, Mut, &S3);
+OM_STATE_DECLARE(Hsm, S3, OM_TOP_STATE);
+OM_STATE_DECLARE(Hsm, S31, &S3);
+OM_STATE_DECLARE(Hsm, S32, &S3);
 
 
-void mut_ctor(Mut * const self, OmTrace* trace)
+void hsm_ctor(Hsm * const self, OmTrace* trace)
 {
-    // Call base constructor
-    om_ctor(&self->base, 
-            OM_INIT_CAST(Mut_init_trans), 
-            "Mut", 
-            trace);
+    // Call base trace constructor with all tracing enabled
+    om_ctor_trace(&self->base, 
+            OM_INIT_CAST(Hsm_init_trans), 
+            "Hsm", 
+            trace,
+            OM_TF_ALL);
 }
 
-OmStateResult Mut_init_trans(Mut * const self)
+OmStateResult Hsm_init_trans(Hsm * const self)
 {
     return OM_TRANS(S1);
 }
 
-OM_STATE_DEFINE(S1, Mut)
+OM_STATE_DEFINE(Hsm, S1)
 {
     OmStateResult result;
     switch(event->signal)
@@ -64,7 +65,7 @@ OM_STATE_DEFINE(S1, Mut)
     return result;
 }
 
-OM_STATE_DEFINE(S11, Mut)
+OM_STATE_DEFINE(Hsm, S11)
 {
     OmStateResult result;
     switch(event->signal)
@@ -92,7 +93,7 @@ OM_STATE_DEFINE(S11, Mut)
     return result;
 }
 
-OM_STATE_DEFINE(S111, Mut)
+OM_STATE_DEFINE(Hsm, S111)
 {
     OmStateResult result;
     switch(event->signal)
@@ -123,7 +124,7 @@ OM_STATE_DEFINE(S111, Mut)
     return result;
 }
 
-OM_STATE_DEFINE(S112, Mut)
+OM_STATE_DEFINE(Hsm, S112)
 {
     OmStateResult result;
     switch(event->signal)
@@ -146,7 +147,7 @@ OM_STATE_DEFINE(S112, Mut)
 }
 
 
-OM_STATE_DEFINE(S2, Mut)
+OM_STATE_DEFINE(Hsm, S2)
 {
     OmStateResult result;
     switch(event->signal)
@@ -174,7 +175,7 @@ OM_STATE_DEFINE(S2, Mut)
     return result;
 }
 
-OM_STATE_DEFINE(S21, Mut)
+OM_STATE_DEFINE(Hsm, S21)
 {
     OmStateResult result;
     switch(event->signal)
@@ -199,7 +200,7 @@ OM_STATE_DEFINE(S21, Mut)
     return result;
 }
 
-OM_STATE_DEFINE(S3, Mut)
+OM_STATE_DEFINE(Hsm, S3)
 {
     OmStateResult result;
     switch(event->signal)
@@ -221,7 +222,7 @@ OM_STATE_DEFINE(S3, Mut)
     return result;
 }
 
-OM_STATE_DEFINE(S31, Mut)
+OM_STATE_DEFINE(Hsm, S31)
 {
     OmStateResult result;
     switch(event->signal)
@@ -243,7 +244,7 @@ OM_STATE_DEFINE(S31, Mut)
     return result;
 }
 
-OM_STATE_DEFINE(S32, Mut)
+OM_STATE_DEFINE(Hsm, S32)
 {
     OmStateResult result;
     switch(event->signal)

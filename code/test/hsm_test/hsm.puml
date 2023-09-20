@@ -8,7 +8,7 @@ skinparam ranksep 60
 'skinparam linetype ortho
 'skinparam linetype polyline
 
-title Machine Under Test
+title HSM Under Test
 state S1
 state S2
 state S3

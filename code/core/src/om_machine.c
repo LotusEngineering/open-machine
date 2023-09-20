@@ -13,38 +13,25 @@ static const OmEvent OmExitEvent = {OM_EVT_EXIT, "OM_EVT_EXIT"};
 
 // Private functions
 static inline OmStateResult om_call_state_handler_(OmMachine * const self, OmState* state, OmEvent const * const event);
-static inline int om_get_path_to_top_(OmState* start_state, OmState* path[OM_MACHINE_MAX_STATE_DEPTH])
-{  
-    int idx = 0;                
-    OmState* search_state = start_state;
-    do
-    {
-        path[idx] = search_state;
-        search_state = search_state->parent;
-        idx++;
-        OM_ASSERT(idx < OM_MACHINE_MAX_STATE_DEPTH);
-    }
-    while(search_state != OM_TOP_STATE);
+static inline int om_get_path_to_top_(OmState* start_state, OmState* path[OM_MACHINE_MAX_STATE_DEPTH]);
 
-    // Add top state 
-    path[idx] = OM_TOP_STATE;
-    idx++;
 
-    // Return path length
-    return idx;
+void om_ctor(OmMachine * const self, OmInitHandler initial_trans)
+{
+    om_ctor_trace(self, initial_trans, NULL, NULL, OM_TF_NONE);
 }
 
-
-
-void om_ctor(OmMachine * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace)
+void om_ctor_trace(OmMachine * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags)
 {
-    self->initial_trans = initial_trans;
     self->current_state = OM_TOP_STATE;
     self->target_state = OM_TOP_STATE;
     self->is_active = false;
     self->exit_code = 0;
+
+    self->initial_trans = initial_trans;
     self->name = name;
     self->trace = trace;
+    self->trace_flags = flags;
 }
 
 
@@ -58,7 +45,9 @@ void om_enter(OmMachine * const self)
 
     // Initial transition must transition
     OM_ASSERT(result == OM_RES_TRANSITION);
-    om_trace_write(self->trace, "%s:OM_TOP_STATE:om_enter():TRANS(%s)", self->name, self->target_state->name);
+
+    if(self->trace_flags & OM_TF_ENTER)
+        om_trace_write(self->trace, "%s:OM_TOP_STATE:om_enter():TRANS(%s)", self->name, self->target_state->name);
 
     int target_depth = om_get_path_to_top_(self->target_state, self->dst_path);
 
@@ -110,7 +99,8 @@ bool om_dispatch(OmMachine * const self, OmEvent const * const event)
     // Return early if we haven't been entered 
     if (!self->is_active)
     {
-        om_trace_write(self->trace, "%s:om_dispatch:%s:IGNORED", self->name, event->name);
+        if(self->trace_flags & OM_TF_IGNORED)
+            om_trace_write(self->trace, "%s:om_dispatch:%s:Ignored", self->name, event->name);
         return false;
     }
 
@@ -140,8 +130,9 @@ bool om_dispatch(OmMachine * const self, OmEvent const * const event)
 
                 // If we got to the top state, the event wasn't handled by any state
                 if(search_state == OM_TOP_STATE)
-                {                
-                    om_trace_write(self->trace, "%s:OM_TOP_STATE:%s:Unhandled", self->name, event->name);
+                {          
+                    if (self->trace_flags & OM_TF_UNHANDLED)      
+                        om_trace_write(self->trace, "%s:OM_TOP_STATE:%s:Unhandled", self->name, event->name);
 
                     result = OM_RES_HANDLED;
                     continue;
@@ -283,7 +274,7 @@ int om_get_exit_code(OmMachine* self)
 }
 
 /////////////////// Private Functions ///////////////////////////
-static inline OmStateResult om_call_state_handler_(OmMachine * const self, OmState* state, OmEvent const * const event)
+inline OmStateResult om_call_state_handler_(OmMachine * const self, OmState* state, OmEvent const * const event)
 {
     OmStateResult result = state->handler(self, event);
 
@@ -292,16 +283,20 @@ static inline OmStateResult om_call_state_handler_(OmMachine * const self, OmSta
         switch(result)
         {
             case OM_RES_HANDLED:
-                om_trace_write(self->trace, "%s:%s:%s:HANDLED", self->name, state->name, event->name);
+                if(self->trace_flags & OM_TF_HANDLED)
+                    om_trace_write(self->trace, "%s:%s:%s:Handled", self->name, state->name, event->name);
             break;
             case OM_RES_TRANSITION:
-                om_trace_write(self->trace, "%s:%s:%s:TRANS(%s)", self->name, state->name, event->name, self->target_state->name);
+                if(self->trace_flags & OM_TF_TRANS)
+                    om_trace_write(self->trace, "%s:%s:%s:TRANS(%s)", self->name, state->name, event->name, self->target_state->name);
             break;
             case OM_RES_IGNORED:
-                om_trace_write(self->trace, "%s:%s:%s:IGNORED", self->name, state->name, event->name);
+                if(self->trace_flags & OM_TF_IGNORED)
+                    om_trace_write(self->trace, "%s:%s:%s:Ignored", self->name, state->name, event->name);
             break;
             case OM_RES_EXIT:
-                om_trace_write(self->trace, "%s:%s:%s:EXIT(%d)", self->name, state->name, event->name, self->exit_code);
+                if(self->trace_flags & OM_TF_EXIT)
+                    om_trace_write(self->trace, "%s:%s:%s:EXIT(%d)", self->name, state->name, event->name, self->exit_code);
             break;      
             default:
                 OM_ASSERT(false);
@@ -311,3 +306,25 @@ static inline OmStateResult om_call_state_handler_(OmMachine * const self, OmSta
     }
     return result;
 }
+
+inline int om_get_path_to_top_(OmState* start_state, OmState* path[OM_MACHINE_MAX_STATE_DEPTH])
+{  
+    int idx = 0;                
+    OmState* search_state = start_state;
+    do
+    {
+        path[idx] = search_state;
+        search_state = search_state->parent;
+        idx++;
+        OM_ASSERT(idx < OM_MACHINE_MAX_STATE_DEPTH);
+    }
+    while(search_state != OM_TOP_STATE);
+
+    // Add top state 
+    path[idx] = OM_TOP_STATE;
+    idx++;
+
+    // Return path length
+    return idx;
+}
+

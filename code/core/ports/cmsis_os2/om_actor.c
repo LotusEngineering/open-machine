@@ -23,25 +23,16 @@ static int om_actor_count = 0;
 
 static void om_actor_event_loop(void* argument);
 
-#if 0
-OmActor* om_actor_new(OmMachine* machine)
+
+void om_actor_ctor(OmActor* self, OmInitHandler initial_trans)
 {
-    OmActor* new_actor =  &om_actor_table[om_actor_count];
-    new_actor->machine = machine;
-
-    om_actor_count++;
-
-    // Too many actors, update config, or better yet simplify your design
-    OM_ASSERT(om_actor_count < OM_ACTOR_MAX_ACTORS);
-
-    return  new_actor;
+    om_actor_ctor_trace(self, initial_trans, NULL, NULL, OM_TF_NONE);
 }
-#endif
 
-void om_actor_ctor(OmActor* self, OmInitHandler initial_trans, const char* name, OmTrace* trace )
+void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags)
 {
-    // Call base machine constructor
-    om_ctor(&self->base, initial_trans, name, trace);
+    // Call base machine trace constructor
+    om_ctor_trace(&self->base, initial_trans, name, trace, flags);
 
     self->port = &om_actor_table[om_actor_count];
     om_actor_count++;
@@ -55,7 +46,6 @@ void om_actor_ctor(OmActor* self, OmInitHandler initial_trans, const char* name,
     self->port->thread_id = NULL;
     self->port->queue_id = NULL; 
 }
-
 
 void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t stack_size)
 {
@@ -72,6 +62,8 @@ void om_actor_stop(OmActor* self)
 {
     //TODO graceful shutdown
     osThreadTerminate(self->port->thread_id);
+    osThreadJoin(self->port->thread_id);
+    osMessageQueueDelete(self->port->queue_id);
 }
 
 void om_actor_post(OmActor* self, OmEvent const * const event)
@@ -96,6 +88,5 @@ void om_actor_event_loop(void* argument)
         {
             om_dispatch(&self->base, event);
         }        
-
     }
 }

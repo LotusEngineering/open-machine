@@ -2,7 +2,7 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "CMake-hsm_test",
+			"label": "CMake-mingw-hsm_test",
 			"type": "shell",
 			"group": {
 				"kind": "build",
@@ -39,10 +39,10 @@
 			"command": "hsm_test",
 			"args": [
 			],
-			"dependsOn":["Build-hsm_test"]
+			"dependsOn":["Build-mingw-hsm_test"]
         },
 		{
-			"label": "Build-hsm_test",
+			"label": "Build-mingw-hsm_test",
 			"type": "shell",
 			"group": {
 				"kind": "build",

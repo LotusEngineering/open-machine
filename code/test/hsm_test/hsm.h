@@ -1,9 +1,9 @@
-#ifndef MUT_H_
-#define MUT_H_
+#ifndef HSM_H_
+#define HSM_H_
 #include "om.h"
 
 
-enum MutSignals
+enum HsmSignals
 {
     EVT_A = OM_EVT_USER,
     EVT_B,
@@ -38,7 +38,7 @@ static const OmEvent EventZ = {EVT_Z, "EVT_Z"};
 typedef struct 
 {
     OmMachine base;
-}Mut;
+}Hsm;
 
 /**
  * @brief Constructs the machine under test
@@ -46,7 +46,7 @@ typedef struct
  * @param self 
  * @param trace 
  */
-void mut_ctor(Mut * const self, OmTrace* trace);
+void hsm_ctor(Hsm * const self, OmTrace* trace);
 
 
 

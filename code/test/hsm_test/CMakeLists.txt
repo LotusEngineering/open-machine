@@ -17,6 +17,6 @@ target_sources(${PROJECT_NAME} PRIVATE
             ../../core/src/om_trace.c
             ../unity/src/unity.c
             ../unity/extras/fixture/src/unity_fixture.c
-            mut.c
+            hsm.c
             main.c
             )

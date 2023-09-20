@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "unity.h"
 #include "unity_fixture.h"
-#include "mut_tests.c"
+#include "hsm_tests.c"
 
 static void run_all_tests(void)
 {
-    RUN_TEST_GROUP(mut_tests);
+    RUN_TEST_GROUP(hsm_tests);
 }
 
 

@@ -23,6 +23,7 @@ typedef struct
     size_t entry_list_size;
     size_t write_index;
     size_t read_index;
+    uint64_t elapsed_time_usec;
 }OmTrace;
 
 // Helper Macros for tracing values, assumes module has a trace member
@@ -55,5 +56,14 @@ bool om_trace_read(OmTrace* self, OmTraceLogEntry* entry);
  * @param self 
  */
 void om_trace_clear(OmTrace* self);
+
+
+/// @brief Function to be called by application to provide trace timestamp
+/// @param elapse_usec 
+
+/// @brief Function to be called by application to provide trace timestamp
+/// @param self 
+/// @param elapsed_usec How much time since last call (delta time)
+void om_trace_tick(OmTrace* self, uint32_t elapsed_usec);
 
 #endif

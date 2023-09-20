@@ -32,6 +32,7 @@
 #include "usart.h"
 
 
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,6 +41,7 @@
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
+#define OM_TRACE_TICK_MSEC 100
 /* USER CODE BEGIN PD */
 
 /* USER CODE END PD */
@@ -60,21 +62,27 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for om_trace_timer */
+osTimerId_t om_trace_timerHandle;
+const osTimerAttr_t om_trace_timer_attributes = {
+  .name = "om_trace_timer"
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 // Printf Support
-#if defined(__GNUC__)
+//#if defined(__GNUC__)
 int _write(int fd, char * ptr, int len)
 {
   HAL_UART_Transmit(&huart3, (uint8_t *) ptr, len, HAL_MAX_DELAY);
   return len;
 }
-#endif
+//#endif
 
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
+void om_trace_timer_cb(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -96,6 +104,10 @@ void MX_FREERTOS_Init(void) {
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
+  /* Create the timer(s) */
+  /* creation of om_trace_timer */
+  om_trace_timerHandle = osTimerNew(om_trace_timer_cb, osTimerPeriodic, NULL, &om_trace_timer_attributes);
+
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
@@ -109,8 +121,10 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  blinky_init();
- // volatile osStatus_t status = osTimerStart(myTimer01Handle, 1000);
+  blinky_actors_start();
+
+  // Start Trace timer
+  osTimerStart(om_trace_timerHandle, OM_TRACE_TICK_MSEC);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -139,15 +153,24 @@ void StartDefaultTask(void *argument)
   OmTraceLogEntry trace_record;
   for(;;)
   {
-    if(om_trace_read(&trace, &trace_record))
+    if(om_trace_read(&blinky_trace, &trace_record))
     {
-      //printf("%s\n", trace_record.message);
-      HAL_UART_Transmit(&huart3, (uint8_t *) trace_record.message, strnlen(trace_record.message, OM_TRACE_MAX_MESSAGE_LENGTH), HAL_MAX_DELAY);
-      HAL_UART_Transmit(&huart3, (uint8_t *) "\n", 1, HAL_MAX_DELAY);
+      printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
+//      HAL_UART_Transmit(&huart3, (uint8_t *) trace_record.message, strnlen(trace_record.message, OM_TRACE_MAX_MESSAGE_LENGTH), HAL_MAX_DELAY);
+//      HAL_UART_Transmit(&huart3, (uint8_t *) "\n", 1, HAL_MAX_DELAY);
+//      printf("\n"); // Fun fact, seems it doesn't go out unless you put a LF
     }
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
+}
+
+/* om_trace_timer_cb function */
+void om_trace_timer_cb(void *argument)
+{
+  /* USER CODE BEGIN om_trace_timer_cb */
+  om_trace_tick(&blinky_trace, OM_TRACE_TICK_MSEC);
+  /* USER CODE END om_trace_timer_cb */
 }
 
 /* Private application code --------------------------------------------------*/
