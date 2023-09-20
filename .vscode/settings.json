@@ -1,0 +1,15 @@
+{
+    "makefile.makefilePath": "./code/examples/blinky/nucleo_h743_freertos/Makefile",
+    "makefile.makeDirectory": "./code/examples/blinky/nucleo_h743_freertos",
+    "files.associations": {
+        "stdio.h": "c",
+        "stdint.h": "c",
+        "cstdarg": "c",
+        "om.h": "c",
+        "mut.h": "c",
+        "typeinfo": "c",
+        "cmsis_os2.h": "c",
+        "portmacro.h": "c"
+    },
+    "makefile.phonyOnlyTargets": false
+}
