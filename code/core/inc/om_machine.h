@@ -1,5 +1,5 @@
-#ifndef OM_H
-#define OM_H
+#ifndef OM_MACHINE_H_
+#define OM_MACHINE_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -145,4 +145,4 @@ bool om_dispatch(OmMachine * const self, OmEvent const * const event);
  */
 int om_get_exit_code(OmMachine* self);
 
-#endif // OM_H
+#endif // OM_MACHINE_H_

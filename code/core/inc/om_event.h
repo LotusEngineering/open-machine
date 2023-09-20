@@ -43,4 +43,8 @@ typedef struct
     bool is_active;
 }OmTimeEvent;
 
+
+
+//OmEvent* om_event_new(size_t event_size, OmSignal signal);
+
 #endif //OM_EVENT_H_

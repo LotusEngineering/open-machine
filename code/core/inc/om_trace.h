@@ -67,4 +67,4 @@ bool om_trace_is_full(OmTrace* self);
 /// @param elapsed_usec How much time since last call (delta time)
 void om_trace_tick(OmTrace* self, uint32_t elapsed_usec);
 
-#endif
+#endif //OM_TRACE_H_
