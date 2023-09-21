@@ -9,7 +9,10 @@
         "mut.h": "c",
         "typeinfo": "c",
         "cmsis_os2.h": "c",
-        "portmacro.h": "c"
+        "portmacro.h": "c",
+        "cmath": "cpp",
+        "limits": "cpp",
+        "type_traits": "cpp"
     },
     "makefile.phonyOnlyTargets": false
 }

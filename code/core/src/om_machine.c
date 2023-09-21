@@ -7,9 +7,9 @@
 OM_ASSERT_SET_FILE_NAME();
 
 // Om Internal events
-static const OmEvent OmInitEvent = {OM_EVT_INIT, "OM_EVT_INIT"};
-static const OmEvent OmEntryEvent = {OM_EVT_ENTER, "OM_EVT_ENTER"};
-static const OmEvent OmExitEvent = {OM_EVT_EXIT, "OM_EVT_EXIT"};
+OM_EVENT(OmInitEvent, OM_EVT_INIT);
+OM_EVENT(OmEntryEvent, OM_EVT_ENTER);
+OM_EVENT(OmExitEvent, OM_EVT_EXIT);
 
 // Private functions
 static inline OmStateResult om_call_state_handler_(OmMachine * const self, OmState* state, OmEvent const * const event);
@@ -93,6 +93,12 @@ void om_enter(OmMachine * const self)
     self->is_active = true;
 }
 
+void om_exit(OmMachine* const self, int exit_code)
+{   
+    self->is_active = false;
+    self->exit_code = exit_code;
+    ///#todo call exit functions?
+}
 
 bool om_dispatch(OmMachine * const self, OmEvent const * const event)
 {

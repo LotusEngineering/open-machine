@@ -8,7 +8,7 @@ enum BinkySignals
     EVT_TIMEOUT = OM_EVT_USER    
 };
 
-OM_EVT_DEFINE(TIMEOUT);
+OM_TIME_EVENT(TimeoutEvt, EVT_TIMEOUT);
 
 // Declare Init trans
 OmStateResult blinky_init_trans(Blinky* self);
@@ -31,6 +31,15 @@ Blinky blink_green;
 void om_assert_handler(const char *file_name, int line)
 {
     om_trace_write(&blinky_trace, "ASSERT! File: %s, Line: %d", file_name, line);
+    bsp_set_led_on(BSP_LED_RED);
+    bsp_set_led_on(BSP_LED_GREEN);
+    bsp_set_led_on(BSP_LED_YELLOW);
+
+    while(1)
+    {
+        continue;
+
+    }
 }
 
 
@@ -56,9 +65,9 @@ void blinky_actors_start(void)
 void blinky_ctor(Blinky* self,const char* name, OmTrace* trace, Led_ID led_id, uint32_t blink_time_ms)
 {
     // Call base actor trace constructor, only show transitions
-    om_actor_ctor_trace(&self->base, OM_INIT_CAST(blinky_init_trans), name, trace, OM_TF_TRANS);
+    om_actor_ctor_trace(&self->base, OM_INIT_CAST(blinky_init_trans), name, trace, OM_TF_TRANS | OM_TF_ENTER);
 
-    om_timer_ctor(&self->timer, &self->base, OM_TIMER_PERIODIC, &Event_TIMEOUT);
+    om_timer_ctor(&self->timer, &self->base, OM_TIMER_PERIODIC, &TimeoutEvt);
 
     self->led_id = led_id;
     self->blink_time_ms = blink_time_ms;
@@ -81,6 +90,7 @@ OM_STATE_DEFINE(Blinky, Off)
     {
         case OM_EVT_ENTER:
             bsp_set_led_off(self->led_id);
+            result = OM_RES_HANDLED;
         break;
         case EVT_TIMEOUT:
             result = OM_TRANS(On);
@@ -100,6 +110,7 @@ OM_STATE_DEFINE(Blinky, On)
     {
         case OM_EVT_ENTER:
             bsp_set_led_on(self->led_id);
+            result = OM_RES_HANDLED;
         break;
         case EVT_TIMEOUT:
             result = OM_TRANS(Off);

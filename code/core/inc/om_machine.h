@@ -23,6 +23,10 @@ typedef enum
 /// @brief Initial Transition Handler
 typedef OmStateResult (*OmInitHandler)(OmMachine * const self);
 
+
+#define OM_INIT_CAST(init_handler_) (OmInitHandler)(init_handler_)
+
+
 /// @brief State Event Handler Signature
 typedef OmStateResult (*OmStateHandler)(OmMachine * const self, OmEvent const * const event);
 
@@ -81,7 +85,7 @@ OmState state_name_ = { (OmStateHandler)CONCAT(state_name_, _handler), parent_pt
 typedef enum 
 {
     OM_TF_NONE = 0x00,
-    OM_TF_ENTER = 0x01,
+    OM_TF_ENTER = 0x01, ///< Entry of whole machine
     OM_TF_HANDLED = 0x02,
     OM_TF_IGNORED = 0x04,
     OM_TF_TRANS = 0x08,
@@ -123,9 +127,10 @@ void om_ctor_trace(OmMachine * const self, OmInitHandler initial_trans, const ch
 
 /// @brief Enters the state machine via the intial transition provided in the constructor
 /// @param self State machine
-void om_enter(OmMachine * const self);
+void om_enter(OmMachine* const self);
 
 
+void om_exit(OmMachine* const self, int exit_code);
 
 /**
  * @brief Dispatches an event into a state machine

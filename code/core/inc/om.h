@@ -7,9 +7,9 @@
 #include "om_trace.h"
 #include "om_actor.h"
 #include "om_timer.h"
+#include "om_pool.h"
 
 
-#define OM_INIT_CAST(init_handler_) (OmInitHandler)(init_handler_)
 
 
 #endif //OM_H_

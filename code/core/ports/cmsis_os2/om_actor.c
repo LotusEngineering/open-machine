@@ -1,9 +1,11 @@
+#include "cmsis_os2.h"
 
 #include "om_assert.h"
 #include "om_machine.h"
 #include "om_config.h"
 #include "om_actor.h"
-#include "cmsis_os2.h"
+#include "om_timer.h"
+#include "om_pool.h"
 
 OM_ASSERT_SET_FILE_NAME();
 
@@ -60,15 +62,21 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
 
 void om_actor_stop(OmActor* self)
 {
-    //TODO graceful shutdown
+    //TODO graceful shutdown by clearing queue and posting 
     osThreadTerminate(self->port->thread_id);
     osThreadJoin(self->port->thread_id);
     osMessageQueueDelete(self->port->queue_id);
+    
 }
 
-void om_actor_post(OmActor* self, OmEvent const * const event)
+void om_actor_message(OmActor* self, OmEvent const * const message)
 {
-    osStatus_t status = osMessageQueuePut(self->port->queue_id, (void *)&event, 0, 0);
+    if(message->type == OM_ET_POOL)
+    {
+        OM_POOL_EVENT_CAST(message)->reference_count++;        
+    }
+
+    osStatus_t status = osMessageQueuePut(self->port->queue_id, (void *)&message, 0, 0);
     OM_ASSERT(status == osOK);
 }
 
@@ -77,8 +85,9 @@ void om_actor_event_loop(void* argument)
 {
     osStatus_t status;
     OmEvent const * event;
-
     OmActor* self = (OmActor*)argument;
+    
+    // Enter the state machine
     om_enter(&self->base);
 
     while(1)
@@ -86,7 +95,32 @@ void om_actor_event_loop(void* argument)
         status = osMessageQueueGet(self->port->queue_id, &event, NULL, 0U);   // wait for message
         if (status == osOK) 
         {
-            om_dispatch(&self->base, event);
+            if(event->type == OM_ET_TIME)
+            {
+                // Check for stale time events
+                if (OM_TIME_EVENT_CAST(event)->is_running)
+                {
+                    om_dispatch(&self->base, event);
+                }
+            }
+            if(event->type == OM_ET_POOL)
+            {
+                OmPoolEvent* pool_event = OM_POOL_EVENT_CAST(event);
+                
+                // Should have been incremented in om_actor_message()
+                OM_ASSERT(pool_event->reference_count >= 1);
+
+                om_dispatch(&self->base, event);
+                
+                if (OM_POOL_EVENT_CAST(event)->reference_count == 0)
+                {
+                    om_pool_free(pool_event);
+                }
+            }
+            else
+            {
+                om_dispatch(&self->base, event);
+            }
         }        
     }
 }

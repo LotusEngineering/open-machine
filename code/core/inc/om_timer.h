@@ -9,10 +9,19 @@
 // Port specific data
 typedef struct OmTimerPort OmTimerPort;
 
+
+
+typedef struct 
+{
+    OmEvent base;
+    bool is_running;
+}OmTimeEvent;
+
+
 typedef struct 
 {
     OmActor* actor;
-    OmEvent const * timeout_event;
+    OmTimeEvent* time_event;
     OmTimerPort* port;
 }OmTimer;
 
@@ -22,7 +31,13 @@ typedef enum
     OM_TIMER_PERIODIC
 }OmTimerMode;
 
-void om_timer_ctor(OmTimer* self, OmActor* actor, OmTimerMode mode, OmEvent const * timeout_event);
+
+
+#define OM_TIME_EVENT(event_name_, signal_) static OmTimeEvent (event_name_) = { {OM_ET_TIME,  signal_, #signal_}, false}  
+
+#define OM_TIME_EVENT_CAST(event_name_) ((OmTimeEvent *)event_name_)
+
+void om_timer_ctor(OmTimer* self, OmActor* actor, OmTimerMode mode, OmTimeEvent* const time_event);
 
 void om_timer_start(OmTimer* self, uint32_t time_ms);
 

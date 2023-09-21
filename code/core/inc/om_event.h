@@ -2,6 +2,7 @@
 #define OM_EVENT_H_
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 enum OmReservedSignals
 {
@@ -13,38 +14,30 @@ enum OmReservedSignals
 
 typedef uint32_t OmSignal;
 
-enum OmEventType
+typedef enum 
 {
     OM_ET_STATIC,
-    OM_ET_POOL,
+    OM_ET_POOL, ///< Dynamically allocated from a memory pool
+    OM_ET_TIME, ///< Event used with timers
+}OmEventType;
 
-    OM_ET_TIME,
-};
 
 typedef struct 
 {
+    OmEventType type;
     OmSignal signal;
     const char* name;
-
 }OmEvent;
 
 
+
 /**
- * @brief Helper macro for defining const events
+ * @brief Helper macro for defining static const events
  * 
  */
-#define OM_EVT_DEFINE(event_name_) static const OmEvent Event_ ## event_name_ = {EVT_ ## event_name_, "EVT_" #event_name_}  
+#define OM_EVENT(event_name_, signal_) static const OmEvent (event_name_) = {OM_ET_STATIC,  signal_, #signal_}  
 
-typedef struct 
-{
-    OmEvent base;
-    uint32_t timeout_us;
-    bool repeat;
-    bool is_active;
-}OmTimeEvent;
+#define OM_EVENT_CAST(event_type_, event_name_) ((event_type_)event_name_)
 
-
-
-//OmEvent* om_event_new(size_t event_size, OmSignal signal);
 
 #endif //OM_EVENT_H_

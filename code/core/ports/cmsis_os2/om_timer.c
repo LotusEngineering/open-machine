@@ -21,10 +21,15 @@ static int om_timer_count = 0;
 static void om_timer_callback(void* argument);
 
 
-void om_timer_ctor(OmTimer* self, OmActor* actor, OmTimerMode mode, OmEvent const * timeout_event)
+void om_timer_ctor(OmTimer* self, OmActor* actor, OmTimerMode mode, OmTimeEvent* const time_event)
 {
     self->actor = actor;
-    self->timeout_event = timeout_event;
+    
+    // Time events must be used with timer
+    OM_ASSERT(time_event->base.type == OM_ET_TIME);
+
+    self->time_event = time_event;
+
 
     self->port = &om_timer_table[om_timer_count];
     om_timer_count++;
@@ -44,6 +49,7 @@ void om_timer_ctor(OmTimer* self, OmActor* actor, OmTimerMode mode, OmEvent cons
 
 void om_timer_start(OmTimer* self, uint32_t time_ms)
 {
+    self->time_event->is_running = true;
     uint32_t tick_period_ms = 1000 / osKernelGetTickFreq();
     osStatus_t status = osTimerStart(self->port->timer_id, time_ms / tick_period_ms);
     OM_ASSERT(status == osOK);
@@ -56,6 +62,8 @@ bool om_timer_is_running(OmTimer* self)
 
 void om_timer_stop(OmTimer* self)
 {
+    // Mark the event as not running to avoid stale timer signals
+    self->time_event->is_running = false;
     osTimerStop(self->port->timer_id);
 }
 
@@ -63,5 +71,9 @@ void om_timer_callback(void* argument)
 {
     OmTimer* self = (OmTimer*)argument;
 
-    om_actor_post(self->actor, self->timeout_event);
+    // If event is running send to actor
+    if(self->time_event->is_running)
+    {
+        om_actor_message(self->actor, &self->time_event->base);
+    }
 }

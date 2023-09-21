@@ -3,6 +3,7 @@
 #include "om.h"
 
 
+
 enum HsmSignals
 {
     EVT_A = OM_EVT_USER,
@@ -19,19 +20,19 @@ enum HsmSignals
     EVT_Z
 };
 
-// Events used for testing
-static const OmEvent EventA = {EVT_A, "EVT_A"};
-static const OmEvent EventB = {EVT_B, "EVT_B"};
-static const OmEvent EventC = {EVT_C, "EVT_C"};
-static const OmEvent EventD = {EVT_D, "EVT_D"};
-static const OmEvent EventE = {EVT_E, "EVT_E"};
-static const OmEvent EventF = {EVT_F, "EVT_F"};
-static const OmEvent EventG = {EVT_G, "EVT_G"};
-static const OmEvent EventH = {EVT_H, "EVT_H"};
-static const OmEvent EventI = {EVT_I, "EVT_I"};
-static const OmEvent EventJ = {EVT_J, "EVT_J"};
-static const OmEvent EventX = {EVT_X, "EVT_X"};
-static const OmEvent EventZ = {EVT_Z, "EVT_Z"};
+// Events used for testing HSM
+OM_EVENT(EventA, EVT_A);
+OM_EVENT(EventB, EVT_B);
+OM_EVENT(EventC, EVT_C);
+OM_EVENT(EventD, EVT_D);
+OM_EVENT(EventE, EVT_E);
+OM_EVENT(EventF, EVT_F);
+OM_EVENT(EventG, EVT_G);
+OM_EVENT(EventH, EVT_H);
+OM_EVENT(EventI, EVT_I);
+OM_EVENT(EventJ, EVT_J);
+OM_EVENT(EventX, EVT_X);
+OM_EVENT(EventZ, EVT_Z);
 
 
 // The machine under test

@@ -32,12 +32,8 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
 
 void om_actor_stop(OmActor* self);
 
-void om_actor_post(OmActor* self, OmEvent const * const event);
+void om_actor_message(OmActor* self, OmEvent const * const message);
 
-/**
- * @brief Runs the actor framework, will not return
- * 
- */
-void om_actor_kernel_run();
+
 
 #endif// OM_ACTOR_H_
