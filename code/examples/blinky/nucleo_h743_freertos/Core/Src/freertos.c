@@ -27,7 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <string.h>
-#include "blinky.h"
+#include "application.h"
 #include "om.h"
 #include "usart.h"
 
@@ -121,7 +121,7 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  blinky_actors_start();
+  application_start(osPriorityNormal);
 
   // Start Trace timer
   osTimerStart(om_trace_timerHandle, OM_TRACE_TICK_MSEC);
@@ -154,11 +154,11 @@ void StartDefaultTask(void *argument)
   
   for(;;)
   {
-    if(om_trace_is_full(&blinky_trace))
+    if(om_trace_is_full(&application_trace))
     {
       printf("WARNING!! Blinky Trace is Full!\n");
     }
-    if(om_trace_read(&blinky_trace, &trace_record))
+    if(om_trace_read(&application_trace, &trace_record))
     {
       printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
     }
@@ -172,7 +172,7 @@ void StartDefaultTask(void *argument)
 void om_trace_timer_cb(void *argument)
 {
   /* USER CODE BEGIN om_trace_timer_cb */
-  om_trace_tick(&blinky_trace, OM_TRACE_TICK_MSEC * 1000);
+  om_trace_tick(&application_trace, OM_TRACE_TICK_MSEC * 1000);
   /* USER CODE END om_trace_timer_cb */
 }
 

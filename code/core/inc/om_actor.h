@@ -32,7 +32,7 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
 
 void om_actor_stop(OmActor* self);
 
-void om_actor_message(OmActor* self, OmEvent const * const message);
+void om_actor_message(OmActor* self, OmEvent * const message);
 
 
 

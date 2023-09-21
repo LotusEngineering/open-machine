@@ -69,13 +69,14 @@ void om_actor_stop(OmActor* self)
     
 }
 
-void om_actor_message(OmActor* self, OmEvent const * const message)
+void om_actor_message(OmActor* self, OmEvent * const message)
 {
+#if 0
     if(message->type == OM_ET_POOL)
     {
         OM_POOL_EVENT_CAST(message)->reference_count++;        
     }
-
+#endif
     osStatus_t status = osMessageQueuePut(self->port->queue_id, (void *)&message, 0, 0);
     OM_ASSERT(status == osOK);
 }
@@ -103,7 +104,8 @@ void om_actor_event_loop(void* argument)
                     om_dispatch(&self->base, event);
                 }
             }
-            if(event->type == OM_ET_POOL)
+#if 0
+            else if(event->type == OM_ET_POOL)
             {
                 OmPoolEvent* pool_event = OM_POOL_EVENT_CAST(event);
                 
@@ -117,6 +119,7 @@ void om_actor_event_loop(void* argument)
                     om_pool_free(pool_event);
                 }
             }
+#endif
             else
             {
                 om_dispatch(&self->base, event);
