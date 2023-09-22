@@ -8,6 +8,7 @@
 #include "om_actor.h"
 #include "om_timer.h"
 #include "om_pool.h"
+#include "om_bus.h"
 
 
 

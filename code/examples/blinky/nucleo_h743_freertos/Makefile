@@ -87,10 +87,10 @@ C_SOURCES += ../../../core/src/om_machine.c
 C_SOURCES += ../../../core/src/om_trace.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_actor.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_timer.c
-#C_SOURCES += ../../../core/ports/cmsis_os2/om_pool.c
+C_SOURCES += ../../../core/ports/cmsis_os2/om_pool.c
 C_SOURCES += ../blinky.c
 C_SOURCES += ../application.c
-C_SOURCES += bsp.c
+C_SOURCES += board.c
 # USER CODE END
 
 

@@ -20,7 +20,7 @@ typedef enum
     OM_RES_EXIT,       ///< Event triggered exiting of state machine
 }OmStateResult;
 
-/// @brief Initial Transition Handler
+/// @brief Initial Transition Handler Signature
 typedef OmStateResult (*OmInitHandler)(OmMachine * const self);
 
 
@@ -30,7 +30,7 @@ typedef OmStateResult (*OmInitHandler)(OmMachine * const self);
 /// @brief State Event Handler Signature
 typedef OmStateResult (*OmStateHandler)(OmMachine * const self, OmEvent const * const event);
 
-// Top of state hierarchy
+// Top of state hierarchy, set to parent for top-most states
 #define OM_TOP_STATE   NULL
 
 typedef struct OmState

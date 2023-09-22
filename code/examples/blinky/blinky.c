@@ -46,7 +46,7 @@ OM_STATE_DEFINE(Blinky, Off)
     switch(event->signal)
     {
         case OM_EVT_ENTER:
-            bsp_set_led_off(self->led_id);
+            board_set_led_off(self->led_id);
             result = OM_RES_HANDLED;
         break;
         case EVT_TIMEOUT:
@@ -66,7 +66,7 @@ OM_STATE_DEFINE(Blinky, On)
     switch(event->signal)
     {
         case OM_EVT_ENTER:
-            bsp_set_led_on(self->led_id);
+            board_set_led_on(self->led_id);
             result = OM_RES_HANDLED;
         break;
         case EVT_TIMEOUT:

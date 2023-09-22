@@ -41,9 +41,8 @@
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
-#define OM_TRACE_TICK_MSEC 100
 /* USER CODE BEGIN PD */
-
+#define OM_TRACE_TICK_MSEC 100
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -145,7 +144,7 @@ void StartDefaultTask(void *argument)
   /* USER CODE BEGIN StartDefaultTask */
   printf("\n\n\n");
   printf("***************************************\n");
-  printf("*** Blinky        - FreeRTOS        ***\n");
+  printf("*** Blinky Example on FreeRTOS      ***\n");
   printf("***************************************\n");
 
   

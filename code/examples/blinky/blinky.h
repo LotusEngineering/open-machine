@@ -2,7 +2,7 @@
 #define BLINKY_H_
 #include <stdint.h>
 #include "om.h"
-#include "bsp.h"
+#include "board.h"
 
 // The machine under test
 typedef struct 

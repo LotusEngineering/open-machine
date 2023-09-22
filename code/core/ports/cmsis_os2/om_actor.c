@@ -66,17 +66,16 @@ void om_actor_stop(OmActor* self)
     osThreadTerminate(self->port->thread_id);
     osThreadJoin(self->port->thread_id);
     osMessageQueueDelete(self->port->queue_id);
-    
 }
 
 void om_actor_message(OmActor* self, OmEvent * const message)
 {
-#if 0
+    // Increase reference count for pooled events
     if(message->type == OM_ET_POOL)
     {
         OM_POOL_EVENT_CAST(message)->reference_count++;        
     }
-#endif
+
     osStatus_t status = osMessageQueuePut(self->port->queue_id, (void *)&message, 0, 0);
     OM_ASSERT(status == osOK);
 }
@@ -93,37 +92,37 @@ void om_actor_event_loop(void* argument)
 
     while(1)
     {
-        status = osMessageQueueGet(self->port->queue_id, &event, NULL, 0U);   // wait for message
-        if (status == osOK) 
-        {
-            if(event->type == OM_ET_TIME)
-            {
-                // Check for stale time events
-                if (OM_TIME_EVENT_CAST(event)->is_running)
-                {
-                    om_dispatch(&self->base, event);
-                }
-            }
-#if 0
-            else if(event->type == OM_ET_POOL)
-            {
-                OmPoolEvent* pool_event = OM_POOL_EVENT_CAST(event);
-                
-                // Should have been incremented in om_actor_message()
-                OM_ASSERT(pool_event->reference_count >= 1);
+        // Block on messages
+        status = osMessageQueueGet(self->port->queue_id, &event, NULL, osWaitForever);   
+        OM_ASSERT(status == osOK);
 
-                om_dispatch(&self->base, event);
-                
-                if (OM_POOL_EVENT_CAST(event)->reference_count == 0)
-                {
-                    om_pool_free(pool_event);
-                }
-            }
-#endif
-            else
+        if(event->type == OM_ET_TIME)
+        {
+            // Check for stale time events
+            if (OM_TIME_EVENT_CAST(event)->is_running)
             {
                 om_dispatch(&self->base, event);
             }
-        }        
-    }
+        }
+        else if(event->type == OM_ET_POOL)
+        {
+            // Check for memory pool events
+            OmPoolEvent* pool_event = OM_POOL_EVENT_CAST(event);
+            
+            // Should have been incremented in om_actor_message()
+            OM_ASSERT(pool_event->reference_count >= 1);
+
+            om_dispatch(&self->base, event);
+            
+            if (OM_POOL_EVENT_CAST(event)->reference_count == 0)
+            {
+                om_pool_free(pool_event);
+            }
+        }
+        else
+        {
+            om_dispatch(&self->base, event);
+        }
+               
+    }// while
 }
