@@ -54,14 +54,17 @@ void om_pool_init(void)
 }
 
 
-OmPoolEvent* om_pool_malloc(size_t event_size, OmSignal signal, const char* name)
+OmPoolEvent* om_pool_alloc(size_t event_size, OmSignal signal, const char* name)
 {
     OmPoolEvent* new_event = NULL;
 
     for(int idx = 0; idx < OM_POOL_NUM_POOLS; idx++)
     {
-        if (om_pool_table[idx].block_size <= event_size)
+        if (event_size <= om_pool_table[idx].block_size)
         {
+            // You must call om_pool_init
+            OM_ASSERT(om_pool_table[idx].pool_id);
+
             new_event = osMemoryPoolAlloc(om_pool_table[idx].pool_id, 0); 
 
             // Could not allocate event, ran out of space?
@@ -72,6 +75,8 @@ OmPoolEvent* om_pool_malloc(size_t event_size, OmSignal signal, const char* name
             new_event->base.name = name;
             new_event->reference_count = 0;
             new_event->port->pool_id = om_pool_table[idx].pool_id;
+
+            break;
         }
     }
 

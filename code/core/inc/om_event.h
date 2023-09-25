@@ -31,13 +31,15 @@ typedef struct
 
 
 
+
+
 /**
  * @brief Helper macro for defining static const events
  * 
  */
 #define OM_EVENT(event_name_, signal_) static const OmEvent (event_name_) = {OM_ET_STATIC,  signal_, #signal_}  
 
-#define OM_EVENT_CAST(event_type_, event_name_) ((event_type_)event_name_)
+#define OM_EVENT_CAST(event_type_) ((event_type_ const * const)event)
 
 
 #endif //OM_EVENT_H_

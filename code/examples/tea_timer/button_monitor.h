@@ -13,6 +13,6 @@ typedef struct
 }ButtonMonitor;
 
 
-void button_monitor_ctor(ButtonMonitor* self, OmTrace* trace, OmBus* button_bus);
+void button_monitor_ctor(ButtonMonitor* self, OmBus* button_bus, OmTrace* trace);
 
 #endif //BUTTON_MONITOR_H_ 

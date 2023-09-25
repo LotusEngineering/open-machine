@@ -12,7 +12,8 @@
         "portmacro.h": "c",
         "cmath": "cpp",
         "limits": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "application.h": "c"
     },
     "makefile.phonyOnlyTargets": false
 }

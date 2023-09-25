@@ -16,7 +16,7 @@ typedef struct
 }OmPoolEvent;
 
 
-#define OM_POOL_EVENT_NEW(event_type_, signal_) om_pool_malloc(sizeof(event_type_), signal_, #signal_)
+#define OM_POOL_EVENT_NEW(event_type_, signal_) (event_type_ *)(om_pool_alloc(sizeof(event_type_), signal_, #signal_))
 
 #define OM_POOL_EVENT_CAST(event_name_) ((OmPoolEvent *)event_name_)
 
@@ -29,7 +29,7 @@ void om_pool_init(void);
 /// @param signa 
 /// @param name 
 /// @return 
-OmPoolEvent* om_pool_malloc(size_t event_size, OmSignal signa, const char* name);
+OmPoolEvent* om_pool_alloc(size_t event_size, OmSignal signa, const char* name);
 
 
 

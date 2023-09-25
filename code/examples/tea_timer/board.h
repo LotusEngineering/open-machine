@@ -4,15 +4,16 @@
 
 typedef enum 
 {
-    BOARD_LED_RED,
-    BOARD_LED_YELLOW,
-    BOARD_LED_GREEN,
+    BOARD_LED_ALL_OFF = 0x00,
+    BOARD_LED_RED =  0x01,
+    BOARD_LED_YELLOW = 0x02,
+    BOARD_LED_GREEN = 0x04,
+    BOARD_LED_ALL_ON = BOARD_LED_RED | BOARD_LED_YELLOW | BOARD_LED_GREEN
 }Led_ID;
 
 
-void board_set_led_on(Led_ID led);
+void board_set_leds(Led_ID led_mask);
 
-void board_set_led_off(Led_ID led);
 
 bool board_button_is_down(void);
 

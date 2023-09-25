@@ -1,11 +1,11 @@
 #include "button_monitor.h"
-#include "application.h"
+#include "shared_signals.h"
 #include "om.h"
 #include "board.h"
 
 
 #define BUTTON_SCAN_TIME_MSEC 50
-#define BUTTON_DEBOUNCE_TIME_MS 250
+#define BUTTON_DEBOUNCE_TIME_MS 100
 #define BUTTON_MON_DEBOUNCE_LIMIT (BUTTON_DEBOUNCE_TIME_MS / BUTTON_SCAN_TIME_MSEC)
 #define BUTTON_HELD_TIME_MSEC 2000
 
@@ -14,7 +14,6 @@ enum ButtonMonSignals
 {
     EVT_SCAN_TIMEOUT = EVT_MAX_SHARED,
     EVT_HELD_TIMEOUT,
-
 };
 
 // Create events to publish on the button bus
@@ -38,13 +37,13 @@ OM_STATE_DECLARE(ButtonMonitor, Released, OM_TOP_STATE);
 
 
 
-void button_monitor_ctor(ButtonMonitor* self, OmTrace* trace, OmBus* button_bus)
+void button_monitor_ctor(ButtonMonitor* self, OmBus* button_bus, OmTrace* trace)
 {
     self->debounce_counter = 0;
     self->button_bus = button_bus;
 
-    // Call base actor trace constructor, only show transitions
-    om_actor_ctor_trace(&self->base, OM_INIT_CAST(button_monitor_init_trans), "ButtonMon", trace, OM_TF_TRANS);
+    // Call base actor trace constructor
+    om_actor_ctor_trace(&self->base, OM_INIT_CAST(button_monitor_init_trans), "ButtonMon", trace, OM_TF_NONE);
 
     // Create periodic timer
     om_timer_ctor(&self->scan_timer, &self->base, OM_TIMER_PERIODIC, &ScanTimeoutEvent);
@@ -97,7 +96,7 @@ OM_STATE_DEFINE(ButtonMonitor, Pressed)
             self->debounce_counter = 0; 
 
             // Publish Pressed Event
-            om_bus_publish(self->button_bus, &PressedEvt);
+            om_bus_publish(self->button_bus, (OmEvent*)(&PressedEvt));
 
             // Start Held Timer
             om_timer_start(&self->held_timer, BUTTON_HELD_TIME_MSEC);
@@ -136,7 +135,7 @@ OM_STATE_DEFINE(ButtonMonitor, Held)
     {
         case OM_EVT_ENTER:
             // Publish Held Event
-            om_bus_publish(self->button_bus, &HeldEvt);
+            om_bus_publish(self->button_bus, (OmEvent*)(&HeldEvt));
 
             result = OM_RES_HANDLED;
         break;
@@ -155,7 +154,7 @@ OM_STATE_DEFINE(ButtonMonitor, Released)
     {
         case OM_EVT_ENTER:
             // Publish Released Event
-            om_bus_publish(self->button_bus, &ReleasedEvt);
+            om_bus_publish(self->button_bus, (OmEvent*)(&ReleasedEvt));
 
             self->debounce_counter = 0; 
             result = OM_RES_HANDLED;

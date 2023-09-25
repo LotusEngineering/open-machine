@@ -23,51 +23,60 @@ void om_bus_subscribe(OmBus* self, OmActor* subscriber)
         {
             self->subscribers[i] = subscriber;
             self->subscriber_count++;
+            break;
         }   
     }
 }
 
 void om_bus_unsubscribe(OmBus* self, OmActor* subscriber)
 {
+    // Look for subscriber
     for (int i = 0; i < OM_ACTOR_MAX_ACTORS; i++)
     {
-        // Look for subscriber
+        // Found subscriber?
         if (self->subscribers[i] == subscriber)
         {
             self->subscribers[i] = NULL;
             self->subscriber_count--;
+            break;
         }   
     }
 }
 
-void om_bus_publish(OmBus* self, OmEvent * const event)
+bool om_bus_publish(OmBus* self, OmEvent * event)
 {
-    int publish_count = 0;
-    for (int i = 0; i < OM_ACTOR_MAX_ACTORS; i++)
+    int published_count = 0;
+    while (published_count < self->subscriber_count)
     {
-        // Message subscribers
-        if (self->subscribers[i] != NULL)
+        for (int i = 0; i < OM_ACTOR_MAX_ACTORS; i++)
         {
-            om_actor_message(self->subscribers[i], event); 
-            if (publish_count == self->subscriber_count)
+            // Message subscribers
+            if (self->subscribers[i] != NULL)
             {
-                break;
-            }
-            else
-            {
-                publish_count++;
-            }
-        }   
+                om_actor_message(self->subscribers[i], event); 
+                published_count++;
+                if (published_count == self->subscriber_count)
+                {
+                    break;
+                }
+            }   
+        }
     }
 
+    if (published_count == 0)
+    {
+        return false;
+
 #if 0
-    if ((publish_count == 0) && (event->type == OM_ET_POOL))
-    {   
         ///Hmmmm
-        if (OM_POOL_EVENT_CAST(event)->reference_count == 0)
+        if ((event->type == OM_ET_POOL) && (OM_POOL_EVENT_CAST(event)->reference_count == 0))
         {
             om_pool_free(OM_POOL_EVENT_CAST(event));
         }        
-    }
 #endif
+    }
+    else
+    {
+        return true;
+    }
 }

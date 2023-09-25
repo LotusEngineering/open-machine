@@ -68,8 +68,11 @@ void om_actor_stop(OmActor* self)
     osMessageQueueDelete(self->port->queue_id);
 }
 
-void om_actor_message(OmActor* self, OmEvent * const message)
+void om_actor_message(OmActor* self, OmEvent *  message)
 {
+
+    OM_ASSERT(self != NULL);
+
     // Increase reference count for pooled events
     if(message->type == OM_ET_POOL)
     {
@@ -114,7 +117,11 @@ void om_actor_event_loop(void* argument)
 
             om_dispatch(&self->base, event);
             
-            if (OM_POOL_EVENT_CAST(event)->reference_count == 0)
+            // Decrement the reference count
+            pool_event->reference_count--;
+
+            // Free if count is zero
+            if (pool_event->reference_count == 0)
             {
                 om_pool_free(pool_event);
             }
