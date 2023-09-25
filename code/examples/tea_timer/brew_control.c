@@ -4,10 +4,16 @@
 
 OM_ASSERT_SET_FILE_NAME();
 
+// Set to one to avoid long wait times while debugging
+#if 1 
+#define BREW_TIME_BLACK_SEC     24
+#define BREW_TIME_OOLONG_SEC    12
+#define BREW_TIME_GREEN_SEC     18
+#else
 #define BREW_TIME_BLACK_SEC     240
 #define BREW_TIME_OOLONG_SEC    120
 #define BREW_TIME_GREEN_SEC     180
-
+#endif
 
 // Private signals
 enum BrewControlSignals

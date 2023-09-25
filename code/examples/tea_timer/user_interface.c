@@ -52,16 +52,24 @@ OmStateResult ui_init_trans(UserInterface* self)
 OM_STATE_DEFINE(UserInterface, ui_idle)
 {
     OmStateResult result = OM_RES_IGNORED;
+    static int release_count = 0;
 
     switch(event->signal)
     {
         case OM_EVT_ENTER:
+            release_count = 0;
             board_set_leds(BOARD_LED_ALL_OFF);
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_RELEASE:
-            brew_control_send_start_request(self->brew_control, self->selected_type, &self->base);
-            result = OM_TRANS(ui_brewing);
+            release_count++;
+
+            // Ignore release on power up and when exiting configuration mode
+            if (release_count > 1)
+            {
+                brew_control_send_start_request(self->brew_control, self->selected_type, &self->base);
+                result = OM_TRANS(ui_brewing);
+            }
         break;
         case EVT_BUTTON_HELD:
             switch(self->selected_type)
@@ -167,9 +175,6 @@ OM_STATE_DEFINE(UserInterface, ui_config)
         case OM_EVT_EXIT:
             om_timer_stop(&self->status_timer);
             result = OM_RES_HANDLED;
-        break;
-        case EVT_BUTTON_HELD:
-            result = OM_TRANS(ui_idle);
         break;
         case EVT_STATUS_TIMEOUT:
             result = OM_TRANS(ui_idle);
