@@ -1,0 +1,66 @@
+@startuml
+
+skin rose
+
+'skinparam StateMessageAlignment left
+skinparam nodesep 200
+skinparam ranksep 60
+'skinparam linetype ortho
+'skinparam linetype polyline
+
+title HSM Under Test
+state S1
+state S2
+state S3
+
+
+[*] --> S1
+
+state S1{
+  S1: E:Handled
+  
+  state S11
+  [*]-->S11
+
+  state S11{
+    S11: D:Handled
+    
+    state S111
+    [*]->S111
+    S111: C:Handled
+    state S112
+  }
+
+}
+
+state S2{
+  state S21
+  [*]-->S21
+}
+
+state S3{
+  state S31
+  state S32
+}
+
+S1 --> S2 : A
+S1 --> S1 : I
+S2 --> S1 : B
+
+S111 --> S112: F
+S112 -> S111: F
+S111 -> S111: H
+
+
+S111 -> S21: G
+S21 -> S112: G
+
+S21 -> S31: J
+S31 --> S3: J
+S3 --> S32: J
+
+S11 --> [*] : X
+
+
+
+@enduml

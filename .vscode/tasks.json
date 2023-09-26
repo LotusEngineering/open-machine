@@ -1,0 +1,61 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "CMake-mingw-hsm_test",
+			"type": "shell",
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"options": {
+				"cwd": "${workspaceRoot}/code/test/hsm_test"
+			},
+			"command": "cmake",
+			"args": [
+				"-G",
+				"\"MinGW Makefiles\"",
+				"-S",
+				".",
+				"-B",
+				"./build",
+				"-DCMAKE_BUILD_TYPE=Debug",
+				"-DCMAKE_CXX_COMPILER=C:/MinGW/bin/g++.exe",
+				"-DCMAKE_C_COMPILER=C:/MinGW/bin/gcc.exe"
+			]
+		},
+		
+		{
+			"label": "Run-hsm_test",
+			"type": "shell",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"options": {
+				"cwd": "${workspaceRoot}/code/test/hsm_test/build"
+				
+			},
+			"command": "hsm_test",
+			"args": [
+			],
+			"dependsOn":["Build-mingw-hsm_test"]
+        },
+		{
+			"label": "Build-mingw-hsm_test",
+			"type": "shell",
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"options": {
+				"cwd": "${workspaceRoot}/code/test/hsm_test/build"
+				
+			},
+			"command": "C:/MinGW/bin/mingw32-make.exe",
+			"args": [
+			]
+		}
+		
+	]
+}

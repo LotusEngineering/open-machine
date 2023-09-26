@@ -1,0 +1,47 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Blinky-h743-Debug",
+            "cwd": "${workspaceFolder}/code/examples/blinky/nucleo_h743_freertos/",
+            "executable": "./build/nucleo_h743_freertos.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "stlink"
+        },
+        {
+            "name": "Tea Timer -h743-Debug",
+            "cwd": "${workspaceFolder}/code/examples/tea_timer/nucleo_h743_freertos/",
+            "executable": "./build/nucleo_h743_freertos.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "stlink"
+        },
+        {
+            "name": "hsm_test-mingw-Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/code/test/hsm_test/build/hsm_test.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/MinGW/bin/gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build-hsm_test"
+        }
+    ]
+}
