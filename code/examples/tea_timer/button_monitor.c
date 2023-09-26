@@ -1,3 +1,9 @@
+// Copyright 2023 Lotus Engineering LLC
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
 #include "button_monitor.h"
 #include "shared_signals.h"
 #include "om.h"
@@ -43,7 +49,7 @@ void button_monitor_ctor(ButtonMonitor* self, OmBus* button_bus, OmTrace* trace)
     self->button_bus = button_bus;
 
     // Call base actor trace constructor
-    om_actor_ctor_trace(&self->base, OM_INIT_CAST(button_monitor_init_trans), "ButtonMon", trace, OM_TF_NONE);
+    om_actor_ctor_trace(&self->base, OM_INIT_CAST(button_monitor_init_trans), "ButtonMonitor", trace, OM_TF_NONE);
 
     // Create periodic timer
     om_timer_ctor(&self->scan_timer, &self->base, OM_TIMER_PERIODIC, &ScanTimeoutEvent);

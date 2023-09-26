@@ -1,5 +1,11 @@
+// Copyright 2023 Lotus Engineering LLC
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 #ifndef OM_TIMER_H_
 #define OM_TIMER_H_
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "om_actor.h"
@@ -8,8 +14,6 @@
 
 // Port specific data
 typedef struct OmTimerPort OmTimerPort;
-
-
 
 typedef struct 
 {

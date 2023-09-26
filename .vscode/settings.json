@@ -13,7 +13,8 @@
         "cmath": "cpp",
         "limits": "cpp",
         "type_traits": "cpp",
-        "application.h": "c"
+        "application.h": "c",
+        "om_actor.h": "c"
     },
     "makefile.phonyOnlyTargets": false
 }

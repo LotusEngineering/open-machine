@@ -1,9 +1,16 @@
+// Copyright 2023 Lotus Engineering LLC
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
 #include "user_interface.h"
 #include "om.h"
 #include "board.h"
 #include "shared_signals.h"
 
-// If there is no activity in config mode for this time, go back to idle
+
+// If there are no button presses in config mode for this time, go back to idle
 #define CONFIG_INACTIVITY_TIMEOUT_MSEC  10000
 
 // Private signals
@@ -27,7 +34,7 @@ OM_STATE_DECLARE(UserInterface, ui_green, &ui_config);
 
 
 
-void ui_ctor(UserInterface* self, OmBus* button_bus, BrewControl* brew_control,  OmTrace* trace)
+void ui_ctor(UserInterface* self, OmBus* button_bus, OmActor* brew_control,  OmTrace* trace)
 {
     // Call base actor trace constructor, only show transitions
     om_actor_ctor_trace(&self->base, OM_INIT_CAST(ui_init_trans), "UI", trace, OM_TF_TRANS);
@@ -38,7 +45,7 @@ void ui_ctor(UserInterface* self, OmBus* button_bus, BrewControl* brew_control, 
     self->brew_control = brew_control;
 
     // Default to green tea, of course!
-    self->selected_type = TEA_TYPE_GREEN;
+    self->selected_tea = TEA_TYPE_GREEN;
 }
 
 OmStateResult ui_init_trans(UserInterface* self)
@@ -52,27 +59,30 @@ OmStateResult ui_init_trans(UserInterface* self)
 OM_STATE_DEFINE(UserInterface, ui_idle)
 {
     OmStateResult result = OM_RES_IGNORED;
-    static int release_count = 0;
+    static bool first_release = true;
 
     switch(event->signal)
     {
         case OM_EVT_ENTER:
-            release_count = 0;
             board_set_leds(BOARD_LED_ALL_OFF);
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_RELEASE:
-            release_count++;
 
-            // Ignore release on power up and when exiting configuration mode
-            if (release_count > 1)
+            // Ignore first release on power up 
+            if (!first_release)
             {
-                brew_control_send_start_request(self->brew_control, self->selected_type, &self->base);
+                // Send a brew request to the brew control
+                BrewRequestEvent* request = brew_request_event_new(self->selected_tea, &self->base);
+                om_actor_message(self->brew_control, (OmEvent *)(request));
+                
                 result = OM_TRANS(ui_brewing);
             }
+            first_release = false;
+
         break;
         case EVT_BUTTON_HELD:
-            switch(self->selected_type)
+            switch(self->selected_tea)
             {
                 case TEA_TYPE_BLACK:
                     result = OM_TRANS(ui_black);
@@ -195,7 +205,7 @@ OM_STATE_DEFINE(UserInterface, ui_black)
     {
         case OM_EVT_ENTER:
             board_set_leds(BOARD_LED_RED);
-            self->selected_type = TEA_TYPE_BLACK;
+            self->selected_tea = TEA_TYPE_BLACK;
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_PRESS:
@@ -219,7 +229,7 @@ OM_STATE_DEFINE(UserInterface, ui_oolong)
     {
         case OM_EVT_ENTER:
             board_set_leds(BOARD_LED_YELLOW);
-            self->selected_type = TEA_TYPE_OOLONG;
+            self->selected_tea = TEA_TYPE_OOLONG;
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_PRESS:
@@ -243,7 +253,7 @@ OM_STATE_DEFINE(UserInterface, ui_green)
     {
         case OM_EVT_ENTER:
             board_set_leds(BOARD_LED_GREEN);
-            self->selected_type = TEA_TYPE_GREEN;
+            self->selected_tea = TEA_TYPE_GREEN;
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_PRESS:

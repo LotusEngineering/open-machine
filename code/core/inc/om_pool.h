@@ -1,3 +1,9 @@
+// Copyright 2023 Lotus Engineering LLC
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
 #ifndef OM_POOL_H_
 #define OM_POOL_H_
 #include <stdint.h>

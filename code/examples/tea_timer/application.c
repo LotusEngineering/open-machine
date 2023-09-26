@@ -1,3 +1,9 @@
+// Copyright 2023 Lotus Engineering LLC
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
 #include "application.h"
 #include "button_monitor.h"
 #include "user_interface.h"
@@ -32,7 +38,7 @@ void application_start(int priority)
     // Create actors, inject any dependencies
     button_monitor_ctor(&button_mon, &button_bus, &application_trace);
     brew_control_ctor(&brew_control,  &application_trace);
-    ui_ctor(&user_interface, &button_bus, &brew_control, &application_trace);
+    ui_ctor(&user_interface, &button_bus, &brew_control.base, &application_trace);
 
     // Start actors
     om_actor_start(&button_mon.base, priority, 16, 128 * 8);

@@ -1,14 +1,20 @@
+// Copyright 2023 Lotus Engineering LLC
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
 #ifndef USER_INTERFACE_H_
 #define USER_INTERFACE_H_
 #include "om.h"
-#include "brew_control.h"
+#include "brew_events.h"
 
 typedef struct 
 {
     OmActor base;
     OmBus* button_bus;
-    BrewControl* brew_control;
-    TeaType selected_type;
+    OmActor* brew_control;
+    TeaType selected_tea;
     BrewStatus status;
     OmTimer status_timer;
 }UserInterface;
@@ -57,6 +63,6 @@ Config -> Idle : TIMEOUT
 
 */
 
-void ui_ctor(UserInterface* self, OmBus* button_bus, BrewControl* brew_control, OmTrace* trace);
+void ui_ctor(UserInterface* self, OmBus* button_bus, OmActor* brew_control, OmTrace* trace);
 
 #endif //USER_INTERFACE_H_ 
