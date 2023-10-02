@@ -42,6 +42,7 @@
                 }
             ],
             "preLaunchTask": "Build-mingw-hsm_test"
+
         }
     ]
 }

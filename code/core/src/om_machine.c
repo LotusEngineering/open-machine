@@ -54,7 +54,6 @@ void om_enter(OmMachine * const self)
 
     if(self->trace_flags & OM_TF_ENTER)
         OM_TRACE_FIVE(self->trace,  self->name, "OM_TOP_STATE", "om_enter()", "Trans", self->target_state->name);
-        //D om_trace_write(self->trace, "%s:OM_TOP_STATE:om_enter():TRANS(%s)", self->name, self->target_state->name);
 
     int target_depth = om_get_path_to_top_(self->target_state, self->dst_path);
 

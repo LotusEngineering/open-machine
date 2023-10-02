@@ -86,7 +86,6 @@ TEST(hsm_tests, init_test)
     // Check traces
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:OM_TOP_STATE:om_enter():Trans:S1", trace.message);
-
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_ENTER:Handled", trace.message);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
