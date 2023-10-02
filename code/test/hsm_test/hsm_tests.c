@@ -22,7 +22,8 @@ static bool assert_hit = false;
 void om_assert_handler(const char *file_name, int line)
 {
     assert_hit = true;
-    om_trace_write(&test_trace, "ASSERT! File: %s, Line: %d", file_name, line);
+    OM_TRACE_TWO(&test_trace, "ASSERT! File", file_name);
+    OM_TRACE_DEC(&test_trace, line);
 }
 
 // The machine under test instance
@@ -49,7 +50,7 @@ TEST(hsm_tests, trace_test)
 {
     for (int i = 0; i < TRACE_LIST_SIZE - 1; i++)
     {
-        TEST_ASSERT(om_trace_write(&test_trace, "%d", i));
+        TEST_ASSERT(om_trace_string(&test_trace, "Test"));
     }
 
     for (int i = 0; i < TRACE_LIST_SIZE - 1; i++)
@@ -57,9 +58,7 @@ TEST(hsm_tests, trace_test)
         OmTraceLogEntry trace;
         TEST_ASSERT(om_trace_read(&test_trace, &trace));
 
-        char buffer[8];
-        itoa(i, buffer, 10);
-        TEST_ASSERT_EQUAL_STRING(buffer, trace.message);
+        TEST_ASSERT_EQUAL_STRING("Test", trace.message);
     }
 }
 
@@ -86,17 +85,17 @@ TEST(hsm_tests, init_test)
 
     // Check traces
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:OM_TOP_STATE:om_enter():TRANS(S1)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:OM_TOP_STATE:om_enter():Trans:S1", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_ENTER:Handled", trace.message);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_INIT:TRANS(S11)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_INIT:Trans:S11", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_ENTER:Handled", trace.message);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_INIT:TRANS(S111)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_INIT:Trans:S111", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_ENTER:Handled", trace.message);
@@ -167,7 +166,7 @@ TEST(hsm_tests, trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S11:EVT_A:Ignored", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S1:EVT_A:TRANS(S2)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S1:EVT_A:Trans:S2", trace.message);
     
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_EXIT:Handled", trace.message);
@@ -182,7 +181,7 @@ TEST(hsm_tests, trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S2:OM_EVT_ENTER:Handled", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S2:OM_EVT_INIT:TRANS(S21)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S2:OM_EVT_INIT:Trans:S21", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:OM_EVT_ENTER:Handled", trace.message);
@@ -197,7 +196,7 @@ TEST(hsm_tests, trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:EVT_B:Ignored", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S2:EVT_B:TRANS(S1)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S2:EVT_B:Trans:S1", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:OM_EVT_EXIT:Handled", trace.message);
@@ -209,13 +208,13 @@ TEST(hsm_tests, trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_ENTER:Handled", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_INIT:TRANS(S11)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_INIT:Trans:S11", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_ENTER:Handled", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_INIT:TRANS(S111)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_INIT:Trans:S111", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_ENTER:Handled", trace.message);
@@ -238,7 +237,7 @@ TEST(hsm_tests, side_trans_test)
     om_dispatch(&hsm.base, &EventF);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_F:TRANS(S112)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_F:Trans:S112", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_EXIT:Handled", trace.message);
@@ -253,7 +252,7 @@ TEST(hsm_tests, side_trans_test)
     om_dispatch(&hsm.base, &EventF);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S112:EVT_F:TRANS(S111)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S112:EVT_F:Trans:S111", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S112:OM_EVT_EXIT:Handled", trace.message);
@@ -268,7 +267,7 @@ TEST(hsm_tests, side_trans_test)
     om_dispatch(&hsm.base, &EventG);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_G:TRANS(S21)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_G:Trans:S21", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_EXIT:Handled", trace.message);
@@ -292,7 +291,7 @@ TEST(hsm_tests, side_trans_test)
     om_dispatch(&hsm.base, &EventG);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S21:EVT_G:TRANS(S112)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S21:EVT_G:Trans:S112", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:OM_EVT_EXIT:Handled", trace.message);
@@ -327,7 +326,7 @@ TEST(hsm_tests, self_trans_test)
     om_dispatch(&hsm.base, &EventH);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_H:TRANS(S111)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_H:Trans:S111", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_EXIT:Handled", trace.message);
@@ -348,7 +347,7 @@ TEST(hsm_tests, self_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S11:EVT_I:Ignored", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S1:EVT_I:TRANS(S1)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S1:EVT_I:Trans:S1", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_EXIT:Handled", trace.message);
@@ -357,19 +356,19 @@ TEST(hsm_tests, self_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_EXIT:Handled", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_EXIT:Handled", trace.message);/// Problem, not exiting S1
+    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_EXIT:Handled", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_ENTER:Handled", trace.message); 
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_INIT:TRANS(S11)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_INIT:Trans:S11", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_ENTER:Handled", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_INIT:TRANS(S111)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_INIT:Trans:S111", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_ENTER:Handled", trace.message);
@@ -396,7 +395,7 @@ TEST(hsm_tests, local_trans_test)
     om_dispatch(&hsm.base, &EventJ);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S21:EVT_J:TRANS(S31)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S21:EVT_J:Trans:S31", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:OM_EVT_EXIT:Handled", trace.message);
@@ -417,7 +416,7 @@ TEST(hsm_tests, local_trans_test)
     om_dispatch(&hsm.base, &EventJ);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S31:EVT_J:TRANS(S3)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S31:EVT_J:Trans:S3", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S31:OM_EVT_EXIT:Handled", trace.message);
@@ -432,7 +431,7 @@ TEST(hsm_tests, local_trans_test)
     om_dispatch(&hsm.base, &EventJ);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S3:EVT_J:TRANS(S32)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S3:EVT_J:Trans:S32", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S32:OM_EVT_ENTER:Handled", trace.message);
@@ -458,7 +457,7 @@ TEST(hsm_tests, exit_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_X:Ignored", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:S11:EVT_X:EXIT(-1)", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:S11:EVT_X:Exit", trace.message);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_EXIT:Handled", trace.message);

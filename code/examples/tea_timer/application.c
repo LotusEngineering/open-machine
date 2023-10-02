@@ -50,7 +50,9 @@ void application_start(int priority)
 
 void om_assert_handler(const char *file_name, int line)
 {
-    om_trace_write(&application_trace, "ASSERT!!! File: %s, Line: %d", file_name, line);
+    OM_TRACE_TWO(&application_trace, "ASSERT!!! File", file_name);
+    OM_TRACE_DEC(&application_trace, line);
+    
     board_set_leds(BOARD_LED_ALL_ON);
 
     while(1)
