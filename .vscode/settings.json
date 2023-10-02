@@ -1,6 +1,6 @@
 {
-    "makefile.makefilePath": "./code/examples/blinky/nucleo_h743_freertos/Makefile",
-    "makefile.makeDirectory": "./code/examples/blinky/nucleo_h743_freertos",
+    "makefile.makefilePath": "./code/examples/blinky/blinky_h743/Makefile",
+    "makefile.makeDirectory": "./code/examples/blinky/blinky_h743",
     "files.associations": {
         "stdio.h": "c",
         "stdint.h": "c",
@@ -14,7 +14,10 @@
         "limits": "cpp",
         "type_traits": "cpp",
         "application.h": "c",
-        "om_actor.h": "c"
+        "om_actor.h": "c",
+        "om_config.h": "c",
+        "stdbool.h": "c",
+        "stddef.h": "c"
     },
     "makefile.phonyOnlyTargets": false
 }

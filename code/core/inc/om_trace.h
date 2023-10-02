@@ -22,7 +22,6 @@ typedef struct
 } OmTraceLogEntry;
 
 
-
 typedef struct 
 {
     OmTraceLogEntry* entry_list;
@@ -32,27 +31,46 @@ typedef struct
     uint64_t elapsed_time_usec;
 }OmTrace;
 
-// Helper Macros for tracing values, assumes module has a trace member
-#define OM_TRACE_INT(value_) om_trace_write(self->trace,  #value_ " = %d", value_)
-#define OM_TRACE_BOOL(value_) om_trace_write(#value_ " = %s", (value_) ? "true" : "false")
-
-
 
 void om_trace_ctor(OmTrace* self, OmTraceLogEntry* buffer, size_t buffer_size);
 
 
-/**
- * @brief Writes a trace message
- * 
- * @param self 
- * @param format 
- * @param ... 
- * @return true if message was written
- * @return false if message was not written because queue is full
- */
-bool om_trace_write(OmTrace* self, const char *format, ...);
+bool om_trace_int(OmTrace* self, char const * const name, int value, int base);
 
 
+// Helper Macros for tracing values, assumes module has a trace member
+#define OM_TRACE_HEX(self_, value_) om_trace_int(self_, #value_, value_, 16);
+#define OM_TRACE_DEC(self_, value_) om_trace_int(self_, #value_, value_, 10);
+
+bool om_trace_string(OmTrace* self, char const * const string);
+
+
+bool om_trace_fields(OmTrace* self, char const * const strings[], size_t num_strings);
+
+
+#define OM_TRACE_TWO(trace_, str1_, str2_) \
+do{ \
+    const char* trace_strings[] = {str1_, str2_}; \
+    om_trace_fields(trace_, trace_strings, 2);  \
+}while(0) 
+
+#define OM_TRACE_FOUR(trace_, str1_, str2_, str3_, str4_) \
+do{ \
+    const char* trace_strings[] = {str1_, str2_, str3_, str4_}; \
+    om_trace_fields(trace_, trace_strings, 4);  \
+}while(0) 
+
+#define OM_TRACE_FIVE(trace_, str1_, str2_, str3_, str4_, str5_) \
+do{ \
+    const char* trace_strings[] = {str1_, str2_, str3_, str4_, str5_}; \
+    om_trace_fields(trace_, trace_strings, 5);  \
+}while(0) 
+
+
+/// @brief Reads a trace entery
+/// @param self 
+/// @param entry 
+/// @return true if an entry was read
 bool om_trace_read(OmTrace* self, OmTraceLogEntry* entry);
 
 
@@ -72,5 +90,12 @@ bool om_trace_is_full(OmTrace* self);
 /// @param self 
 /// @param elapsed_usec How much time since last call (delta time)
 void om_trace_tick(OmTrace* self, uint32_t elapsed_usec);
+
+/// @brief Converts an integer to a string
+/// @param value 
+/// @param result 
+/// @param base 
+/// @return 
+char* om_trace_itoa(int value, char* result, int base);
 
 #endif //OM_TRACE_H_

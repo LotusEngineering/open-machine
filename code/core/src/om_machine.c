@@ -53,7 +53,7 @@ void om_enter(OmMachine * const self)
     OM_ASSERT(result == OM_RES_TRANSITION);
 
     if(self->trace_flags & OM_TF_ENTER)
-        om_trace_write(self->trace, "%s:OM_TOP_STATE:om_enter():TRANS(%s)", self->name, self->target_state->name);
+        OM_TRACE_FIVE(self->trace,  self->name, "OM_TOP_STATE", "om_enter()", "Trans", self->target_state->name);
 
     int target_depth = om_get_path_to_top_(self->target_state, self->dst_path);
 
@@ -112,7 +112,7 @@ bool om_dispatch(OmMachine * const self, OmEvent const * const event)
     if (!self->is_active)
     {
         if(self->trace_flags & OM_TF_IGNORED)
-            om_trace_write(self->trace, "%s:om_dispatch:%s:Ignored", self->name, event->name);
+            OM_TRACE_FOUR(self->trace,  self->name, "om_dispatch", event->name, "Ignored");
         return false;
     }
 
@@ -144,7 +144,7 @@ bool om_dispatch(OmMachine * const self, OmEvent const * const event)
                 if(search_state == OM_TOP_STATE)
                 {          
                     if (self->trace_flags & OM_TF_UNHANDLED)      
-                        om_trace_write(self->trace, "%s:OM_TOP_STATE:%s:Unhandled", self->name, event->name);
+                        OM_TRACE_FOUR(self->trace, self->name, "OM_TOP_STATE", event->name, "Unhandled");
 
                     result = OM_RES_HANDLED;
                     continue;
@@ -296,19 +296,19 @@ inline OmStateResult om_call_state_handler_(OmMachine * const self, OmState* sta
         {
             case OM_RES_HANDLED:
                 if(self->trace_flags & OM_TF_HANDLED)
-                    om_trace_write(self->trace, "%s:%s:%s:Handled", self->name, state->name, event->name);
+                    OM_TRACE_FOUR(self->trace, self->name, state->name, event->name, "Handled");
             break;
             case OM_RES_TRANSITION:
                 if(self->trace_flags & OM_TF_TRANS)
-                    om_trace_write(self->trace, "%s:%s:%s:TRANS(%s)", self->name, state->name, event->name, self->target_state->name);
+                    OM_TRACE_FIVE(self->trace, self->name, state->name, event->name, "Trans", self->target_state->name);
             break;
             case OM_RES_IGNORED:
                 if(self->trace_flags & OM_TF_IGNORED)
-                    om_trace_write(self->trace, "%s:%s:%s:Ignored", self->name, state->name, event->name);
+                    OM_TRACE_FOUR(self->trace,  self->name, state->name, event->name, "Ignored");
             break;
             case OM_RES_EXIT:
                 if(self->trace_flags & OM_TF_EXIT)
-                    om_trace_write(self->trace, "%s:%s:%s:EXIT(%d)", self->name, state->name, event->name, self->exit_code);
+                    OM_TRACE_FOUR(self->trace, self->name, state->name, event->name,"Exit"); // Show exit code?
             break;      
             default:
                 OM_ASSERT(false);

@@ -6,17 +6,17 @@
     "configurations": [
         {
             "name": "Blinky-h743-Debug",
-            "cwd": "${workspaceFolder}/code/examples/blinky/nucleo_h743_freertos/",
-            "executable": "./build/nucleo_h743_freertos.elf",
+            "cwd": "${workspaceFolder}/code/examples/blinky/blinky_h743/",
+            "executable": "./build/blinky_h743.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
             "servertype": "stlink"
         },
         {
-            "name": "Tea Timer -h743-Debug",
-            "cwd": "${workspaceFolder}/code/examples/tea_timer/nucleo_h743_freertos/",
-            "executable": "./build/nucleo_h743_freertos.elf",
+            "name": "Tea Timer-h743-Debug",
+            "cwd": "${workspaceFolder}/code/examples/tea_timer/tea_timer_h743/",
+            "executable": "./build/tea_timer_h743.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
@@ -41,7 +41,8 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Build-hsm_test"
+            "preLaunchTask": "Build-mingw-hsm_test"
+
         }
     ]
 }
