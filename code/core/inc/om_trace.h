@@ -38,9 +38,9 @@ void om_trace_ctor(OmTrace* self, OmTraceLogEntry* buffer, size_t buffer_size);
 bool om_trace_int(OmTrace* self, char const * const name, int value, int base);
 
 
-// Helper Macros for tracing values, assumes module has a trace member
-#define OM_TRACE_HEX(self_, value_) om_trace_int(self_, #value_, value_, 16);
-#define OM_TRACE_DEC(self_, value_) om_trace_int(self_, #value_, value_, 10);
+// Helper Macros for tracing values
+#define OM_TRACE_HEX(self_, value_) om_trace_int(self_, #value_, value_, 16)
+#define OM_TRACE_DEC(self_, value_) om_trace_int(self_, #value_, value_, 10)
 
 bool om_trace_string(OmTrace* self, char const * const string);
 
@@ -53,6 +53,8 @@ do{ \
     const char* trace_strings[] = {str1_, str2_}; \
     om_trace_fields(trace_, trace_strings, 2);  \
 }while(0) 
+
+#define OM_TRACE_STR(self_, value_) OM_TRACE_TWO(self_, #value_, value_)
 
 #define OM_TRACE_FOUR(trace_, str1_, str2_, str3_, str4_) \
 do{ \
