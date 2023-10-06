@@ -33,7 +33,7 @@
     #define OM_POOL_SMALL_BLOCK_SIZE  sizeof(uint32_t) * 4
 #endif
 #ifndef OM_POOL_SMALL_BLOCK_COUNT 
-    #define OM_POOL_SMALL_BLOCK_COUNT  16
+    #define OM_POOL_SMALL_BLOCK_COUNT  32
 #endif
 
 
@@ -41,14 +41,14 @@
     #define OM_POOL_MEDIUM_BLOCK_SIZE  sizeof(uint32_t) * 8
 #endif
 #ifndef OM_POOL_MEDIUM_BLOCK_COUNT 
-    #define OM_POOL_MEDIUM_BLOCK_COUNT  8
+    #define OM_POOL_MEDIUM_BLOCK_COUNT  16
 #endif
 
 #ifndef OM_POOL_LARGE_BLOCK_SIZE 
     #define OM_POOL_LARGE_BLOCK_SIZE  sizeof(uint32_t) * 16
 #endif
 #ifndef OM_POOL_LARGE_BLOCK_COUNT
-    #define OM_POOL_LARGE_BLOCK_COUNT  4
+    #define OM_POOL_LARGE_BLOCK_COUNT  8
 #endif
 
 #endif //OM_CONFIG_H_

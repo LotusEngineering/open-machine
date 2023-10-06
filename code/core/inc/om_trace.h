@@ -28,7 +28,7 @@ typedef struct
     size_t entry_list_size;
     size_t write_index;
     size_t read_index;
-    uint64_t elapsed_time_usec;
+    uint64_t timestamp_usec;
 }OmTrace;
 
 
@@ -84,6 +84,11 @@ bool om_trace_read(OmTrace* self, OmTraceLogEntry* entry);
 void om_trace_clear(OmTrace* self);
 
 bool om_trace_is_full(OmTrace* self);
+
+void om_trace_set_timestamp(OmTrace* self, uint64_t timestamp_usec);
+
+uint64_t om_trace_get_timestamp(OmTrace* self);
+
 
 /// @brief Function to be called by application to provide trace timestamp
 /// @param elapse_usec 
