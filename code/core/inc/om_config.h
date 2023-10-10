@@ -45,7 +45,7 @@
 #endif
 
 #ifndef OM_POOL_LARGE_BLOCK_SIZE 
-    #define OM_POOL_LARGE_BLOCK_SIZE  sizeof(uint32_t) * 16
+    #define OM_POOL_LARGE_BLOCK_SIZE  sizeof(uint32_t) * 32
 #endif
 #ifndef OM_POOL_LARGE_BLOCK_COUNT
     #define OM_POOL_LARGE_BLOCK_COUNT  8
