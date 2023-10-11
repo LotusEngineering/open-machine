@@ -39,22 +39,22 @@ bool om_trace_int(OmTrace* self, char const * const name, int value, int base);
 
 
 // Helper Macros for tracing values
-#define OM_TRACE_HEX(self_, value_) om_trace_int(self_, #value_, value_, 16)
-#define OM_TRACE_DEC(self_, value_) om_trace_int(self_, #value_, value_, 10)
+#define OM_TRACE_VAL_HEX(self_, value_) om_trace_int(self_, #value_, value_, 16)
+#define OM_TRACE_VAL_DEC(self_, value_) om_trace_int(self_, #value_, value_, 10)
 
 bool om_trace_string(OmTrace* self, char const * const string);
 
 
 bool om_trace_fields(OmTrace* self, char const * const strings[], size_t num_strings);
 
-
+/// Traces 2 strings str1_:str2_
 #define OM_TRACE_TWO(trace_, str1_, str2_) \
 do{ \
     const char* trace_strings[] = {str1_, str2_}; \
     om_trace_fields(trace_, trace_strings, 2);  \
 }while(0) 
 
-#define OM_TRACE_STR(self_, value_) OM_TRACE_TWO(self_, #value_, value_)
+#define OM_TRACE_VAL_STR(self_, value_) OM_TRACE_TWO(self_, #value_, value_)
 
 #define OM_TRACE_FOUR(trace_, str1_, str2_, str3_, str4_) \
 do{ \

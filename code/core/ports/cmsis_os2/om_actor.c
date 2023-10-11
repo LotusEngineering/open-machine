@@ -42,6 +42,9 @@ void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, cons
     // Call base machine trace constructor
     om_ctor_trace(&self->base, initial_trans, name, trace, flags);
 
+    // Set Actor's trace
+    self->trace = trace;
+
     self->port = &om_actor_table[om_actor_count];
     om_actor_count++;
 
