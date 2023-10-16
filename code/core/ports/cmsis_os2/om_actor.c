@@ -81,6 +81,7 @@ void om_actor_message(OmActor* self, OmEvent *  message)
 {
 
     OM_ASSERT(self != NULL);
+    OM_ASSERT(self->port->queue_id != NULL);
 
     // Increase reference count for pooled events
     if(message->type == OM_ET_POOL)

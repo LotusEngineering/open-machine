@@ -55,8 +55,12 @@ void om_timer_ctor(OmTimer* self, OmActor* actor, OmTimerMode mode, OmTimeEvent*
 void om_timer_start(OmTimer* self, uint32_t time_ms)
 {
     self->time_event->is_running = true;
-    uint32_t tick_period_ms = 1000 / osKernelGetTickFreq();
-    osStatus_t status = osTimerStart(self->port->timer_id, time_ms / tick_period_ms);
+    uint32_t tick_freq_hz = osKernelGetTickFreq();
+    OM_ASSERT(tick_freq_hz != 0);
+    OM_ASSERT(tick_freq_hz <= 1000000);
+
+    uint32_t tick_period_us = 1000000 / tick_freq_hz;
+    osStatus_t status = osTimerStart(self->port->timer_id, (time_ms * 1000) / tick_period_us);
     OM_ASSERT(status == osOK);
 }
 
