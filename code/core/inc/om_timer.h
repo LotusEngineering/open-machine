@@ -49,6 +49,7 @@ bool om_timer_is_running(OmTimer* self);
 
 void om_timer_stop(OmTimer* self);
 
+void om_timer_tick(uint32_t elapsed_msec);
 
 
 #endif //OM_TIMER_H_
