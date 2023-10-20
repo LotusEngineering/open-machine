@@ -30,7 +30,7 @@ void blinky_ctor(Blinky* self,const char* name, OmTrace* trace, Led_ID led_id, u
     // Call base actor trace constructor, only show transitions
     om_actor_ctor_trace(&self->base, OM_INIT_CAST(blinky_init_trans), name, trace, OM_TF_TRANS);
 
-    om_timer_ctor(&self->timer, &self->base, OM_TIMER_PERIODIC, &TimeoutEvt);
+    om_timer_ctor(&self->timer, EVT_TIMEOUT, "TIMEOUT", &self->base);
 
     self->led_id = led_id;
     self->blink_time_ms = blink_time_ms;
@@ -39,7 +39,7 @@ void blinky_ctor(Blinky* self,const char* name, OmTrace* trace, Led_ID led_id, u
 OmStateResult blinky_init_trans(Blinky* self)
 {
     // Start timer
-    om_timer_start(&self->timer, self->blink_time_ms);
+    om_timer_start(&self->timer, OM_TM_PERIODIC, self->blink_time_ms);
 
     OmStateResult result = OM_TRANS(Off);
 

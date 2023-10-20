@@ -23,7 +23,7 @@ void om_assert_handler(const char *file_name, int line)
 {
     assert_hit = true;
     OM_TRACE_TWO(&test_trace, "ASSERT! File", file_name);
-    OM_TRACE_DEC(&test_trace, line);
+    OM_TRACE_VAL_DEC(&test_trace, line);
 }
 
 // The machine under test instance
