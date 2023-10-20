@@ -112,7 +112,7 @@ void om_actor_event_loop(void* argument)
         if(event->type == OM_ET_TIME)
         {
             // Check for stale time events
-            if (OM_TIME_EVENT_CAST(event)->is_running)
+            if (OM_TIME_EVENT_CAST(event)->state != OM_TS_STOPPED)
             {
                 om_dispatch(&self->base, event);
             }
