@@ -14,15 +14,12 @@ enum BinkySignals
     EVT_TIMEOUT = OM_EVT_USER    
 };
 
-OM_TIME_EVENT(TimeoutEvt, EVT_TIMEOUT);
-
 // Declare Init trans
 OmStateResult blinky_init_trans(Blinky* self);
 
 // Declare the two states
 OM_STATE_DECLARE(Blinky, Off, OM_TOP_STATE);
 OM_STATE_DECLARE(Blinky, On,  OM_TOP_STATE);
-
 
 
 void blinky_ctor(Blinky* self,const char* name, OmTrace* trace, Led_ID led_id, uint32_t blink_time_ms)

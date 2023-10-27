@@ -26,7 +26,24 @@ void om_timer_ctor(OmTimer* self, OmSignal signal, const char* name, OmActor* ac
     self->base.type = OM_ET_TIME;
     self->base.signal = signal;
     self->base.name = name;
-    self->actor = actor;
+    self->callback_type = OM_TIMER_CB_ACTOR;
+    self->callback->actor = actor;
+    self->state = OM_TS_STOPPED;
+}
+
+void om_timer_machine_ctor(OmTimer* self, OmSignal signal, const char* name, OmMachine * machine)
+{
+    om_timer_table[om_timer_count] = self;
+    om_timer_count++;
+
+    // Too many timers
+    OM_ASSERT(om_timer_count <= OM_TIMER_MAX_TIMERS);
+    
+    self->base.type = OM_ET_TIME;
+    self->base.signal = signal;
+    self->base.name = name;
+    self->callback_type = OM_TIMER_CB_MACHINE;
+    self->callback->machine = machine;
     self->state = OM_TS_STOPPED;
 }
 
@@ -73,7 +90,16 @@ void om_timer_tick(uint32_t elapsed_msec)
                 {
                     timer->state = OM_TS_EXPIRED;
                 }
-                om_actor_message(timer->actor, &timer->base);
+
+                // Dispatch or message based on callback type
+                if(timer->callback_type == OM_TIMER_CB_ACTOR)
+                {
+                    om_actor_message(timer->callback->actor, &timer->base);
+                }
+                else
+                {
+                    om_dispatch(timer->callback->machine, &timer->base);
+                }
             }
         }
       

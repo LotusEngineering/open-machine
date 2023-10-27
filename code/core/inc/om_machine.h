@@ -131,6 +131,12 @@ void om_ctor(OmMachine * const self, OmInitHandler initial_trans);
 void om_ctor_trace(OmMachine * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags);
 
 
+/// @brief Gets active state of machine
+/// @param self 
+/// @return true If machine has been entered
+/// @return false If machine has not been entered or completed
+bool om_is_active(OmMachine* const self);
+
 /// @brief Enters the state machine via the intial transition provided in the constructor
 /// @param self State machine
 void om_enter(OmMachine* const self);

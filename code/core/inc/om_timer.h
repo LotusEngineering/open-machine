@@ -44,7 +44,8 @@ typedef enum
 typedef struct 
 {
     OmEvent base;
-    OmActor* actor;
+    OmTimerCallbackType callback_type;
+    OmTimerCallback* callback;
     OmTimerState state;
     OmTimerMode mode;
     uint32_t period_msec;
@@ -58,6 +59,8 @@ typedef struct
 #define OM_TIME_EVENT_CAST(event_name_) ((OmTimer *)event_name_)
 
 void om_timer_ctor(OmTimer* self, OmSignal signal, const char* name, OmActor* actor);
+
+void om_timer_machine_ctor(OmTimer* self, OmSignal signal, const char* name, OmMachine * machine);
 
 void om_timer_start(OmTimer* self, OmTimerMode mode, uint32_t time_msec);
 

@@ -40,6 +40,10 @@ void om_ctor_trace(OmMachine * const self, OmInitHandler initial_trans, const ch
     self->trace_flags = flags;
 }
 
+bool om_is_active(OmMachine* const self)
+{
+    return self->is_active;
+}
 
 void om_enter(OmMachine * const self)
 {
