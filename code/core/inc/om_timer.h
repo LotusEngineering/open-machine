@@ -45,7 +45,7 @@ typedef struct
 {
     OmEvent base;
     OmTimerCallbackType callback_type;
-    OmTimerCallback* callback;
+    OmTimerCallback callback;
     OmTimerState state;
     OmTimerMode mode;
     uint32_t period_msec;
