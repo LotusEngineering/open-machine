@@ -64,6 +64,8 @@ void om_timer_machine_ctor(OmTimer* self, OmSignal signal, const char* name, OmM
 
 void om_timer_start(OmTimer* self, OmTimerMode mode, uint32_t time_msec);
 
+void om_timer_start_delayed(OmTimer* self, OmTimerMode mode, uint32_t time_msec, uint32_t delay_time_msec);
+
 bool om_timer_is_running(OmTimer* self);
 
 void om_timer_stop(OmTimer* self);

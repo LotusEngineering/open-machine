@@ -55,6 +55,14 @@ void om_timer_start(OmTimer* self, OmTimerMode mode, uint32_t time_msec)
     self->state = OM_TS_RUNNING;
 }
 
+void om_timer_start_delayed(OmTimer* self, OmTimerMode mode, uint32_t time_msec, uint32_t delay_time_msec)
+{
+    self->mode = mode;
+    self->period_msec = time_msec;
+    self->remaining_msec = time_msec + delay_time_msec;
+    self->state = OM_TS_RUNNING;
+}
+
 bool om_timer_is_running(OmTimer* self)
 {
     return self->state == OM_TS_RUNNING;
