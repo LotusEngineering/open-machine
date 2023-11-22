@@ -5,7 +5,7 @@
 
 OM_ASSERT_SET_FILE_NAME();
 
-void om_queue_ctor(OmQueue* self, OmEvent ** const queue_storage,  size_t queue_size);
+void om_queue_init(OmQueue* self, OmEvent ** const queue_storage,  size_t queue_size)
 {
     self->store = queue_storage;
     self->store_size = queue_size;
@@ -39,7 +39,7 @@ bool om_queue_put(OmQueue* self, OmEvent const *const event)
     }    
 }
 
-bool om_queue_get(OmQueue* self, OmEvent const * event)
+bool om_queue_get(OmQueue* self, OmEvent const ** event)
 {
     if (self->write_index == self->read_index)
     {
@@ -53,7 +53,7 @@ bool om_queue_get(OmQueue* self, OmEvent const * event)
     }
 
     // Read event
-    event = self->store_size[self->read_index];
+    *event = self->store[self->read_index];
 
     self->read_index = next_read_index;
 

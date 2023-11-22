@@ -60,7 +60,7 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
     // Allocate and init queue
     self->port->queue_storage = (OmEvent**)malloc(queue_size * sizeof(OmEvent*));
     OM_ASSERT(self->port->queue_storage != NULL);
-    om_queue_ctor(&self->port->queue, self->port->queue_storage,  queue_size);
+    om_queue_init(&self->port->queue, self->port->queue_storage,  queue_size);
 
 
     pthread_attr_t attr;
@@ -79,7 +79,7 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
 
     pthread_t thread;
     int err = pthread_create(&self->port->thread_id, &attr, &om_actor_event_loop, self);
-    Q_ASSERT(err == 0);// This means we don't have supervisor privileges
+    OM_ASSERT(err == 0);// This means we don't have supervisor privileges
 
 	pthread_attr_destroy(&attr);
 
@@ -92,14 +92,13 @@ void om_actor_stop(OmActor* self)
 
      // Wait for the created thread to finish
     pthread_join(self->port->thread_id, NULL);
-    free(self->port.queue_storage);
+    free(self->port->queue_storage);
 }
 
 void om_actor_message(OmActor* self, OmEvent *  message)
 {
 
     OM_ASSERT(self != NULL);
-    OM_ASSERT(self->port->queue_id != NULL);
 
     // Increase reference count for pooled events
     if(message->type == OM_ET_POOL)
@@ -108,13 +107,12 @@ void om_actor_message(OmActor* self, OmEvent *  message)
     }
 
     // TODO signal mutex
-    OM_ASSERT(om_queue_put(self->port->queue, message));
+    OM_ASSERT(om_queue_put(&self->port->queue, message));
 }
 
 //////////////////// Private Functions //////////////////////////
 void om_actor_event_loop(void* argument)
 {
-    osStatus_t status;
     OmEvent const * event;
     OmActor* self = (OmActor*)argument;
     
@@ -124,7 +122,7 @@ void om_actor_event_loop(void* argument)
     while(1)
     {
         //TODO Block on messages
-        if (om_queue_get(self->port->queue, event))
+        if (om_queue_get(&self->port->queue, &event))
         {
             if(event->type == OM_ET_TIME)
             {

@@ -11,17 +11,17 @@
 
 typedef struct
 {
-    OmEvent** store;
+    OmEvent const * const * store;
     size_t store_size;
     size_t write_index;
     size_t read_index;
 }OmQueue;
 
 
-void om_queue_ctor(OmQueue* self, OmEvent ** const queue_storage,  size_t queue_size);
+void om_queue_init(OmQueue* self, OmEvent ** const queue_storage,  size_t queue_size);
 
 bool om_queue_put(OmQueue* self, OmEvent const *const event);
 
-bool om_queue_get(OmQueue* self, OmEvent const * event)
+bool om_queue_get(OmQueue* self, OmEvent const ** event);
 
 #endif //OM_QUEUE_H_
