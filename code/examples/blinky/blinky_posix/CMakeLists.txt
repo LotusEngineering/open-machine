@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(can_flash C)
+project(blinky_posix C)
 
 
 

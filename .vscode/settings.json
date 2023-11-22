@@ -19,5 +19,6 @@
         "stdbool.h": "c",
         "stddef.h": "c"
     },
-    "makefile.phonyOnlyTargets": false
+    "makefile.phonyOnlyTargets": false,
+    "C_Cpp.default.compilerPath": "/usr/bin/gcc"
 }

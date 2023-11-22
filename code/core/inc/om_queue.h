@@ -11,7 +11,7 @@
 
 typedef struct
 {
-    OmEvent const * const * store;
+    OmEvent** store;
     size_t store_size;
     size_t write_index;
     size_t read_index;

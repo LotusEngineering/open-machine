@@ -145,7 +145,7 @@
             "problemMatcher": "$gcc"
         },
 		{
-			"label": "CMake-Blinky-Posix",
+			"label": "Blinky-Posix-CMake",
 			"type": "shell",
 			"group": {
 				"kind": "build",
@@ -160,10 +160,11 @@
 				".",
 				"-B",
 				"./build",
+                "-DCMAKE_BUILD_TYPE=Debug",
 			]
 		},
         {
-            "label": "Blinky Posix Make All",
+            "label": "Blinky-Posix-Build",
             "type": "shell",
             "command": "make all",
             "options": {
