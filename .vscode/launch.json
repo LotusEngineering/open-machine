@@ -11,7 +11,8 @@
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
-            "servertype": "stlink"
+            "servertype": "stlink",
+            "preLaunchTask": "Blinky H743 Make All"
         },
         {
             "name": "Tea Timer-h743-Debug",
@@ -20,7 +21,8 @@
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
-            "servertype": "stlink"
+            "servertype": "stlink",
+            "preLaunchTask": "Tea Timer H743 Make All"
         },
         {
             "name": "hsm_test-mingw-Debug",

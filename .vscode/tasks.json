@@ -55,7 +55,96 @@
 			"command": "C:/MinGW/bin/mingw32-make.exe",
 			"args": [
 			]
-		}
+		},
+        {
+            "label": "Blinky H743 Make All",
+            "type": "shell",
+            "command": "make all",
+            "options": {
+                "cwd": "${workspaceFolder}/code/examples/blinky/blinky_h743",
+                "env": {
+			        "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"     
+                },
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Blinky H743 Make Clean",
+            "type": "shell",
+            "command": "make clean",
+            "options": {
+                "cwd": "${workspaceFolder}/code/examples/blinky/blinky_h743",
+                "env": {
+			        "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"     
+                },
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Tea Timer H743 Make All",
+            "type": "shell",
+            "command": "make all",
+            "options": {
+                "cwd": "${workspaceFolder}/code/examples/tea_timer/tea_timer_h743",
+                "env": {
+			        "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"     
+                },
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Tea Timer H743 Make Clean",
+            "type": "shell",
+            "command": "make clean",
+            "options": {
+                "cwd": "${workspaceFolder}/code/examples/tea_timer/tea_timer_h743",
+                "env": {
+			        "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"     
+                },
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": "$gcc"
+        },
+
 		
 	]
 }
