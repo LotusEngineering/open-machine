@@ -6,6 +6,7 @@
 
 #include <pthread.h>
 #include <limits.h>
+#include <stdlib.h>
 
 #include "om_assert.h"
 #include "om_machine.h"
@@ -31,7 +32,7 @@ typedef struct OmActorPort
 static OmActorPort om_actor_table[OM_ACTOR_MAX_ACTORS];
 static int om_actor_count = 0;
 
-static void om_actor_event_loop(void* argument);
+static void * om_actor_event_loop(void* argument);
 
 
 void om_actor_ctor(OmActor* self, OmInitHandler initial_trans)
@@ -52,7 +53,7 @@ void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, cons
 
     // Too many actors, update config, or better yet simplify your design
     OM_ASSERT(om_actor_count <= OM_ACTOR_MAX_ACTORS);
-    self->port->thread_id = NULL;
+    self->port->thread_id = (pthread_t)NULL;
 }
 
 void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t stack_size)
@@ -65,21 +66,31 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
+#if 0
     pthread_attr_setschedpolicy (&attr, SCHED_FIFO);
     pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
-
     // Set priority
     struct sched_param param;
     param.sched_priority = priority;
     pthread_attr_setschedparam(&attr, &param);
 
+#else
+    struct sched_param param;
+    pthread_attr_getschedparam (&attr, &param);
+    param.sched_priority = priority;
+
+    /* setting the new scheduling param */
+    pthread_attr_setschedparam (&attr, &param);
+
+#endif
+
     // Use minimum stack
     pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
 
     pthread_t thread;
-    int err = pthread_create(&self->port->thread_id, &attr, &om_actor_event_loop, self);
-    OM_ASSERT(err == 0);// This means we don't have supervisor privileges
+    int err = pthread_create(&self->port->thread_id, &attr, om_actor_event_loop, self);
+    OM_ASSERT(err == 0);
 
 	pthread_attr_destroy(&attr);
 
@@ -111,7 +122,7 @@ void om_actor_message(OmActor* self, OmEvent *  message)
 }
 
 //////////////////// Private Functions //////////////////////////
-void om_actor_event_loop(void* argument)
+void *  om_actor_event_loop(void* argument)
 {
     OmEvent const * event;
     OmActor* self = (OmActor*)argument;

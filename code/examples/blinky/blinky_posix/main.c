@@ -43,6 +43,7 @@ int main()
     
     for(;;)
     {
+#if 0
         if(om_trace_is_full(&application_trace))
         {
             printf("WARNING!! Blinky Trace is Full!\n");
@@ -51,7 +52,7 @@ int main()
         {
            printf("%u:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
         }
-        
+#endif        
         msleep(OM_TRACE_TICK_MSEC);
         om_trace_tick(&application_trace, OM_TRACE_TICK_MSEC * 1000);
         om_timer_tick(OM_TRACE_TICK_MSEC);
