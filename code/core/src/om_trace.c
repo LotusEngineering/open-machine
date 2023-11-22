@@ -16,7 +16,7 @@ void om_trace_ctor(OmTrace* self, OmTraceLogEntry* buffer, size_t buffer_size)
     self->entry_list_size = buffer_size;
     self->read_index = 0;
     self->write_index = 0;
-    self->elapsed_time_usec = 0;
+    self->timestamp_usec = 0;
 }
 
 bool om_trace_int(OmTrace* self, char const * const name, int value, int base)
@@ -52,7 +52,7 @@ bool om_trace_string(OmTrace* self, char const * const string)
     else
     {
         // Set timestamp   
-        self->entry_list[self->write_index].timestamp_usec = self->elapsed_time_usec;
+        self->entry_list[self->write_index].timestamp_usec = self->timestamp_usec;
 
         // Copy string into list
         strncpy(self->entry_list[self->write_index].message, string, OM_TRACE_MAX_MESSAGE_LENGTH);
@@ -87,7 +87,7 @@ bool om_trace_fields(OmTrace* self, char const * const strings[], size_t num_str
     else
     {
         // Set timestamp   
-        self->entry_list[self->write_index].timestamp_usec = self->elapsed_time_usec;
+        self->entry_list[self->write_index].timestamp_usec = self->timestamp_usec;
 
         size_t space_left = OM_TRACE_MAX_MESSAGE_LENGTH;
         memset(self->entry_list[self->write_index].message, 0x00, OM_TRACE_MAX_MESSAGE_LENGTH);
@@ -177,9 +177,19 @@ bool om_trace_is_full(OmTrace* self)
     }
 }
 
+void om_trace_set_timestamp(OmTrace* self, uint64_t timestamp_usec)
+{
+    self->timestamp_usec = timestamp_usec;
+}
+
+uint64_t om_trace_get_timestamp(OmTrace* self)
+{
+    return self->timestamp_usec;
+}
+
 void om_trace_tick(OmTrace* self, uint32_t elapsed_usec)
 {
-    self->elapsed_time_usec += elapsed_usec;
+    self->timestamp_usec += elapsed_usec;
 }
 
 

@@ -52,17 +52,17 @@ void button_monitor_ctor(ButtonMonitor* self, OmBus* button_bus, OmTrace* trace)
     om_actor_ctor_trace(&self->base, OM_INIT_CAST(button_monitor_init_trans), "ButtonMonitor", trace, OM_TF_NONE);
 
     // Create periodic timer
-    om_timer_ctor(&self->scan_timer, &self->base, OM_TIMER_PERIODIC, &ScanTimeoutEvent);
+    om_timer_ctor(&self->scan_timer, EVT_SCAN_TIMEOUT,"ScanTimeout", &self->base);
 
     // Create oneshot timer
-    om_timer_ctor(&self->held_timer, &self->base, OM_TIMER_ONE_SHOT, &HeldTimeoutEvent);
+    om_timer_ctor(&self->held_timer, EVT_HELD_TIMEOUT,"HeldTimeout",  &self->base);
 
 }
 
 OmStateResult button_monitor_init_trans(ButtonMonitor* self)
 {
     // Start scan timer 
-    om_timer_start(&self->scan_timer, BUTTON_SCAN_TIME_MSEC);
+    om_timer_start(&self->scan_timer, OM_TM_PERIODIC, BUTTON_SCAN_TIME_MSEC);
 
     // At first, we don't know if we are pressed or not
     OmStateResult result = OM_TRANS(Unknown);
@@ -105,7 +105,7 @@ OM_STATE_DEFINE(ButtonMonitor, Pressed)
             om_bus_publish(self->button_bus, (OmEvent*)(&PressedEvt));
 
             // Start Held Timer
-            om_timer_start(&self->held_timer, BUTTON_HELD_TIME_MSEC);
+            om_timer_start(&self->held_timer, OM_TM_ONE_SHOT, BUTTON_HELD_TIME_MSEC);
             
             result = OM_RES_HANDLED;
         break;

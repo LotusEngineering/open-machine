@@ -19,7 +19,6 @@ enum UiSignals
     EVT_STATUS_TIMEOUT = EVT_MAX_SHARED,
 };
 
-OM_TIME_EVENT(StatusTimerEvent, EVT_STATUS_TIMEOUT);
 
 // Declare Init trans
 OmStateResult ui_init_trans(UserInterface* self);
@@ -39,7 +38,7 @@ void ui_ctor(UserInterface* self, OmBus* button_bus, OmActor* brew_control,  OmT
     // Call base actor trace constructor, only show transitions
     om_actor_ctor_trace(&self->base, OM_INIT_CAST(ui_init_trans), "UI", trace, OM_TF_TRANS);
 
-    om_timer_ctor(&self->status_timer, &self->base,  OM_TIMER_ONE_SHOT, &StatusTimerEvent);
+    om_timer_ctor(&self->status_timer, EVT_STATUS_TIMEOUT, "StatusTimeout", &self->base);
 
     self->button_bus = button_bus;
     self->brew_control = brew_control;
@@ -130,7 +129,7 @@ OM_STATE_DEFINE(UserInterface, ui_brewing)
             }
 
             // Start status timer
-            om_timer_start(&self->status_timer, 500);
+            om_timer_start(&self->status_timer, OM_TM_ONE_SHOT, 500);
 
             result = OM_RES_HANDLED;
         break; 
@@ -179,7 +178,7 @@ OM_STATE_DEFINE(UserInterface, ui_config)
     switch(event->signal)
     {
         case OM_EVT_ENTER:
-            om_timer_start(&self->status_timer, CONFIG_INACTIVITY_TIMEOUT_MSEC);
+            om_timer_start(&self->status_timer, OM_TM_ONE_SHOT, CONFIG_INACTIVITY_TIMEOUT_MSEC);
             result = OM_RES_HANDLED;
         break;
         case OM_EVT_EXIT:
@@ -209,7 +208,7 @@ OM_STATE_DEFINE(UserInterface, ui_black)
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_PRESS:
-            om_timer_start(&self->status_timer, CONFIG_INACTIVITY_TIMEOUT_MSEC);
+            om_timer_start(&self->status_timer, OM_TM_ONE_SHOT, CONFIG_INACTIVITY_TIMEOUT_MSEC);
             result = OM_TRANS(ui_oolong);
         break;
         default:
@@ -233,7 +232,7 @@ OM_STATE_DEFINE(UserInterface, ui_oolong)
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_PRESS:
-            om_timer_start(&self->status_timer, CONFIG_INACTIVITY_TIMEOUT_MSEC);
+            om_timer_start(&self->status_timer, OM_TM_ONE_SHOT, CONFIG_INACTIVITY_TIMEOUT_MSEC);
             result = OM_TRANS(ui_green);
         break;
         default:
@@ -257,7 +256,7 @@ OM_STATE_DEFINE(UserInterface, ui_green)
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_PRESS:
-            om_timer_start(&self->status_timer, CONFIG_INACTIVITY_TIMEOUT_MSEC);
+            om_timer_start(&self->status_timer, OM_TM_ONE_SHOT, CONFIG_INACTIVITY_TIMEOUT_MSEC);
             result = OM_TRANS(ui_black);
         break;
         default:

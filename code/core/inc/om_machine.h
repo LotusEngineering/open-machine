@@ -51,7 +51,7 @@ void om_state_ctor(OmState* self, OmState* parent, const char* name);
 
 
 // Helper macro to concatenate two tokens
-#define CONCAT(a, b) a ## b
+#define OM_CONCAT(a, b) a ## b
 
 
 /**
@@ -60,7 +60,7 @@ void om_state_ctor(OmState* self, OmState* parent, const char* name);
  * @note: Use without a semi-colon to define your handler
  * 
  */
-#define OM_STATE_DEFINE(machine_, state_name_ ) OmStateResult CONCAT(state_name_, _handler)(machine_ * const self, OmEvent const * const event)
+#define OM_STATE_DEFINE(machine_, state_name_ ) OmStateResult OM_CONCAT(state_name_, _handler)(machine_ * const self, OmEvent const * const event)
 
 
 /**
@@ -68,7 +68,7 @@ void om_state_ctor(OmState* self, OmState* parent, const char* name);
  * 
  */
 #define OM_STATE_DECLARE(machine_, state_name_, parent_ptr_)  OM_STATE_DEFINE(machine_, state_name_); \
-OmState state_name_ = { (OmStateHandler)CONCAT(state_name_, _handler), parent_ptr_, #state_name_};
+OmState state_name_ = { (OmStateHandler)OM_CONCAT(state_name_, _handler), parent_ptr_, #state_name_};
 
 
 /**
@@ -130,6 +130,12 @@ void om_ctor(OmMachine * const self, OmInitHandler initial_trans);
 /// @param flags Trace flags
 void om_ctor_trace(OmMachine * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags);
 
+
+/// @brief Gets active state of machine
+/// @param self 
+/// @return true If machine has been entered
+/// @return false If machine has not been entered or completed
+bool om_is_active(OmMachine* const self);
 
 /// @brief Enters the state machine via the intial transition provided in the constructor
 /// @param self State machine

@@ -42,6 +42,9 @@ void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, cons
     // Call base machine trace constructor
     om_ctor_trace(&self->base, initial_trans, name, trace, flags);
 
+    // Set Actor's trace
+    self->trace = trace;
+
     self->port = &om_actor_table[om_actor_count];
     om_actor_count++;
 
@@ -78,6 +81,7 @@ void om_actor_message(OmActor* self, OmEvent *  message)
 {
 
     OM_ASSERT(self != NULL);
+    OM_ASSERT(self->port->queue_id != NULL);
 
     // Increase reference count for pooled events
     if(message->type == OM_ET_POOL)
@@ -108,7 +112,7 @@ void om_actor_event_loop(void* argument)
         if(event->type == OM_ET_TIME)
         {
             // Check for stale time events
-            if (OM_TIME_EVENT_CAST(event)->is_running)
+            if (OM_TIME_EVENT_CAST(event)->state != OM_TS_STOPPED)
             {
                 om_dispatch(&self->base, event);
             }

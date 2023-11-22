@@ -172,6 +172,7 @@ void om_trace_timer_cb(void *argument)
 {
   /* USER CODE BEGIN om_trace_timer_cb */
   om_trace_tick(&application_trace, OM_TRACE_TICK_MSEC * 1000);
+  om_timer_tick(OM_TRACE_TICK_MSEC);
   /* USER CODE END om_trace_timer_cb */
 }
 

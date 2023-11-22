@@ -28,7 +28,7 @@ typedef struct
     size_t entry_list_size;
     size_t write_index;
     size_t read_index;
-    uint64_t elapsed_time_usec;
+    uint64_t timestamp_usec;
 }OmTrace;
 
 
@@ -38,21 +38,23 @@ void om_trace_ctor(OmTrace* self, OmTraceLogEntry* buffer, size_t buffer_size);
 bool om_trace_int(OmTrace* self, char const * const name, int value, int base);
 
 
-// Helper Macros for tracing values, assumes module has a trace member
-#define OM_TRACE_HEX(self_, value_) om_trace_int(self_, #value_, value_, 16);
-#define OM_TRACE_DEC(self_, value_) om_trace_int(self_, #value_, value_, 10);
+// Helper Macros for tracing values
+#define OM_TRACE_VAL_HEX(self_, value_) om_trace_int(self_, #value_, value_, 16)
+#define OM_TRACE_VAL_DEC(self_, value_) om_trace_int(self_, #value_, value_, 10)
 
 bool om_trace_string(OmTrace* self, char const * const string);
 
 
 bool om_trace_fields(OmTrace* self, char const * const strings[], size_t num_strings);
 
-
+/// Traces 2 strings str1_:str2_
 #define OM_TRACE_TWO(trace_, str1_, str2_) \
 do{ \
     const char* trace_strings[] = {str1_, str2_}; \
     om_trace_fields(trace_, trace_strings, 2);  \
 }while(0) 
+
+#define OM_TRACE_VAL_STR(self_, value_) OM_TRACE_TWO(self_, #value_, value_)
 
 #define OM_TRACE_FOUR(trace_, str1_, str2_, str3_, str4_) \
 do{ \
@@ -82,6 +84,11 @@ bool om_trace_read(OmTrace* self, OmTraceLogEntry* entry);
 void om_trace_clear(OmTrace* self);
 
 bool om_trace_is_full(OmTrace* self);
+
+void om_trace_set_timestamp(OmTrace* self, uint64_t timestamp_usec);
+
+uint64_t om_trace_get_timestamp(OmTrace* self);
+
 
 /// @brief Function to be called by application to provide trace timestamp
 /// @param elapse_usec 

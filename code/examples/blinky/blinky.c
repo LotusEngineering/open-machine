@@ -14,8 +14,6 @@ enum BinkySignals
     EVT_TIMEOUT = OM_EVT_USER    
 };
 
-OM_TIME_EVENT(TimeoutEvt, EVT_TIMEOUT);
-
 // Declare Init trans
 OmStateResult blinky_init_trans(Blinky* self);
 
@@ -24,13 +22,12 @@ OM_STATE_DECLARE(Blinky, Off, OM_TOP_STATE);
 OM_STATE_DECLARE(Blinky, On,  OM_TOP_STATE);
 
 
-
 void blinky_ctor(Blinky* self,const char* name, OmTrace* trace, Led_ID led_id, uint32_t blink_time_ms)
 {
     // Call base actor trace constructor, only show transitions
     om_actor_ctor_trace(&self->base, OM_INIT_CAST(blinky_init_trans), name, trace, OM_TF_TRANS);
 
-    om_timer_ctor(&self->timer, &self->base, OM_TIMER_PERIODIC, &TimeoutEvt);
+    om_timer_ctor(&self->timer, EVT_TIMEOUT, "TIMEOUT", &self->base);
 
     self->led_id = led_id;
     self->blink_time_ms = blink_time_ms;
@@ -39,7 +36,7 @@ void blinky_ctor(Blinky* self,const char* name, OmTrace* trace, Led_ID led_id, u
 OmStateResult blinky_init_trans(Blinky* self)
 {
     // Start timer
-    om_timer_start(&self->timer, self->blink_time_ms);
+    om_timer_start(&self->timer, OM_TM_PERIODIC, self->blink_time_ms);
 
     OmStateResult result = OM_TRANS(Off);
 
