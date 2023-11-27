@@ -9,7 +9,7 @@
 
 #include "om_assert.h"
 #include "om_event.h"
-#include "om_machine.h"
+#include "om_hsm.h"
 #include "om_trace.h"
 #include "om_actor.h"
 #include "om_timer.h"

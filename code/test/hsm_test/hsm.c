@@ -28,7 +28,7 @@ OM_STATE_DECLARE(Hsm, S32, &S3);
 void hsm_ctor(Hsm * const self, OmTrace* trace)
 {
     // Call base trace constructor with all tracing enabled
-    om_ctor_trace(&self->base, 
+    om_hsm_ctor_trace(&self->base, 
             OM_INIT_CAST(Hsm_init_trans), 
             "Hsm", 
             trace,

@@ -7,7 +7,7 @@
 #include "cmsis_os2.h"
 
 #include "om_assert.h"
-#include "om_machine.h"
+#include "om_hsm.h"
 #include "om_config.h"
 #include "om_actor.h"
 #include "om_timer.h"
@@ -40,7 +40,7 @@ void om_actor_ctor(OmActor* self, OmInitHandler initial_trans)
 void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags)
 {
     // Call base machine trace constructor
-    om_ctor_trace(&self->base, initial_trans, name, trace, flags);
+    om_hsm_ctor_trace(&self->base, initial_trans, name, trace, flags);
 
     // Set Actor's trace
     self->trace = trace;
@@ -101,7 +101,7 @@ void om_actor_event_loop(void* argument)
     OmActor* self = (OmActor*)argument;
     
     // Enter the state machine
-    om_enter(&self->base);
+    om_hsm_enter(&self->base);
 
     while(1)
     {
@@ -114,7 +114,7 @@ void om_actor_event_loop(void* argument)
             // Check for stale time events
             if (OM_TIME_EVENT_CAST(event)->state != OM_TS_STOPPED)
             {
-                om_dispatch(&self->base, event);
+                om_hsm_dispatch(&self->base, event);
             }
         }
         else if(event->type == OM_ET_POOL)
@@ -125,7 +125,7 @@ void om_actor_event_loop(void* argument)
             // Should have been incremented in om_actor_message()
             OM_ASSERT(pool_event->reference_count >= 1);
 
-            om_dispatch(&self->base, event);
+            om_hsm_dispatch(&self->base, event);
             
             // Decrement the reference count
             pool_event->reference_count--;
@@ -138,7 +138,7 @@ void om_actor_event_loop(void* argument)
         }
         else
         {
-            om_dispatch(&self->base, event);
+            om_hsm_dispatch(&self->base, event);
         }
                
     }// while

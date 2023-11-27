@@ -44,7 +44,7 @@ OM_EVENT(EventZ, EVT_Z);
 // The machine under test
 typedef struct 
 {
-    OmMachine base;
+    OmHsm base;
 }Hsm;
 
 /**

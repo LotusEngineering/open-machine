@@ -35,5 +35,6 @@ void om_assert_handler(const char * file_name, int line);
  */
 #define OM_ASSERT(expression_)  (expression_) ? ((void)0) : om_assert_handler(om_file_name, __LINE__)
 
+#define OM_ERROR()  OM_ASSERT(0)
 
 #endif// OM_ASSERT_H_

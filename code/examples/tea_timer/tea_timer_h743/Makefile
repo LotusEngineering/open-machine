@@ -83,12 +83,12 @@ Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
 
 # USER CODE BEGIN
-C_SOURCES += ../../../core/src/om_machine.c
+C_SOURCES += ../../../core/src/om_hsm.c
 C_SOURCES += ../../../core/src/om_bus.c
 C_SOURCES += ../../../core/src/om_trace.c
 C_SOURCES += ../../../core/src/om_timer.c
-C_SOURCES += ../../../core/ports/cmsis_os2/om_actor.c
-C_SOURCES += ../../../core/ports/cmsis_os2/om_pool.c
+C_SOURCES += ../../../core/ports/cmsis_os2/om_actor_cmsis.c
+C_SOURCES += ../../../core/ports/cmsis_os2/om_pool_cmsis.c
 C_SOURCES += ../brew_events.c
 C_SOURCES += ../brew_control.c
 C_SOURCES += ../button_monitor.c

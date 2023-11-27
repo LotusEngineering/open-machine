@@ -7,14 +7,14 @@
 #ifndef OM_ACTOR_H_
 #define OM_ACTOR_H_
 #include <stddef.h>
-#include "om_machine.h"
+#include "om_hsm.h"
 
 
 // Forward declare actor, actual struct is port specific
 //typedef struct OmActor OmActor;
 
 // Forward declare
-//struct OmMachine;
+//struct OmHsm;
 struct OmState;
 struct OmEvent;
 
@@ -23,7 +23,7 @@ typedef struct OmActorPort OmActorPort;
 
 typedef struct 
 {
-    OmMachine base;
+    OmHsm base;
     OmTrace* trace;
     OmActorPort* port;
 }OmActor;

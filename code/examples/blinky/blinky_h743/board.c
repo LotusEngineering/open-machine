@@ -2,6 +2,11 @@
 #include "gpio.h"
 #include "om_trace.h"
 
+void board_init(void)
+{
+    
+}
+
 void board_set_led_on(Led_ID led)
 {
     switch(led)

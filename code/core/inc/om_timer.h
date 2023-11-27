@@ -19,13 +19,13 @@ typedef struct OmTimerPort OmTimerPort;
 typedef enum
 {
     OM_TIMER_CB_ACTOR,  ///< Timer will post event to actor
-    OM_TIMER_CB_MACHINE, ///< Timer will dispatch event to machine
+    OM_TIMER_CB_HSM, ///< Timer will dispatch event to hsm
 }OmTimerCallbackType;
 
 typedef union 
 {
     OmActor* actor;  
-    OmMachine* machine;
+    OmHsm* hsm;
 }OmTimerCallback;
 
 typedef enum
@@ -60,7 +60,7 @@ typedef struct
 
 void om_timer_ctor(OmTimer* self, OmSignal signal, const char* name, OmActor* actor);
 
-void om_timer_machine_ctor(OmTimer* self, OmSignal signal, const char* name, OmMachine * machine);
+void om_timer_ctor_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm * hsm);
 
 void om_timer_start(OmTimer* self, OmTimerMode mode, uint32_t time_msec);
 

@@ -1,61 +1,84 @@
 {
 	"version": "2.0.0",
 	"tasks": [
-		{
-			"label": "CMake-mingw-hsm_test",
-			"type": "shell",
-			"group": {
-				"kind": "build",
-				"isDefault": false
-			},
-			"options": {
-				"cwd": "${workspaceRoot}/code/test/hsm_test"
-			},
-			"command": "cmake",
-			"args": [
-				"-G",
-				"\"MinGW Makefiles\"",
-				"-S",
-				".",
-				"-B",
-				"./build",
-				"-DCMAKE_BUILD_TYPE=Debug",
-				"-DCMAKE_CXX_COMPILER=C:/MinGW/bin/g++.exe",
-				"-DCMAKE_C_COMPILER=C:/MinGW/bin/gcc.exe"
-			]
-		},
-		
-		{
-			"label": "Run-hsm_test",
-			"type": "shell",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"options": {
-				"cwd": "${workspaceRoot}/code/test/hsm_test/build"
-				
-			},
-			"command": "hsm_test",
-			"args": [
-			],
-			"dependsOn":["Build-mingw-hsm_test"]
+        {
+            "label": "HSM_Test-CMake",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/code/test/hsm_test"
+            },
+            "windows": {
+                "command": "cmake",
+                "args": [
+                    "-G",
+                    "\"MinGW Makefiles\"",
+                    "-S",
+                    ".",
+                    "-B",
+                    "./build",
+                    "-DCMAKE_BUILD_TYPE=Debug",
+                    "-DCMAKE_CXX_COMPILER=C:/MinGW/bin/g++.exe",
+                    "-DCMAKE_C_COMPILER=C:/MinGW/bin/gcc.exe"
+                ]
+            },
+            "linux": {
+                "command": "cmake",
+                "args": [
+                    "-S",
+                    ".",
+                    "-B",
+                    "./build",
+                    "-DCMAKE_BUILD_TYPE=Debug"
+                ]
+            }
         },
-		{
-			"label": "Build-mingw-hsm_test",
-			"type": "shell",
-			"group": {
-				"kind": "build",
-				"isDefault": false
-			},
-			"options": {
-				"cwd": "${workspaceRoot}/code/test/hsm_test/build"
-				
-			},
-			"command": "C:/MinGW/bin/mingw32-make.exe",
-			"args": [
-			]
-		},
+        {
+            "label": "HSM_Test-Build",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/code/test/hsm_test/build"
+            },
+            "windows": {
+                "command": "C:/MinGW/bin/mingw32-make.exe"
+            },
+            "linux": {
+                "command": "make"
+            },
+            "args": [],
+            "dependsOn": [
+                "HSM_Test-CMake"
+            ]
+        },
+        {
+            "label": "HSM_Test-Run",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/code/test/hsm_test/build"
+            },
+            "windows": {
+                "command": "hsm_test",
+                "args": []
+            },
+            "linux": {
+                "command": "./hsm_test",
+                "args": []
+            },
+            "dependsOn": [
+                "HSM_Test-Build"
+            ]
+        },
         {
             "label": "Blinky H743 Make All",
             "type": "shell",
@@ -63,8 +86,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/code/examples/blinky/blinky_h743",
                 "env": {
-			        "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"     
-                },
+                    "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"
+                }
             },
             "presentation": {
                 "echo": true,
@@ -85,8 +108,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/code/examples/blinky/blinky_h743",
                 "env": {
-			        "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"     
-                },
+                    "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"
+                }
             },
             "presentation": {
                 "echo": true,
@@ -107,8 +130,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/code/examples/tea_timer/tea_timer_h743",
                 "env": {
-			        "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"     
-                },
+                    "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"
+                }
             },
             "presentation": {
                 "echo": true,
@@ -129,8 +152,8 @@
             "options": {
                 "cwd": "${workspaceFolder}/code/examples/tea_timer/tea_timer_h743",
                 "env": {
-			        "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"     
-                },
+                    "path": "${workspaceFolder}/tools/build_tools_win64/4.2.1-2/bin/;C:/ST/STM32CubeCLT/GNU-tools-for-STM32/bin/"
+                }
             },
             "presentation": {
                 "echo": true,
@@ -144,31 +167,31 @@
             },
             "problemMatcher": "$gcc"
         },
-		{
-			"label": "Blinky-Posix-CMake",
-			"type": "shell",
-			"group": {
-				"kind": "build",
-				"isDefault": false
-			},
-			"options": {
-				"cwd": "${workspaceRoot}/code/examples/blinky/blinky_posix"
-			},
-			"command": "cmake",
-			"args": [
-				"-S",
-				".",
-				"-B",
-				"./build",
-                "-DCMAKE_BUILD_TYPE=Debug",
-			]
-		},
+        {
+            "label": "Blinky-Posix-CMake",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/code/examples/blinky/blinky_posix"
+            },
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B",
+                "./build",
+                "-DCMAKE_BUILD_TYPE=Debug"
+            ]
+        },
         {
             "label": "Blinky-Posix-Build",
             "type": "shell",
             "command": "make all",
             "options": {
-                "cwd": "${workspaceFolder}/code/examples/blinky/blinky_posix/build",
+                "cwd": "${workspaceFolder}/code/examples/blinky/blinky_posix/build"
             },
             "presentation": {
                 "echo": true,
@@ -180,9 +203,29 @@
                 "kind": "build",
                 "isDefault": false
             },
-            "problemMatcher": "$gcc"
+            "problemMatcher": "$gcc",
+            "dependsOn": [
+                "Blinky-Posix-CMake"
+            ]
         },
-
-		
-	]
+        {
+            "label": "Blinky-Posix-Run",
+            "type": "shell",
+            "group": {
+                "kind": "none",
+                "isDefault": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/code/examples/blinky/blinky_posix/build"
+            },
+            "command": "./blinky_posix",
+            "args": [],
+            "dependsOn": [
+                "Blinky-Posix-Build"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
 }

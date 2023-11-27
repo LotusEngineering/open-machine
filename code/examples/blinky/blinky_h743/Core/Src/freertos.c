@@ -42,7 +42,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define OM_TRACE_TICK_MSEC 100
+#define OM_TRACE_TICK_MSEC 10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -81,7 +81,7 @@ int _write(int fd, char * ptr, int len)
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-void om_trace_timer_cb(void *argument);
+void om_tick_callback(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -105,7 +105,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the timer(s) */
   /* creation of om_trace_timer */
-  om_trace_timerHandle = osTimerNew(om_trace_timer_cb, osTimerPeriodic, NULL, &om_trace_timer_attributes);
+  om_trace_timerHandle = osTimerNew(om_tick_callback, osTimerPeriodic, NULL, &om_trace_timer_attributes);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -167,13 +167,13 @@ void StartDefaultTask(void *argument)
   /* USER CODE END StartDefaultTask */
 }
 
-/* om_trace_timer_cb function */
-void om_trace_timer_cb(void *argument)
+/* om_tick_callback function */
+void om_tick_callback(void *argument)
 {
-  /* USER CODE BEGIN om_trace_timer_cb */
+  /* USER CODE BEGIN om_tick_callback */
   om_trace_tick(&application_trace, OM_TRACE_TICK_MSEC * 1000);
   om_timer_tick(OM_TRACE_TICK_MSEC);
-  /* USER CODE END om_trace_timer_cb */
+  /* USER CODE END om_tick_callback */
 }
 
 /* Private application code --------------------------------------------------*/

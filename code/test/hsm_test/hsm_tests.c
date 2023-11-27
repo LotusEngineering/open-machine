@@ -76,16 +76,16 @@ TEST(hsm_tests, init_test)
     OmTraceLogEntry trace;
 
     // Dispatch Event A, dispatch should be ignored since machine not initialzed
-    om_dispatch(&hsm.base, &EventA);
+    om_hsm_dispatch(&hsm.base, &EventA);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:om_dispatch:EVT_A:Ignored", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:om_hsm_dispatch:EVT_A:Ignored", trace.message);
 
     // Initialize the state machine
-    om_enter(&hsm.base);
+    om_hsm_enter(&hsm.base);
 
     // Check traces
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:OM_TOP_STATE:om_enter():Trans:S1", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:OM_TOP_STATE:om_hsm_enter():Trans:S1", trace.message);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_ENTER:Handled", trace.message);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
@@ -107,25 +107,25 @@ TEST(hsm_tests, internal_trans_test)
     OmTraceLogEntry trace;
 
     // Initialize the state machine
-    om_enter(&hsm.base);
+    om_hsm_enter(&hsm.base);
 
     // Clear the log
     om_trace_clear(&test_trace);
 
     // Dispatch Event C, should be handled by S111 internally
-    om_dispatch(&hsm.base, &EventC);
+    om_hsm_dispatch(&hsm.base, &EventC);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_C:Handled", trace.message);
 
     // Dispatch Event D, should be handled by S11 but ignored by S111
-    om_dispatch(&hsm.base, &EventD);
+    om_hsm_dispatch(&hsm.base, &EventD);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_D:Ignored", trace.message);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S11:EVT_D:Handled", trace.message);
 
     // Dispatch Event E, should be handled by S1 but ignored by S11 and S111
-    om_dispatch(&hsm.base, &EventE);
+    om_hsm_dispatch(&hsm.base, &EventE);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_E:Ignored", trace.message);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
@@ -134,7 +134,7 @@ TEST(hsm_tests, internal_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S1:EVT_E:Handled", trace.message);
 
     // Dispatch Event Z, should be unhandled 
-    om_dispatch(&hsm.base, &EventZ);
+    om_hsm_dispatch(&hsm.base, &EventZ);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_Z:Ignored", trace.message);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
@@ -150,13 +150,13 @@ TEST(hsm_tests, trans_test)
     OmTraceLogEntry trace;
 
     // Initialize the state machine
-    om_enter(&hsm.base);
+    om_hsm_enter(&hsm.base);
 
     // Clear the log
     om_trace_clear(&test_trace);
 
     // Dispatch Event A, should trans from S111 to S21
-    om_dispatch(&hsm.base, &EventA);
+    om_hsm_dispatch(&hsm.base, &EventA);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_A:Ignored", trace.message);
@@ -189,7 +189,7 @@ TEST(hsm_tests, trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:OM_EVT_INIT:Ignored", trace.message);
 
     // Dispatch Event B, should trans from S21 to S1 and init into S111
-    om_dispatch(&hsm.base, &EventB);
+    om_hsm_dispatch(&hsm.base, &EventB);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:EVT_B:Ignored", trace.message);
@@ -227,13 +227,13 @@ TEST(hsm_tests, side_trans_test)
     OmTraceLogEntry trace;
 
     // Initialize the state machine
-    om_enter(&hsm.base);
+    om_hsm_enter(&hsm.base);
 
     // Clear the log
     om_trace_clear(&test_trace);
 
     // Dispatch Event f, should trans from S111 to S112
-    om_dispatch(&hsm.base, &EventF);
+    om_hsm_dispatch(&hsm.base, &EventF);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_F:Trans:S112", trace.message);
@@ -248,7 +248,7 @@ TEST(hsm_tests, side_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S112:OM_EVT_INIT:Ignored", trace.message);
 
     // Dispatch Event f, should trans from S112 to S111
-    om_dispatch(&hsm.base, &EventF);
+    om_hsm_dispatch(&hsm.base, &EventF);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S112:EVT_F:Trans:S111", trace.message);
@@ -263,7 +263,7 @@ TEST(hsm_tests, side_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_INIT:Ignored", trace.message);
 
     // Dispatch Event G, should trans from S111 to S2
-    om_dispatch(&hsm.base, &EventG);
+    om_hsm_dispatch(&hsm.base, &EventG);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_G:Trans:S21", trace.message);
@@ -287,7 +287,7 @@ TEST(hsm_tests, side_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:OM_EVT_INIT:Ignored", trace.message);
 
     // Dispatch Event G, should trans from S2 to S112
-    om_dispatch(&hsm.base, &EventG);
+    om_hsm_dispatch(&hsm.base, &EventG);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:EVT_G:Trans:S112", trace.message);
@@ -316,13 +316,13 @@ TEST(hsm_tests, self_trans_test)
     OmTraceLogEntry trace;
 
     // Initialize the state machine
-    om_enter(&hsm.base);
+    om_hsm_enter(&hsm.base);
 
     // Clear the log
     om_trace_clear(&test_trace);
 
     // Dispatch Event H, should trans from S111 back to S111
-    om_dispatch(&hsm.base, &EventH);
+    om_hsm_dispatch(&hsm.base, &EventH);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_H:Trans:S111", trace.message);
@@ -337,7 +337,7 @@ TEST(hsm_tests, self_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_INIT:Ignored", trace.message);
 
     // Dispatch Event I, should trans from S1 back to S1 
-    om_dispatch(&hsm.base, &EventI);
+    om_hsm_dispatch(&hsm.base, &EventI);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_I:Ignored", trace.message);
@@ -382,16 +382,16 @@ TEST(hsm_tests, local_trans_test)
     OmTraceLogEntry trace;
 
     // Initialize the state machine
-    om_enter(&hsm.base);
+    om_hsm_enter(&hsm.base);
 
     // Dispatch Event G, should trans to S21
-    om_dispatch(&hsm.base, &EventG);
+    om_hsm_dispatch(&hsm.base, &EventG);
 
     // Clear the log
     om_trace_clear(&test_trace);
 
     // Dispatch Event J, should trans to S21
-    om_dispatch(&hsm.base, &EventJ);
+    om_hsm_dispatch(&hsm.base, &EventJ);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S21:EVT_J:Trans:S31", trace.message);
@@ -412,7 +412,7 @@ TEST(hsm_tests, local_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S31:OM_EVT_INIT:Ignored", trace.message);
 
     // Send J again, should take us to S3 super state
-    om_dispatch(&hsm.base, &EventJ);
+    om_hsm_dispatch(&hsm.base, &EventJ);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S31:EVT_J:Trans:S3", trace.message);
@@ -427,7 +427,7 @@ TEST(hsm_tests, local_trans_test)
     TEST_ASSERT_FALSE(om_trace_read(&test_trace, &trace));
 
     // Send J again, should take us to S32 sub state
-    om_dispatch(&hsm.base, &EventJ);
+    om_hsm_dispatch(&hsm.base, &EventJ);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S3:EVT_J:Trans:S32", trace.message);
@@ -444,13 +444,13 @@ TEST(hsm_tests, exit_test)
     OmTraceLogEntry trace;
 
     // Initialize the state machine
-    om_enter(&hsm.base);
+    om_hsm_enter(&hsm.base);
 
     // Clear the log
     om_trace_clear(&test_trace);
 
     // Send X to exit machine
-    om_dispatch(&hsm.base, &EventX);
+    om_hsm_dispatch(&hsm.base, &EventX);
 
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:EVT_X:Ignored", trace.message);
@@ -468,12 +468,12 @@ TEST(hsm_tests, exit_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_EXIT:Handled", trace.message);
 
     // Make sure exit code was supplied
-    TEST_ASSERT_EQUAL_INT(om_get_exit_code(&hsm.base), -1);
+    TEST_ASSERT_EQUAL_INT(om_hsm_get_exit_code(&hsm.base), -1);
 
     // Dispatch Event A, dispatch should be ignored since machine has been exited
-    om_dispatch(&hsm.base, &EventA);
+    om_hsm_dispatch(&hsm.base, &EventA);
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
-    TEST_ASSERT_EQUAL_STRING("Hsm:om_dispatch:EVT_A:Ignored", trace.message);
+    TEST_ASSERT_EQUAL_STRING("Hsm:om_hsm_dispatch:EVT_A:Ignored", trace.message);
 
 }
 

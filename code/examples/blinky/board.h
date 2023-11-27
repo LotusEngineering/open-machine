@@ -14,6 +14,7 @@ typedef enum
     BOARD_LED_GREEN,
 }Led_ID;
 
+void board_init(void);
 
 void board_set_led_on(Led_ID led);
 

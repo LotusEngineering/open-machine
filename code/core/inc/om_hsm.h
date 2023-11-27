@@ -4,8 +4,8 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#ifndef OM_MACHINE_H_
-#define OM_MACHINE_H_
+#ifndef OM_HSM_H_
+#define OM_HSM_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -16,7 +16,7 @@
 
 
 // Forward declare
-typedef struct OneMachine_t OmMachine;
+typedef struct OmHsm_t OmHsm;
 
 typedef enum
 {
@@ -27,14 +27,14 @@ typedef enum
 }OmStateResult;
 
 /// @brief Initial Transition Handler Signature
-typedef OmStateResult (*OmInitHandler)(OmMachine * const self);
+typedef OmStateResult (*OmInitHandler)(OmHsm * const self);
 
 
 #define OM_INIT_CAST(init_handler_) (OmInitHandler)(init_handler_)
 
 
 /// @brief State Event Handler Signature
-typedef OmStateResult (*OmStateHandler)(OmMachine * const self, OmEvent const * const event);
+typedef OmStateResult (*OmStateHandler)(OmHsm * const self, OmEvent const * const event);
 
 // Top of state hierarchy, set to parent for top-most states
 #define OM_TOP_STATE   NULL
@@ -74,10 +74,10 @@ OmState state_name_ = { (OmStateHandler)OM_CONCAT(state_name_, _handler), parent
 /**
  * @brief Exits a state machine and sets state machine inactive 
  * 
- * @param exit_code_ Exit code, available with om_get_exit_code() 
+ * @param exit_code_ Exit code, available with om_hsm_get_exit_code() 
  * @note This is to called in a OmState handler function 
  */
-#define OM_EXIT(exit_code_)  (((OmMachine*)self)->exit_code = exit_code_, OM_RES_EXIT)
+#define OM_EXIT(exit_code_)  (((OmHsm*)self)->exit_code = exit_code_, OM_RES_EXIT)
 
 /**
  * @brief Causes a state transitions
@@ -85,7 +85,7 @@ OmState state_name_ = { (OmStateHandler)OM_CONCAT(state_name_, _handler), parent
  * @param new_state_ State to transition to 
  * @note This is to called in a OmState handler function 
  */
-#define OM_TRANS(new_state_)  (((OmMachine*)self)->target_state = &new_state_, OM_RES_TRANSITION)
+#define OM_TRANS(new_state_)  (((OmHsm*)self)->target_state = &new_state_, OM_RES_TRANSITION)
 
 
 typedef enum 
@@ -101,26 +101,26 @@ typedef enum
 }OmTraceFlags;
 
 
-typedef struct OneMachine_t
+typedef struct OmHsm_t
 {
     OmState* current_state;
     OmState* target_state;
     bool is_active; ///< State machine has been initialized and not exited
     int exit_code; ///< User defined exit code
-    OmState* src_path[OM_MACHINE_MAX_STATE_DEPTH]; 
-    OmState* dst_path[OM_MACHINE_MAX_STATE_DEPTH]; 
+    OmState* src_path[OM_HSM_MAX_STATE_DEPTH]; 
+    OmState* dst_path[OM_HSM_MAX_STATE_DEPTH]; 
 
     OmInitHandler initial_trans;
     const char* name;
     OmTrace* trace;
     OmTraceFlags trace_flags;
-}OmMachine;
+}OmHsm;
 
 
 /// @brief Construct state machine without tracing
 /// @param self State machine
 /// @param initial_trans Intial transition handler
-void om_ctor(OmMachine * const self, OmInitHandler initial_trans);
+void om_hsm_ctor(OmHsm * const self, OmInitHandler initial_trans);
 
 /// @brief Construct state machine with tracing
 /// @param self State machine
@@ -128,21 +128,21 @@ void om_ctor(OmMachine * const self, OmInitHandler initial_trans);
 /// @param name Machine name
 /// @param trace Trace suppier
 /// @param flags Trace flags
-void om_ctor_trace(OmMachine * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags);
+void om_hsm_ctor_trace(OmHsm * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags);
 
 
 /// @brief Gets active state of machine
 /// @param self 
 /// @return true If machine has been entered
 /// @return false If machine has not been entered or completed
-bool om_is_active(OmMachine* const self);
+bool om_hsm_is_active(OmHsm* const self);
 
 /// @brief Enters the state machine via the intial transition provided in the constructor
 /// @param self State machine
-void om_enter(OmMachine* const self);
+void om_hsm_enter(OmHsm* const self);
 
 
-void om_exit(OmMachine* const self, int exit_code);
+void om_hsm_exit(OmHsm* const self, int exit_code);
 
 /**
  * @brief Dispatches an event into a state machine
@@ -152,7 +152,7 @@ void om_exit(OmMachine* const self, int exit_code);
  * @return true if state machine is active
  * @return false if state machine is inactive (exited or not entered)
  */
-bool om_dispatch(OmMachine * const self, OmEvent const * const event);
+bool om_hsm_dispatch(OmHsm * const self, OmEvent const * const event);
 
 
 /**
@@ -160,6 +160,6 @@ bool om_dispatch(OmMachine * const self, OmEvent const * const event);
  * 
  * @param self State machine instance
  */
-int om_get_exit_code(OmMachine* self);
+int om_hsm_get_exit_code(OmHsm* self);
 
-#endif // OM_MACHINE_H_
+#endif // OM_HSM_H_

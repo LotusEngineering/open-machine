@@ -31,7 +31,7 @@ void om_timer_ctor(OmTimer* self, OmSignal signal, const char* name, OmActor* ac
     self->state = OM_TS_STOPPED;
 }
 
-void om_timer_machine_ctor(OmTimer* self, OmSignal signal, const char* name, OmMachine * machine)
+void om_timer_ctor_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm * hsm)
 {
     om_timer_table[om_timer_count] = self;
     om_timer_count++;
@@ -42,8 +42,8 @@ void om_timer_machine_ctor(OmTimer* self, OmSignal signal, const char* name, OmM
     self->base.type = OM_ET_TIME;
     self->base.signal = signal;
     self->base.name = name;
-    self->callback_type = OM_TIMER_CB_MACHINE;
-    self->callback.machine = machine;
+    self->callback_type = OM_TIMER_CB_HSM;
+    self->callback.hsm = hsm;
     self->state = OM_TS_STOPPED;
 }
 
@@ -106,7 +106,7 @@ void om_timer_tick(uint32_t elapsed_msec)
                 }
                 else
                 {
-                    om_dispatch(timer->callback.machine, &timer->base);
+                    om_hsm_dispatch(timer->callback.hsm, &timer->base);
                 }
             }
         }

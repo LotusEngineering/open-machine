@@ -17,8 +17,8 @@
     #define OM_ACTOR_MAX_ACTORS 16
 #endif
 
-#ifndef OM_MACHINE_MAX_STATE_DEPTH
-    #define OM_MACHINE_MAX_STATE_DEPTH 6
+#ifndef OM_HSM_MAX_STATE_DEPTH
+    #define OM_HSM_MAX_STATE_DEPTH 6
 #endif
 
 #ifndef OM_POOL_NUM_POOLS

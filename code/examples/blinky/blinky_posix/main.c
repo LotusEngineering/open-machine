@@ -28,7 +28,8 @@ int msleep(long msec)
     return res;
 }
 
-#define OM_TRACE_TICK_MSEC 10
+#define OM_TRACE_TICK_MSEC 100
+
 int main()
 {
     application_start(0);
