@@ -30,7 +30,6 @@ enum BrewControlSignals
 static int brew_control_get_brew_time_(BrewControl* self);
 
 // Create Static Events
-OM_TIME_EVENT(OneSecondEvent, EVT_ONE_SECOND);
 OM_EVENT(BrewCompleteEvent, EVT_BREW_COMPLETE);
 
 // Declare states

@@ -12,15 +12,6 @@
 
 OM_ASSERT_SET_FILE_NAME();
 
-/**
- * @brief Memory Pool Port definition for CMSIS RTOS API V2
- * 
- */
-typedef struct OmPoolPort
-{
-    osMemoryPoolId_t pool_id;
-    size_t block_size;
-}OmPoolPort;
 
 static OmPoolPort om_pool_table[OM_POOL_NUM_POOLS];
 

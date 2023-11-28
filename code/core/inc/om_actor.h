@@ -8,6 +8,7 @@
 #define OM_ACTOR_H_
 #include <stddef.h>
 #include "om_hsm.h"
+#include "om_port.h"
 
 
 // Forward declare actor, actual struct is port specific
@@ -25,7 +26,7 @@ typedef struct
 {
     OmHsm base;
     OmTrace* trace;
-    OmActorPort* port;
+    OmActorPort port;
 }OmActor;
 
 typedef struct 
@@ -53,11 +54,9 @@ void om_actor_stop(OmActor* self);
 
 void om_actor_message(OmActor* self, OmEvent  *  message);
 
-#if 0
 /// @brief Shared dispatch code to be used internally by various ports
 /// @param self 
 /// @param event 
-inline void om_actor_dispatch_(OmActor* self, OmEvent* event);
-#endif
+void om_actor_dispatch_(OmActor* self, OmEvent* event);
 
 #endif// OM_ACTOR_H_

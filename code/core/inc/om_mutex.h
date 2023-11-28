@@ -6,7 +6,7 @@
 
 #ifndef OM_MUTEX_H_
 #define OM_MUTEX_H_
-#include "om_mutex_port.h"
+#include "om_port.h"
 
 typedef struct
 {

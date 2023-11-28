@@ -17,6 +17,7 @@ target_sources(${PROJECT_NAME} PRIVATE
             ../../../core/src/om_trace.c
             ../../../core/src/om_timer.c
             ../../../core/src/om_queue.c
+            ../../../core/src/om_actor.c
             ../../../core/ports/posix/om_actor_posix.c
             ../../../core/ports/posix/om_pool_posix.c
             ../../../core/ports/posix/om_mutex_posix.c

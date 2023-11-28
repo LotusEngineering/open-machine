@@ -11,6 +11,8 @@ OM_ASSERT_SET_FILE_NAME();
 
 void om_bus_ctor(OmBus* self)
 {
+    om_mutex_init(&self->mutex);
+
     self->subscriber_count = 0;
     for (int i = 0; i < OM_ACTOR_MAX_ACTORS; i++)
     {
@@ -20,6 +22,8 @@ void om_bus_ctor(OmBus* self)
 
 void om_bus_subscribe(OmBus* self, OmActor* subscriber)
 {
+    om_mutex_lock(&self->mutex);
+
     OM_ASSERT(self->subscriber_count <OM_ACTOR_MAX_ACTORS);
 
     for (int i = 0; i < OM_ACTOR_MAX_ACTORS; i++)
@@ -32,10 +36,12 @@ void om_bus_subscribe(OmBus* self, OmActor* subscriber)
             break;
         }   
     }
+    om_mutex_unlock(&self->mutex);
 }
 
 void om_bus_unsubscribe(OmBus* self, OmActor* subscriber)
 {
+    om_mutex_lock(&self->mutex);
     // Look for subscriber
     for (int i = 0; i < OM_ACTOR_MAX_ACTORS; i++)
     {
@@ -47,10 +53,14 @@ void om_bus_unsubscribe(OmBus* self, OmActor* subscriber)
             break;
         }   
     }
+    om_mutex_unlock(&self->mutex);
+
 }
 
 bool om_bus_publish(OmBus* self, OmEvent * event)
 {
+    om_mutex_lock(&self->mutex);
+
     int published_count = 0;
     while (published_count < self->subscriber_count)
     {
@@ -71,10 +81,11 @@ bool om_bus_publish(OmBus* self, OmEvent * event)
 
     if (published_count == 0)
     {
+        om_mutex_unlock(&self->mutex);
         return false;
 
 #if 0
-        ///Hmmmm
+        ///@TODO
         if ((event->type == OM_ET_POOL) && (OM_POOL_EVENT_CAST(event)->reference_count == 0))
         {
             om_pool_free(OM_POOL_EVENT_CAST(event));
@@ -83,6 +94,7 @@ bool om_bus_publish(OmBus* self, OmEvent * event)
     }
     else
     {
+        om_mutex_unlock(&self->mutex);
         return true;
     }
 }

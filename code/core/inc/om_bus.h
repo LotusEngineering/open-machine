@@ -11,11 +11,13 @@
 #include "om_event.h"
 #include "om_actor.h"
 #include "om_config.h"
+#include "om_mutex.h"
 
 typedef struct 
 {
     OmActor* subscribers[OM_ACTOR_MAX_ACTORS];
     int subscriber_count;
+    OmMutex mutex;
 }OmBus;
 
 void om_bus_ctor(OmBus* self);

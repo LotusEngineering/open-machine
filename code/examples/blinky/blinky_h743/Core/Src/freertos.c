@@ -42,7 +42,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define OM_TRACE_TICK_MSEC 10
+#define OM_TICK_RATE_MSEC 10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -123,7 +123,7 @@ void MX_FREERTOS_Init(void) {
   application_start(osPriorityNormal);
 
   // Start Trace timer
-  osTimerStart(om_trace_timerHandle, OM_TRACE_TICK_MSEC);
+  osTimerStart(om_trace_timerHandle, (OM_TICK_RATE_MSEC * 1000) /configTICK_RATE_HZ );
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -171,8 +171,8 @@ void StartDefaultTask(void *argument)
 void om_tick_callback(void *argument)
 {
   /* USER CODE BEGIN om_tick_callback */
-  om_trace_tick(&application_trace, OM_TRACE_TICK_MSEC * 1000);
-  om_timer_tick(OM_TRACE_TICK_MSEC);
+  om_trace_tick(&application_trace, OM_TICK_RATE_MSEC * 1000);
+  om_timer_tick(OM_TICK_RATE_MSEC);
   /* USER CODE END om_tick_callback */
 }
 

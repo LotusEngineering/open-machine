@@ -1,6 +1,7 @@
 #include "board.h"
 #include "gpio.h"
 #include "om_trace.h"
+#include "application.h"
 
 void board_init(void)
 {

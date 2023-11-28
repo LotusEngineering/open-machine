@@ -10,10 +10,10 @@
 #include "board.h"
 
 
-#define BUTTON_SCAN_TIME_MSEC 50
-#define BUTTON_DEBOUNCE_TIME_MS 100
+#define BUTTON_SCAN_TIME_MSEC 10
+#define BUTTON_DEBOUNCE_TIME_MS 50
 #define BUTTON_MON_DEBOUNCE_LIMIT (BUTTON_DEBOUNCE_TIME_MS / BUTTON_SCAN_TIME_MSEC)
-#define BUTTON_HELD_TIME_MSEC 2000
+#define BUTTON_HELD_TIME_MSEC 1000
 
 // Private signals
 enum ButtonMonSignals
@@ -28,14 +28,10 @@ OM_EVENT(ReleasedEvt, EVT_BUTTON_RELEASE);
 OM_EVENT(HeldEvt, EVT_BUTTON_HELD);
 
 
-// Create timers
-OM_TIME_EVENT(ScanTimeoutEvent, EVT_SCAN_TIMEOUT);
-OM_TIME_EVENT(HeldTimeoutEvent, EVT_HELD_TIMEOUT);
-
 // Declare Init trans
 OmStateResult button_monitor_init_trans(ButtonMonitor* self);
 
-// Declare the two states
+// Declare the button monitor states 
 OM_STATE_DECLARE(ButtonMonitor, Unknown, OM_TOP_STATE);
 OM_STATE_DECLARE(ButtonMonitor, Pressed, OM_TOP_STATE);
 OM_STATE_DECLARE(ButtonMonitor, Held, &Pressed);
@@ -118,6 +114,11 @@ OM_STATE_DEFINE(ButtonMonitor, Pressed)
                     result = OM_TRANS(Released);
                 }
             }
+            else
+            {
+                self->debounce_counter = 0;
+            }
+
         break;
         case EVT_HELD_TIMEOUT:
             // Goto substate
@@ -173,6 +174,10 @@ OM_STATE_DEFINE(ButtonMonitor, Released)
                 {
                     result = OM_TRANS(Pressed);
                 }
+            }
+            else
+            {
+                self->debounce_counter = 0;
             }
         break;
        default:

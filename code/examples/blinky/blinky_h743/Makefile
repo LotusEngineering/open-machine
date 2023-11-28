@@ -86,6 +86,7 @@ Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
 C_SOURCES += ../../../core/src/om_hsm.c
 C_SOURCES += ../../../core/src/om_trace.c
 C_SOURCES += ../../../core/src/om_timer.c
+C_SOURCES += ../../../core/src/om_actor.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_actor_cmsis.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_pool_cmsis.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_mutex_cmsis.c

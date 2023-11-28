@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "om_event.h"
+#include "om_port.h"
 
 
 // OS Port specific memory pool data

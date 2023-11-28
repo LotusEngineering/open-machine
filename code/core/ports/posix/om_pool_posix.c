@@ -14,13 +14,6 @@
 OM_ASSERT_SET_FILE_NAME();
 
 
-typedef struct OmPoolPort
-{
-
-}OmPoolPort;
-
-//typedef void OmPoolPort;
-
 static OmPoolPort om_pool_dummy;
 
 

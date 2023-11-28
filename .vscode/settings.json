@@ -17,7 +17,8 @@
         "om_actor.h": "c",
         "om_config.h": "c",
         "stdbool.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "om_pool.h": "c"
     },
     "makefile.phonyOnlyTargets": false,
     "C_Cpp.default.compilerPath": "/usr/bin/gcc"
