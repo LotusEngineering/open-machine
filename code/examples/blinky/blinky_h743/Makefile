@@ -163,6 +163,7 @@ C_INCLUDES =  \
 
 # USER CODE BEGIN
 C_INCLUDES += -I../../../core/inc
+C_INCLUDES += -I../../../core/ports/cmsis_os2
 C_INCLUDES += -I..
 # USER CODE END
 
