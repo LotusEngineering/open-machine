@@ -36,11 +36,6 @@ void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, cons
     // Set Actor's trace
     self->trace = trace;
 
-    self->port = &om_actor_table[om_actor_count];
-    om_actor_count++;
-
-    // Too many actors, update config, or better yet simplify your design
-    OM_ASSERT(om_actor_count <= OM_ACTOR_MAX_ACTORS);
     self->port.thread_id = (pthread_t)NULL;
 
     pthread_mutex_init(&self->port.q_mutex, NULL);

@@ -6,8 +6,10 @@
 
 #ifndef OM_PORT_H_
 #define OM_PORT_H_
+
 #include <pthread.h> 
-#include "om.h"
+#include "om_queue.h"
+#include "om_event.h"
 
 typedef pthread_mutex_t OmMutexPort;
 
