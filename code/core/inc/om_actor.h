@@ -51,11 +51,13 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
 
 void om_actor_stop(OmActor* self);
 
-void om_actor_send_message(OmActor* self, OmEvent  *  message);
+void om_actor_message(OmActor* self, OmEvent  *  message);
 
+#if 0
 /// @brief Shared dispatch code to be used internally by various ports
 /// @param self 
 /// @param event 
 inline void om_actor_dispatch_(OmActor* self, OmEvent* event);
+#endif
 
 #endif// OM_ACTOR_H_
