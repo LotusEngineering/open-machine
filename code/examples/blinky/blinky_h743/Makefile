@@ -88,6 +88,7 @@ C_SOURCES += ../../../core/src/om_trace.c
 C_SOURCES += ../../../core/src/om_timer.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_actor_cmsis.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_pool_cmsis.c
+C_SOURCES += ../../../core/ports/cmsis_os2/om_mutex_cmsis.c
 C_SOURCES += ../blinky.c
 C_SOURCES += ../application.c
 C_SOURCES += board.c

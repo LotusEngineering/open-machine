@@ -57,8 +57,8 @@ void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, cons
     OM_ASSERT(om_actor_count <= OM_ACTOR_MAX_ACTORS);
     self->port->thread_id = (pthread_t)NULL;
 
-    self->port->q_mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
-    self->port->q_cond = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
+    pthread_mutex_init(&self->port->q_mutex, NULL);
+    pthread_cond_init(&self->port->q_cond, NULL);
 }
 
 void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t stack_size)
@@ -109,6 +109,8 @@ void om_actor_stop(OmActor* self)
      // Wait for the created thread to finish
     pthread_join(self->port->thread_id, NULL);
     free(self->port->queue_storage);
+    pthread_mutex_destroy(&self->port->q_mutex);
+    pthread_cond_destroy(&self->port->q_cond);
 }
 
 void om_actor_message(OmActor* self, OmEvent *  message)
@@ -126,11 +128,11 @@ void om_actor_message(OmActor* self, OmEvent *  message)
 
     // An assert here means we ran out of queue space
     OM_ASSERT(om_queue_put(&self->port->queue, message));
-  
-    pthread_mutex_unlock(&self->port->q_mutex);
 
     // Signal that an event is waiting
     pthread_cond_signal(&self->port->q_cond);
+
+    pthread_mutex_unlock(&self->port->q_mutex);
 
 }
 
@@ -145,45 +147,45 @@ void *  om_actor_event_loop(void* argument)
 
     while(1)
     {
-        //TODO Block on messages
-        pthread_cond_wait(&self->port->q_cond,	
-                               &self->port->q_mutex);
         pthread_mutex_lock(&self->port->q_mutex);
-        if (om_queue_get(&self->port->queue, &event))
+        while(!om_queue_get(&self->port->queue, &event))
         {
-            if(event->type == OM_ET_TIME)
-            {
-                // Check for stale time events
-                if (OM_TIME_EVENT_CAST(event)->state != OM_TS_STOPPED)
-                {
-                    om_hsm_dispatch(&self->base, event);
-                }
-            }
-            else if(event->type == OM_ET_POOL)
-            {
-                // Check for memory pool events
-                OmPoolEvent* pool_event = OM_POOL_EVENT_CAST(event);
-                
-                // Should have been incremented in om_actor_message()
-                OM_ASSERT(pool_event->reference_count >= 1);
-
-                om_hsm_dispatch(&self->base, event);
-                
-                // Decrement the reference count
-                pool_event->reference_count--;
-
-                // Free if count is zero
-                if (pool_event->reference_count == 0)
-                {
-                    om_pool_free(pool_event);
-                }
-            }
-            else
-            {
-                om_hsm_dispatch(&self->base, event);
-            }
-        }// if
+            pthread_cond_wait(&self->port->q_cond,	
+                                &self->port->q_mutex);
+        }
         pthread_mutex_unlock(&self->port->q_mutex);
+        
+        if(event->type == OM_ET_TIME)
+        {
+            // Check for stale time events
+            if (OM_TIME_EVENT_CAST(event)->state != OM_TS_STOPPED)
+            {
+                om_hsm_dispatch(&self->base, event);
+            }
+        }
+        else if(event->type == OM_ET_POOL)
+        {
+            // Check for memory pool events
+            OmPoolEvent* pool_event = OM_POOL_EVENT_CAST(event);
+            
+            // Should have been incremented in om_actor_message()
+            OM_ASSERT(pool_event->reference_count >= 1);
+
+            om_hsm_dispatch(&self->base, event);
+            
+            // Decrement the reference count
+            pool_event->reference_count--;
+
+            // Free if count is zero
+            if (pool_event->reference_count == 0)
+            {
+                om_pool_free(pool_event);
+            }
+        }
+        else
+        {
+            om_hsm_dispatch(&self->base, event);
+        }
                
     }// while
 }

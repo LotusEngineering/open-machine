@@ -89,6 +89,7 @@ C_SOURCES += ../../../core/src/om_trace.c
 C_SOURCES += ../../../core/src/om_timer.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_actor_cmsis.c
 C_SOURCES += ../../../core/ports/cmsis_os2/om_pool_cmsis.c
+C_SOURCES += ../../../core/ports/cmsis_os2/om_mutex_cmsis.c
 C_SOURCES += ../brew_events.c
 C_SOURCES += ../brew_control.c
 C_SOURCES += ../button_monitor.c

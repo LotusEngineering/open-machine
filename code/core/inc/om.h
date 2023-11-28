@@ -17,6 +17,6 @@
 #include "om_bus.h"
 
 
-#define OM_VERSION_STRING "0.0.2"
+#define OM_VERSION_STRING "0.0.3"
 
 #endif //OM_H_

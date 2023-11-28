@@ -1,4 +1,4 @@
-name: Interposer Build
+name: Open Machine Build
 
 on:
   push:
@@ -29,12 +29,11 @@ jobs:
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.bin ./release/blinky_h743.bin
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.hex ./release/blinky_h743.hex
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.elf ./release/blinky_h743.elf
-        # cp ./docs/ReleaseNotes.md ./release/ReleaseNotes.md
         echo ${{ github.sha }} > ./release/github_sha.txt
 
     - uses: actions/upload-artifact@v3
       with:
-        name: OpenMachine Release
+        name: Open Machine Release
         path: |
           ./release
     

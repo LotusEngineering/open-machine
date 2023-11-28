@@ -27,13 +27,13 @@ void application_start(int priority)
 
     // Create actors, inject the LED they should blink
     blinky_ctor(&blink_red, "blink_red", &application_trace, BOARD_LED_RED, 2000);
-//    blinky_ctor(&blink_yellow,"blink_yellow", &application_trace, BOARD_LED_YELLOW, 1000);
-//    blinky_ctor(&blink_green, "blink_green", &application_trace, BOARD_LED_GREEN, 500);
+    blinky_ctor(&blink_yellow,"blink_yellow", &application_trace, BOARD_LED_YELLOW, 1000);
+    blinky_ctor(&blink_green, "blink_green", &application_trace, BOARD_LED_GREEN, 500);
 
     // Start actors
     om_actor_start(&blink_red.base, priority, 16, 128 * 8);
-//    om_actor_start(&blink_yellow.base, priority, 16, 128 * 8);
-//    om_actor_start(&blink_green.base, priority, 16, 128 * 8);
+    om_actor_start(&blink_yellow.base, priority, 16, 128 * 8);
+    om_actor_start(&blink_green.base, priority, 16, 128 * 8);
 }
 
 
