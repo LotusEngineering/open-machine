@@ -29,7 +29,7 @@ OmPoolEvent* om_pool_alloc(size_t event_size, OmSignal signal, const char* name)
     OmPoolEvent* new_event = NULL;
 
 
-    new_event = (OmEvent*)malloc(sizeof(OmEvent*));
+    new_event = (OmPoolEvent*)malloc(event_size);
 
     // Could not allocate event, ran out of space?
     OM_ASSERT(new_event != NULL);

@@ -11,8 +11,6 @@
 #include "om_port.h"
 
 
-// Forward declare actor, actual struct is port specific
-//typedef struct OmActor OmActor;
 
 // Forward declare
 //struct OmHsm;
