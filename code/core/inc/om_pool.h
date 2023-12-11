@@ -22,7 +22,7 @@ typedef struct
     uint32_t reference_count;
 }OmPoolEvent;
 
-
+/// Allocates a new event from the pool, NOTE: Event must derive from OmPoolEvent!
 #define OM_POOL_EVENT_NEW(event_type_, signal_) (event_type_ *)(om_pool_alloc(sizeof(event_type_), signal_, #signal_))
 
 #define OM_POOL_EVENT_CAST(event_name_) ((OmPoolEvent *)event_name_)

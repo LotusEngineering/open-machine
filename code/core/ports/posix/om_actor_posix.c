@@ -120,7 +120,7 @@ void om_actor_message(OmActor* self, OmEvent *  message)
 //////////////////// Private Functions //////////////////////////
 void *  om_actor_event_loop(void* argument)
 {
-    OmEvent const * event;
+    OmEvent * event;
     OmActor* self = (OmActor*)argument;
     
     // Enter the state machine

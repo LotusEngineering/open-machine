@@ -39,7 +39,7 @@ typedef struct
 #define OMA_TRACE_VAL_DEC(string_) OM_TRACE_VAL_DEC(self->base.trace, string_)
 #define OMA_TRACE_VAL_HEX(string_) OM_TRACE_VAL_HEX(self->base.trace, string_)
 
-#define OMA_POST(target_, event_) om_actor_message(target_, (OmEvent*)(event_))
+#define OMA_POST(target_, event_) om_actor_message((OmActor*)(target_), (OmEvent*)(event_))
 
 
 void om_actor_ctor(OmActor* self, OmInitHandler initial_trans);
