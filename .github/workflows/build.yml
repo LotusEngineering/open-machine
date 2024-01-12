@@ -19,9 +19,24 @@ jobs:
       with:
         release: '11.3.Rel1' # <-- The version used by the STM32CLT install
 
-    - name: Make Blinky
+#    - name: Install Latest CMake
+#      uses: lukka/get-cmake@latest
+
+    - name: Run CMake for Blinky Posix
+      run: cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug
+      working-directory: ./code/examples/blinky/blinky_posix
+
+    - name: Make Blinky H743
       run: make all
       working-directory: ./code/examples/blinky/blinky_h743
+
+    - name: Make Blinky Posix
+      run: make all
+      working-directory: ./code/examples/blinky/blinky_posix/build
+
+    - name: Make Tea Timer H743
+      run: make all
+      working-directory: ./code/examples/tea_timer/tea_timer_h743
 
     - name: Create Distribution Directory
       run: |
@@ -29,6 +44,10 @@ jobs:
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.bin ./release/blinky_h743.bin
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.hex ./release/blinky_h743.hex
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.elf ./release/blinky_h743.elf
+        cp ./code/examples/blinky/blinky_posix/build/blinky_posix ./release/blinky_posix
+        cp ./code/examples/tea_timer/tea_timer_h743/build/tea_timer_h743.bin ./release/tea_timer_h743.bin
+        cp ./code/examples/tea_timer/tea_timer_h743/build/tea_timer_h743.hex ./release/tea_timer_h743.hex
+        cp ./code/examples/tea_timer/tea_timer_h743/build/tea_timer_h743.elf ./release/tea_timer_h743.elf
         echo ${{ github.sha }} > ./release/github_sha.txt
 
     - uses: actions/upload-artifact@v3
