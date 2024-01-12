@@ -8,7 +8,7 @@ add_executable(${PROJECT_NAME} "")
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR} 
     ../../core/inc
-    ../../core/ports/posix
+    ../../core/ports/lite
     ../unity/src 
     ../unity/extras/fixture/src
     ../unity/extras/memory/src)

@@ -14,15 +14,11 @@
             "windows": {
                 "command": "cmake",
                 "args": [
-                    "-G",
-                    "\"MinGW Makefiles\"",
                     "-S",
                     ".",
                     "-B",
                     "./build",
-                    "-DCMAKE_BUILD_TYPE=Debug",
-                    "-DCMAKE_CXX_COMPILER=C:/MinGW/bin/g++.exe",
-                    "-DCMAKE_C_COMPILER=C:/MinGW/bin/gcc.exe"
+                    "-DCMAKE_BUILD_TYPE=Debug"
                 ]
             },
             "linux": {
@@ -68,7 +64,7 @@
                 "cwd": "${workspaceRoot}/code/test/hsm_test/build"
             },
             "windows": {
-                "command": "hsm_test",
+                "command": "${workspaceRoot}/code/test/hsm_test/build/hsm_test.exe",
                 "args": []
             },
             "linux": {
