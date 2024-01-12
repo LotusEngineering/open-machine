@@ -19,8 +19,17 @@ jobs:
       with:
         release: '11.3.Rel1' # <-- The version used by the STM32CLT install
 
-#    - name: Install Latest CMake
-#      uses: lukka/get-cmake@latest
+    - name: Run CMake for HSM Test
+      run: cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug
+      working-directory: ./code/test/hsm_test
+
+    - name: Make HSM Test
+      run: make
+      working-directory: ./code/test/hsm_test/build
+
+    - name: Run HSM Test
+      run: ./hsm_test
+      working-directory: ./code/test/hsm_test/build
 
     - name: Run CMake for Blinky Posix
       run: cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug
