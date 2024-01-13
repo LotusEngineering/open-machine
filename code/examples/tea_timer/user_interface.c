@@ -36,7 +36,11 @@ OM_STATE_DECLARE(UserInterface, ui_green, &ui_config);
 void ui_ctor(UserInterface* self, OmBus* button_bus, OmActor* brew_control,  OmTrace* trace)
 {
     // Call base actor trace constructor, only show transitions
-    om_actor_ctor_trace(&self->base, OM_INIT_CAST(ui_init_trans), "UI", trace, OM_TF_TRANS);
+    om_actor_ctor_trace(&self->base, 
+                        OM_INIT_CAST(ui_init_trans), 
+                        "UI", 
+                        trace, 
+                        OM_TF_TRANS);
 
     om_timer_ctor(&self->status_timer, EVT_STATUS_TIMEOUT, "StatusTimeout", &self->base);
 

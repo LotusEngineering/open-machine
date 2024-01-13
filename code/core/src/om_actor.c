@@ -8,6 +8,7 @@
 
 OM_ASSERT_SET_FILE_NAME();
 
+// This function is shared implementation amongst ports
 void om_actor_dispatch_(OmActor* self, OmEvent* event)
 {
     if(event->type == OM_ET_TIME)

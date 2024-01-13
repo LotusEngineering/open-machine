@@ -45,7 +45,11 @@ void button_monitor_ctor(ButtonMonitor* self, OmBus* button_bus, OmTrace* trace)
     self->button_bus = button_bus;
 
     // Call base actor trace constructor
-    om_actor_ctor_trace(&self->base, OM_INIT_CAST(button_monitor_init_trans), "ButtonMonitor", trace, OM_TF_NONE);
+    om_actor_ctor_trace(&self->base, 
+                        OM_INIT_CAST(button_monitor_init_trans), 
+                        "ButtonMonitor", 
+                        trace, 
+                        OM_TF_NONE);
 
     // Create periodic timer
     om_timer_ctor(&self->scan_timer, EVT_SCAN_TIMEOUT,"ScanTimeout", &self->base);

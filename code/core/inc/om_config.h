@@ -9,6 +9,12 @@
 
 #include <stddef.h>
 
+/// To define a custom configuration file, define OM_CONFIG_CUSTOM and provide a header file
+#ifdef OM_CONFIG_CUSTOM
+#include "om_config_user.h"
+#endif
+
+
 #ifndef OM_TRACE_MAX_MESSAGE_LENGTH
     #define OM_TRACE_MAX_MESSAGE_LENGTH 80
 #endif

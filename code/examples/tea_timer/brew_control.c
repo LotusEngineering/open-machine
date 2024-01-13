@@ -41,7 +41,11 @@ OM_STATE_DECLARE(BrewControl, brew_steeping, OM_TOP_STATE);
 void brew_control_ctor(BrewControl* self,  OmTrace* trace)
 {
     // Call base actor trace constructor, only show transitions
-    om_actor_ctor_trace(&self->base, OM_INIT_CAST(brew_control_init_trans), "BrewControl", trace, OM_TF_TRANS);
+    om_actor_ctor_trace(&self->base, 
+                        OM_INIT_CAST(brew_control_init_trans), 
+                        "BrewControl", 
+                        trace, 
+                        OM_TF_TRANS);
 
     // Create steep timer
     om_timer_ctor(&self->steep_timer, EVT_ONE_SECOND, "ONE_SEC",  &self->base);

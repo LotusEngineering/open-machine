@@ -50,6 +50,7 @@ jobs:
     - name: Create Distribution Directory
       run: |
         mkdir release        
+        cp ./code/test/hsm_test/build/hsm_test ./release/hsm_test
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.bin ./release/blinky_h743.bin
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.hex ./release/blinky_h743.hex
         cp ./code/examples/blinky/blinky_h743/build/blinky_h743.elf ./release/blinky_h743.elf

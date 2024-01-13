@@ -13,6 +13,7 @@
 #include "om_config.h"
 #include "om_mutex.h"
 
+/// @brief Structure that defines a publish/subscribe message bus
 typedef struct 
 {
     OmActor* subscribers[OM_ACTOR_MAX_ACTORS];
@@ -20,12 +21,24 @@ typedef struct
     OmMutex mutex;
 }OmBus;
 
+/// @brief Constructs a message bus
+/// @param self 
 void om_bus_ctor(OmBus* self);
 
+/// @brief Subscribes an actor to a message bus
+/// @param self 
+/// @param subscriber 
 void om_bus_subscribe(OmBus* self, OmActor* subscriber);
 
+/// @brief Unsubscribes an actor from a message bus
+/// @param self 
+/// @param subscriber 
 void om_bus_unsubscribe(OmBus* self, OmActor* subscriber);
 
+/// @brief Publishes an event to a message bus
+/// @param self 
+/// @param event 
+/// @return 
 bool om_bus_publish(OmBus* self, OmEvent * event);
 
 #endif // OM_BUS_H_

@@ -14,10 +14,10 @@
 #include "om_event.h"
 
 
-
 // Forward declare
 typedef struct OmHsm_t OmHsm;
 
+/// @brief Return results from state handler function
 typedef enum
 {
     OM_RES_IGNORED,    ///< Event was not handled
@@ -29,24 +29,28 @@ typedef enum
 /// @brief Initial Transition Handler Signature
 typedef OmStateResult (*OmInitHandler)(OmHsm * const self);
 
-
+/// Helper to cast intial transition helper
 #define OM_INIT_CAST(init_handler_) (OmInitHandler)(init_handler_)
 
 
 /// @brief State Event Handler Signature
 typedef OmStateResult (*OmStateHandler)(OmHsm * const self, OmEvent const * const event);
 
-// Top of state hierarchy, set to parent for top-most states
+/// Top of state hierarchy, set to parent for top-most states
 #define OM_TOP_STATE   NULL
 
-typedef struct OmState
+/// @brief Definition of State data
+typedef struct OmState_t
 {
     OmStateHandler handler;
     struct OmState* parent;
     const char* name;  
 }OmState;
 
-
+/// @brief Constructs a state
+/// @param self 
+/// @param parent 
+/// @param name 
 void om_state_ctor(OmState* self, OmState* parent, const char* name);
 
 
@@ -54,40 +58,29 @@ void om_state_ctor(OmState* self, OmState* parent, const char* name);
 #define OM_CONCAT(a, b) a ## b
 
 
-/**
- * @brief Used to define the handler signature for a state machine
- * 
- * @note: Use without a semi-colon to define your handler
- * 
- */
+/// @brief Used to define the handler signature for a state machine
+/// @note: Use without a semi-colon to define your handler function signature
 #define OM_STATE_DEFINE(machine_, state_name_ ) OmStateResult OM_CONCAT(state_name_, _handler)(machine_ * const self, OmEvent const * const event)
 
 
-/**
- * @brief Used to declare and allocate a state handler
- * 
- */
+/// @brief Used to declare and allocate a state handler
 #define OM_STATE_DECLARE(machine_, state_name_, parent_ptr_)  OM_STATE_DEFINE(machine_, state_name_); \
 OmState state_name_ = { (OmStateHandler)OM_CONCAT(state_name_, _handler), parent_ptr_, #state_name_};
 
 
-/**
- * @brief Exits a state machine and sets state machine inactive 
- * 
- * @param exit_code_ Exit code, available with om_hsm_get_exit_code() 
- * @note This is to called in a OmState handler function 
- */
+/// @brief Exits a state machine and sets state machine inactive 
+/// 
+/// @param exit_code_ Exit code, available with om_hsm_get_exit_code() 
+/// @note This is to called in a OmState handler function 
 #define OM_EXIT(exit_code_)  (((OmHsm*)self)->exit_code = exit_code_, OM_RES_EXIT)
 
-/**
- * @brief Causes a state transitions
- * 
- * @param new_state_ State to transition to 
- * @note This is to called in a OmState handler function 
- */
+/// @brief Causes a state transitions
+/// 
+/// @param new_state_ State to transition to 
+/// @note This is to called in a OmState handler function 
 #define OM_TRANS(new_state_)  (((OmHsm*)self)->target_state = &new_state_, OM_RES_TRANSITION)
 
-
+/// @brief Flags used to control what is traced
 typedef enum 
 {
     OM_TF_NONE = 0x00,
@@ -100,7 +93,7 @@ typedef enum
     OM_TF_ALL = OM_TF_ENTER | OM_TF_HANDLED | OM_TF_IGNORED | OM_TF_TRANS | OM_TF_EXIT | OM_TF_UNHANDLED
 }OmTraceFlags;
 
-
+/// @brief Defines HSM data structure
 typedef struct OmHsm_t
 {
     OmState* current_state;
@@ -141,25 +134,23 @@ bool om_hsm_is_active(OmHsm* const self);
 /// @param self State machine
 void om_hsm_enter(OmHsm* const self);
 
-
+/// @brief Forces the HSM to exit
+/// @param self 
+/// @param exit_code 
 void om_hsm_exit(OmHsm* const self, int exit_code);
 
-/**
- * @brief Dispatches an event into a state machine
- * 
- * @param self State machine instance
- * @param event The event to dispatch
- * @return true if state machine is active
- * @return false if state machine is inactive (exited or not entered)
- */
+/// @brief Dispatches an event into a state machine
+///
+/// @param self State machine instance
+/// @param event The event to dispatch
+/// @return true if state machine is active
+/// @return false if state machine is inactive (exited or not entered)
 bool om_hsm_dispatch(OmHsm * const self, OmEvent const * const event);
 
 
-/**
- * @brief Returns exit code supplied by state unsing OM_EXIT
- * 
- * @param self State machine instance
- */
+/// @brief Returns exit code supplied by state unsing OM_EXIT
+/// 
+/// @param self State machine instance
 int om_hsm_get_exit_code(OmHsm* self);
 
 #endif // OM_HSM_H_

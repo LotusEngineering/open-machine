@@ -8,15 +8,22 @@
 #define OM_MUTEX_H_
 #include "om_port.h"
 
-typedef struct
+/// @brief Mutex data type
+typedef struct OmMutex_t
 {
     OmMutexPort port;
 }OmMutex;
 
+/// @brief Initializes a mutex
+/// @param mutex 
 void om_mutex_init(OmMutex* mutex);
 
+/// @brief Locks a mutex, blocks if already locked
+/// @param mutex 
 void om_mutex_lock(OmMutex* mutex);
 
+/// @brief Unlocks a mutex
+/// @param mutex 
 void om_mutex_unlock(OmMutex* mutex);
 
 
