@@ -25,7 +25,7 @@
             "preLaunchTask": "Tea Timer H743 Make All"
         },
         {
-            "name": "hsm_test-mingw-Debug",
+            "name": "HSM_Test-mingw-Debug",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/code/test/hsm_test/build/hsm_test.exe",
@@ -43,7 +43,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Build-mingw-hsm_test"
+            "preLaunchTask": "HSM_Test-Build"
 
         },
         {

@@ -56,10 +56,10 @@
         {
             "label": "HSM_Test-Run",
             "type": "shell",
-            "group": {
-                "kind": "test",
+            "group" :{
+                "kind": "build",
                 "isDefault": true
-            },
+            },            
             "options": {
                 "cwd": "${workspaceRoot}/code/test/hsm_test/build"
             },

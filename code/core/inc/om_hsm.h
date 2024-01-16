@@ -40,7 +40,7 @@ typedef OmStateResult (*OmStateHandler)(OmHsm * const self, OmEvent const * cons
 #define OM_TOP_STATE   NULL
 
 /// @brief Definition of State data
-typedef struct OmState_t
+typedef struct OmState 
 {
     OmStateHandler handler;
     struct OmState* parent;

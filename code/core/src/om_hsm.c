@@ -20,7 +20,7 @@ OM_EVENT(OmExitEvent, OM_EVT_EXIT);
 // Private functions
 static inline OmStateResult om_hsm_call_handler_(OmHsm * const self, OmState* state, OmEvent const * const event);
 static inline int om_hsm_get_top_path_(OmState* start_state, OmState* path[OM_HSM_MAX_STATE_DEPTH]);
-
+static inline void om_hsm_exit_to_top_(OmHsm * const self);
 
 void om_hsm_ctor(OmHsm * const self, OmInitHandler initial_trans)
 {
@@ -106,10 +106,12 @@ void om_hsm_enter(OmHsm * const self)
 }
 
 void om_hsm_exit(OmHsm* const self, int exit_code)
-{   
-    self->is_active = false;
+{
+    // Set exit code in case HSM needs to inspect it for special exit handling   
     self->exit_code = exit_code;
-    ///#todo call exit functions?
+
+    // Force exiting of all states
+    om_hsm_exit_to_top_(self);
 }
 
 bool om_hsm_dispatch(OmHsm * const self, OmEvent const * const event)
@@ -162,18 +164,10 @@ bool om_hsm_dispatch(OmHsm * const self, OmEvent const * const event)
             break;
 
             case OM_RES_EXIT:
-                // Exit all the states from the current state
-                search_state = self->current_state;
-                while (search_state != OM_TOP_STATE)
-                {
-                    result = om_hsm_call_handler_(self, search_state, &OmExitEvent);           
-                    search_state = search_state->parent;
-                }
-                self->current_state = OM_TOP_STATE;
-                
-                // Exit the state machine
-                self->is_active = false;
 
+                // Exit to top state
+                om_hsm_exit_to_top_(self);
+            
                 result = OM_RES_HANDLED;
                 continue;        
             break;
@@ -349,5 +343,27 @@ inline int om_hsm_get_top_path_(OmState* start_state, OmState* path[OM_HSM_MAX_S
 
     // Return path length
     return idx;
+}
+
+inline void om_hsm_exit_to_top_(OmHsm * const self)
+{
+    // Temporary state pointer used to exit states
+    OmState* search_state = self->current_state;
+
+    // Corrupted data, check for wayward pointers!
+    OM_ASSERT(search_state != OM_TOP_STATE);
+
+    // Exit all the states from the current state
+    search_state = self->current_state;
+    while (search_state != OM_TOP_STATE)
+    {
+        om_hsm_call_handler_(self, search_state, &OmExitEvent);           
+        search_state = search_state->parent;
+    }
+    self->current_state = OM_TOP_STATE;
+    
+    // Set the state machine as in-active
+    self->is_active = false;
+
 }
 

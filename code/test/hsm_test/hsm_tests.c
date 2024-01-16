@@ -439,7 +439,7 @@ TEST(hsm_tests, local_trans_test)
     TEST_ASSERT_EQUAL_STRING("Hsm:S32:OM_EVT_INIT:Ignored", trace.message);
 }
 
-TEST(hsm_tests, exit_test)
+TEST(hsm_tests, exit_with_signal_test)
 {
     OmTraceLogEntry trace;
 
@@ -477,6 +477,41 @@ TEST(hsm_tests, exit_test)
 
 }
 
+TEST(hsm_tests, exit_with_function_call_test)
+{
+    OmTraceLogEntry trace;
+
+    // Initialize the state machine
+    om_hsm_enter(&hsm.base);
+
+    // Clear the log
+    om_trace_clear(&test_trace);
+
+    // Call Exit function with code -2
+    om_hsm_exit(&hsm.base, -2);
+
+    TEST_ASSERT(om_trace_read(&test_trace, &trace));
+    TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_EXIT:Handled", trace.message);
+
+    TEST_ASSERT(om_trace_read(&test_trace, &trace));
+    TEST_ASSERT_EQUAL_STRING("Hsm:S11:OM_EVT_EXIT:Handled", trace.message);
+
+    TEST_ASSERT(om_trace_read(&test_trace, &trace));
+    TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_EXIT:Handled", trace.message);
+
+    // Should be at top of machine
+    TEST_ASSERT(om_trace_read(&test_trace, &trace) == false);
+
+    // Make sure exit code was supplied
+    TEST_ASSERT_EQUAL_INT(om_hsm_get_exit_code(&hsm.base), -2);
+
+    // Dispatch Event A, dispatch should be ignored since machine has been exited
+    om_hsm_dispatch(&hsm.base, &EventA);
+    TEST_ASSERT(om_trace_read(&test_trace, &trace));
+    TEST_ASSERT_EQUAL_STRING("Hsm:om_hsm_dispatch:EVT_A:Ignored", trace.message);
+
+}
+
 TEST_GROUP_RUNNER(hsm_tests)
 {
     RUN_TEST_CASE(hsm_tests, trace_test);
@@ -487,5 +522,6 @@ TEST_GROUP_RUNNER(hsm_tests)
     RUN_TEST_CASE(hsm_tests, side_trans_test);
     RUN_TEST_CASE(hsm_tests, self_trans_test);
     RUN_TEST_CASE(hsm_tests, local_trans_test);
-    RUN_TEST_CASE(hsm_tests, exit_test);
+    RUN_TEST_CASE(hsm_tests, exit_with_signal_test);
+    RUN_TEST_CASE(hsm_tests, exit_with_function_call_test);
 }
