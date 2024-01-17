@@ -10,7 +10,7 @@
 #include "om_assert.h"
 
 // Set assert file name
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_hsm.c");
 
 // Om Internal events
 OM_EVENT(OmInitEvent, OM_EVT_INIT);
@@ -21,6 +21,29 @@ OM_EVENT(OmExitEvent, OM_EVT_EXIT);
 static inline OmStateResult om_hsm_call_handler_(OmHsm * const self, OmState* state, OmEvent const * const event);
 static inline int om_hsm_get_top_path_(OmState* start_state, OmState* path[OM_HSM_MAX_STATE_DEPTH]);
 static inline void om_hsm_exit_to_top_(OmHsm * const self);
+
+void om_hsm_init(OmHsm * const self, OmInitHandler initial_trans, OmTraceAttr * trace_attr)
+{
+    self->current_state = OM_TOP_STATE;
+    self->target_state = OM_TOP_STATE;
+    self->is_active = false;
+    self->exit_code = 0;
+
+    self->initial_trans = initial_trans;
+
+    if (trace_attr != NULL)
+    {
+        self->name = trace_attr->name;
+        self->trace = trace_attr->trace;
+        self->trace_flags = trace_attr->flags;
+    }
+    else
+    {
+        self->name = NULL;
+        self->trace = NULL;
+        self->trace_flags = OM_TF_NONE;
+    }
+}
 
 void om_hsm_ctor(OmHsm * const self, OmInitHandler initial_trans)
 {
@@ -110,6 +133,11 @@ void om_hsm_exit(OmHsm* const self, int exit_code)
     // Set exit code in case HSM needs to inspect it for special exit handling   
     self->exit_code = exit_code;
 
+    if(self->trace_flags & OM_TF_EXIT)
+    {
+        OM_TRACE_TWO(self->trace,  self->name, "om_hsm_exit()");
+    }
+
     // Force exiting of all states
     om_hsm_exit_to_top_(self);
 }
@@ -122,6 +150,22 @@ bool om_hsm_dispatch(OmHsm * const self, OmEvent const * const event)
         if(self->trace_flags & OM_TF_IGNORED)
             OM_TRACE_FOUR(self->trace,  self->name, "om_hsm_dispatch", event->name, "Ignored");
         return false;
+    }
+    else if (event->signal == OM_EVT_ACTOR_STOP)
+    {
+        // Set exit code to be the actor stop signal value 
+        self->exit_code = OM_EVT_ACTOR_STOP;
+
+        if(self->trace_flags & OM_TF_EXIT)
+        {
+            OM_TRACE_TWO(self->trace,  self->name, "OM_EVT_ACTOR_STOP");
+        }
+
+        // Force exiting of all states
+        om_hsm_exit_to_top_(self);
+
+        // Return early HSM is done
+        return true;
     }
 
     // Temporary state pointer used to search for handler
@@ -164,7 +208,6 @@ bool om_hsm_dispatch(OmHsm * const self, OmEvent const * const event)
             break;
 
             case OM_RES_EXIT:
-
                 // Exit to top state
                 om_hsm_exit_to_top_(self);
             

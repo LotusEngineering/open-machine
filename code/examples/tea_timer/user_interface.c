@@ -27,9 +27,9 @@ OM_STATE_DECLARE(UserInterface, ui_idle, OM_TOP_STATE);
 OM_STATE_DECLARE(UserInterface, ui_brewing, OM_TOP_STATE);
 OM_STATE_DECLARE(UserInterface, ui_done, OM_TOP_STATE);
 OM_STATE_DECLARE(UserInterface, ui_config, OM_TOP_STATE);
-OM_STATE_DECLARE(UserInterface, ui_black, &ui_config);
-OM_STATE_DECLARE(UserInterface, ui_oolong, &ui_config);
-OM_STATE_DECLARE(UserInterface, ui_green, &ui_config);
+    OM_STATE_DECLARE(UserInterface, ui_black, &ui_config);
+    OM_STATE_DECLARE(UserInterface, ui_oolong, &ui_config);
+    OM_STATE_DECLARE(UserInterface, ui_green, &ui_config);
 
 
 
@@ -75,6 +75,10 @@ OM_STATE_DEFINE(UserInterface, ui_idle)
             // Ignore first release on power up 
             if (!first_release)
             {
+
+                // Start brew control
+                om_actor_start(self->brew_control, priority + 1, 16, 128 * 8);
+
                 // Send a brew request to the brew control
                 BrewRequestEvent* request = brew_request_event_new(self->selected_tea, &self->base);
                 om_actor_message(self->brew_control, (OmEvent *)(request));
@@ -119,6 +123,8 @@ OM_STATE_DEFINE(UserInterface, ui_brewing)
         break;
         case EVT_BREW_STATUS:
             self->status = OM_EVENT_CAST(BrewStatusEvent)->status;
+
+            // Show increasing level of LEDs during brew
             if (self->status.percent_complete <= 33)
             {
                 board_set_leds(BOARD_LED_RED);

@@ -3,7 +3,7 @@
 #include "om_queue.h"
 #include "om_assert.h"
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_queue.c");
 
 void om_queue_init(OmQueue* self, OmEvent ** const queue_storage,  size_t queue_size)
 {

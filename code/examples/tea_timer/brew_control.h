@@ -20,7 +20,9 @@ typedef struct
 }BrewControl;
 
 
-void brew_control_ctor(BrewControl* self, OmTrace* trace);
+void brew_control_init(BrewControl* self,  
+                        OmActorAttr* actor_attr, 
+                        OmTraceAttr* trace_attr);
 
 
 

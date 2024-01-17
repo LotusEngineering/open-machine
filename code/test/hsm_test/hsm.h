@@ -53,7 +53,7 @@ typedef struct
  * @param self 
  * @param trace 
  */
-void hsm_ctor(Hsm * const self, OmTrace* trace);
+void hsm_init(Hsm * const self, OmTrace* trace);
 
 
 

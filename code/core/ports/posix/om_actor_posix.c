@@ -16,13 +16,13 @@
 #include "om_pool.h"
 #include "om_queue.h"
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_actor_posix.c");
 
 
 
 static void * om_actor_event_loop(void* argument);
 
-
+#if 0
 void om_actor_ctor(OmActor* self, OmInitHandler initial_trans)
 {
     om_actor_ctor_trace(self, initial_trans, NULL, NULL, OM_TF_NONE);
@@ -41,35 +41,42 @@ void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, cons
     pthread_mutex_init(&self->port.q_mutex, NULL);
     pthread_cond_init(&self->port.q_cond, NULL);
 }
+#endif
+void om_actor_init(OmActor* const self,
+                   OmInitHandler initial_trans, 
+                   OmActorAttr* actor_attr,
+                   OmTraceAttr* trace_attr )
+{
 
-void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t stack_size)
+    // Call base hsm init
+    om_hsm_init(&self->base, initial_trans, trace_attr);
+
+    // Store attributes
+    self->priority = actor_attr->priority;
+    self->queue_size = actor_attr->queue_size;
+    self->stack_size = actor_attr->stack_size;
+
+    pthread_mutex_init(&self->port.q_mutex, NULL);
+    pthread_cond_init(&self->port.q_cond, NULL);
+
+}
+
+void om_actor_start(OmActor* self)
 {
     // Allocate and init queue
-    self->port.queue_storage = (OmEvent**)malloc(queue_size * sizeof(OmEvent*));
+    self->port.queue_storage = (OmEvent**)malloc(self->queue_size * sizeof(OmEvent*));
     OM_ASSERT(self->port.queue_storage != NULL);
-    om_queue_init(&self->port.queue, self->port.queue_storage,  queue_size);
+    om_queue_init(&self->port.queue, self->port.queue_storage,  self->queue_size);
 
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
-#if 0
-    pthread_attr_setschedpolicy (&attr, SCHED_FIFO);
-    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-    pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED);
-    // Set priority
-    struct sched_param param;
-    param.sched_priority = priority;
-    pthread_attr_setschedparam(&attr, &param);
-
-#else
     struct sched_param param;
     pthread_attr_getschedparam (&attr, &param);
-    param.sched_priority = priority;
+    param.sched_priority = self->priority;
 
     /* setting the new scheduling param */
     pthread_attr_setschedparam (&attr, &param);
-
-#endif
 
     // Use minimum stack
     pthread_attr_setstacksize(&attr, PTHREAD_STACK_MIN);
@@ -84,14 +91,12 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
 
 void om_actor_stop(OmActor* self)
 {
-    //TODO graceful shutdown by clearing queue and posting
-    pthread_cancel(self->port.thread_id);
+    // Send stop message to queue
+    om_actor_send_stop_msg_(self);
 
      // Wait for the created thread to finish
     pthread_join(self->port.thread_id, NULL);
     free(self->port.queue_storage);
-    pthread_mutex_destroy(&self->port.q_mutex);
-    pthread_cond_destroy(&self->port.q_cond);
 }
 
 void om_actor_message(OmActor* self, OmEvent *  message)
@@ -118,7 +123,7 @@ void om_actor_message(OmActor* self, OmEvent *  message)
 }
 
 //////////////////// Private Functions //////////////////////////
-void *  om_actor_event_loop(void* argument)
+void * om_actor_event_loop(void* argument)
 {
     OmEvent * event;
     OmActor* self = (OmActor*)argument;
@@ -126,7 +131,7 @@ void *  om_actor_event_loop(void* argument)
     // Enter the state machine
     om_hsm_enter(&self->base);
 
-    while(1)
+    while(om_hsm_is_active(&self->base))
     {
         pthread_mutex_lock(&self->port.q_mutex);
         while(!om_queue_get(&self->port.queue, &event))

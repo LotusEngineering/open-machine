@@ -9,7 +9,7 @@
 #include "om_assert.h"
 
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_FILE_NAME();
 
 
 

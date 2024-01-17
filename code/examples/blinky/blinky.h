@@ -19,7 +19,11 @@ typedef struct
     uint32_t blink_time_ms;
 }Blinky;
 
-void blinky_ctor(Blinky* self, const char* name, OmTrace* trace, Led_ID led_id, uint32_t blink_time_ms);
+void blinky_init(Blinky* self, 
+                Led_ID led_id,  // Which lED this blinky controls
+                uint32_t blink_time_ms,  // How long to blink
+                OmActorAttr* actor_attr, // Actor Attributes
+                OmTraceAttr* trace_attr); // Trace Attributes
 
 
 #endif // BLINKY_H_

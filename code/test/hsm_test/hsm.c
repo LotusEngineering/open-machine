@@ -6,7 +6,7 @@
 
 #include "hsm.h"
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_FILE_NAME();
 
 // Declare initial trans
 static OmStateResult Hsm_init_trans(Hsm * const self);
@@ -25,14 +25,24 @@ OM_STATE_DECLARE(Hsm, S31, &S3);
 OM_STATE_DECLARE(Hsm, S32, &S3);
 
 
-void hsm_ctor(Hsm * const self, OmTrace* trace)
+void hsm_init(Hsm * const self, OmTrace* trace)
 {
+    OmTraceAttr trace_attr = {.name = "Hsm",
+                              .trace = trace,
+                              .flags = OM_TF_ALL};
+
+    om_hsm_init(&self->base, 
+                OM_INIT_CAST(Hsm_init_trans), 
+                &trace_attr);
+
+#if 0
     // Call base trace constructor with all tracing enabled
     om_hsm_ctor_trace(&self->base, 
             OM_INIT_CAST(Hsm_init_trans), 
             "Hsm", 
             trace,
             OM_TF_ALL);
+#endif
 }
 
 OmStateResult Hsm_init_trans(Hsm * const self)

@@ -14,13 +14,17 @@
 void om_assert_handler(const char * file_name, int line);
 
 
-/// @brief Macro that sets the file name, only once per module
-/// Place this at the top of your file if want to use asserts
-#ifdef __FILE_NAME__
-#define OM_ASSERT_SET_FILE_NAME() static char const * om_file_name = __FILE_NAME__
+/// @brief Macro that sets the assert file name using predefined macro
+/// Place this or following macro at the top of your file if want to use asserts
+#ifdef __FILE_NAME__ // Use short name if available
+#define OM_ASSERT_FILE_NAME() static char const * om_file_name = __FILE_NAME__
 #else
-#define OM_ASSERT_SET_FILE_NAME() static char const * om_file_name = __FILE__
+#define OM_ASSERT_FILE_NAME() static char const * om_file_name = __FILE__
 #endif
+
+/// @brief Macro that explicitly sets the assert file name
+/// Place this or previous macro at the top of your file if want to use asserts
+#define OM_ASSERT_SET_FILE_NAME(file_name_) static char const * om_file_name = file_name_
 
 /// Assert macro
 #define OM_ASSERT(expression_)  (expression_) ? ((void)0) : om_assert_handler(om_file_name, __LINE__)

@@ -7,7 +7,7 @@
 #include "om_bus.h"
 #include "om_assert.h"
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_bus.c");
 
 void om_bus_ctor(OmBus* self)
 {

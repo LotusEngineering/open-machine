@@ -6,7 +6,11 @@
 
 #include "om.h"
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_actor.c");
+
+// Om Internal events
+OM_EVENT(OmActorStopEvent, OM_EVT_ACTOR_STOP);
+
 
 // This function is shared implementation amongst ports
 void om_actor_dispatch_(OmActor* self, OmEvent* event)
@@ -42,4 +46,10 @@ void om_actor_dispatch_(OmActor* self, OmEvent* event)
     {
         om_hsm_dispatch(&self->base, event);
     }
+}
+
+void om_actor_send_stop_msg_(OmActor* self)
+{
+    // Send stop message to queue
+    OMA_MSG(self, &OmActorStopEvent);
 }

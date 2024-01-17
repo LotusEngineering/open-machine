@@ -36,9 +36,25 @@ void application_start(int priority)
     om_bus_ctor(&button_bus);
 
     // Create actors, inject any dependencies
-    button_monitor_ctor(&button_mon, &button_bus, &application_trace);
-    brew_control_ctor(&brew_control,  &application_trace);
-    ui_ctor(&user_interface, &button_bus, &brew_control.base, &application_trace);
+    OmActorAttr actor_attr = {.priority = priority, 
+                                .queue_size = 16,
+                                .stack_size = 128 * 8};
+    OmTraceAttr trace_attr = {.name = OM_NAME_OF(button_mon), 
+                                .trace = &application_trace, 
+                                .flags = OM_TF_TRANS};
+    // Init button monitor
+    button_monitor_init(&button_mon, &button_bus, &actor_attr, &trace_attr);
+    
+    // Init brew control
+    actor_attr.priority = priority + 1;
+    trace_attr.name = OM_NAME_OF(brew_control);
+    brew_control_init(&brew_control, &actor_attr, &trace_attr);
+
+    // Init UI
+    actor_attr.priority = priority -1;
+    trace_attr.name = OM_NAME_OF(user_interface);
+    ui_init(&user_interface, &button_bus, &brew_control.base,  &actor_attr, &trace_attr);
+
 
     // Start actors
     om_actor_start(&button_mon.base, priority, 16, 128 * 8);

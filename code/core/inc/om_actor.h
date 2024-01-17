@@ -23,7 +23,9 @@ typedef struct OmActorPort OmActorPort;
 typedef struct 
 {
     OmHsm base;
-    OmTrace* trace;
+    int priority;
+    size_t queue_size;
+    uint32_t stack_size;
     OmActorPort port;
 }OmActor;
 
@@ -33,6 +35,15 @@ typedef struct
     OmEvent base;
     OmActor* sender;
 }OmMessageEvent;
+
+/// @brief  Actor initialization attributes
+typedef struct 
+{
+    int priority;
+    size_t queue_size;
+    uint32_t stack_size;
+}OmActorAttr;
+
 
 /// Helper macro to trace arbitray string
 #define OMA_TRACE_STR(string_) om_trace_string(self->base.trace, string_)
@@ -49,6 +60,7 @@ typedef struct
 /// Helper macro to send an event message to an actor
 #define OMA_MSG(target_, event_) om_actor_message((OmActor*)(target_), (OmEvent*)(event_))
 
+#if 0
 /// @brief Constructs an actor without any tracing
 /// @param self 
 /// @param initial_trans 
@@ -60,16 +72,29 @@ void om_actor_ctor(OmActor* self, OmInitHandler initial_trans);
 /// @param name 
 /// @param trace 
 /// @param flags 
-void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags);
+void om_actor_ctor_trace(OmActor * const self, 
+                            OmInitHandler initial_trans, 
+                            const char* name, 
+                            OmTrace* trace, 
+                            OmTraceFlags flags);
+#endif
+
+/// @brief Actor initialization
+/// @param self 
+/// @param initial_trans Initial transition handler
+/// @param actor_attr Actor attributes
+/// @param trace_attr Trace attributes or NULL for no tracing
+void om_actor_init(OmActor* const self,
+                   OmInitHandler initial_trans, 
+                   OmActorAttr* actor_attr,
+                   OmTraceAttr* trace_attr );
+
 
 /// @brief Starts the actor thread of execution
 /// @param self 
-/// @param priority 
-/// @param queue_size 
-/// @param stack_size 
-void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t stack_size);
+void om_actor_start(OmActor* self);
 
-/// @brief Stops the actor thread of execution
+/// @brief Exits actor HSM and stops the thread of execution
 /// @param self 
 void om_actor_stop(OmActor* self);
 
@@ -82,5 +107,9 @@ void om_actor_message(OmActor* self, OmEvent * message);
 /// @param self 
 /// @param event 
 void om_actor_dispatch_(OmActor* self, OmEvent* event);
+
+/// @brief Shared internal function for sending stop request to an Actor
+/// @param self 
+void om_actor_send_stop_msg_(OmActor* self);
 
 #endif// OM_ACTOR_H_

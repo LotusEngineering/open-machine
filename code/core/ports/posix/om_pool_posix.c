@@ -11,7 +11,7 @@
 #include "om_assert.h"
 
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_pool_posix.c");
 
 
 static OmPoolPort om_pool_dummy;

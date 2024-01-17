@@ -9,7 +9,7 @@
 #include "om_mutex.h"
 
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_timer.c");
 
 
 static OmTimer* om_timer_table[OM_TIMER_MAX_TIMERS];

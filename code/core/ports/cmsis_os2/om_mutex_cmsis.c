@@ -1,7 +1,7 @@
 #include "om_mutex.h"
 #include "om_assert.h"
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_mutex_cmsis.c");
 
 void om_mutex_init(OmMutex* mutex)
 {

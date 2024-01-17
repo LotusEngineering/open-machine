@@ -10,7 +10,7 @@
 #include "cmsis_os2.h"
 
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_SET_FILE_NAME("om_pool_cmsis.c");
 
 
 static OmPoolPort om_pool_table[OM_POOL_NUM_POOLS];

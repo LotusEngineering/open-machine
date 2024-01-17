@@ -8,14 +8,14 @@
 #include "om.h"
 #include "shared_signals.h"
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_FILE_NAME();
 
 // Set to one to avoid long wait times while debugging
 #if 1 
 #define BREW_TIME_BLACK_SEC     24
 #define BREW_TIME_OOLONG_SEC    12
 #define BREW_TIME_GREEN_SEC     18
-#else
+#else // Use to make time real tea!
 #define BREW_TIME_BLACK_SEC     240
 #define BREW_TIME_OOLONG_SEC    120
 #define BREW_TIME_GREEN_SEC     180
@@ -38,14 +38,15 @@ OM_STATE_DECLARE(BrewControl, brew_idle, OM_TOP_STATE);
 OM_STATE_DECLARE(BrewControl, brew_steeping, OM_TOP_STATE);
 
 
-void brew_control_ctor(BrewControl* self,  OmTrace* trace)
+void brew_control_init(BrewControl* self,  
+                        OmActorAttr* actor_attr, 
+                        OmTraceAttr* trace_attr)
 {
-    // Call base actor trace constructor, only show transitions
-    om_actor_ctor_trace(&self->base, 
+    // Call base actor init, only show transitions
+    om_actor_init(&self->base, 
                         OM_INIT_CAST(brew_control_init_trans), 
-                        "BrewControl", 
-                        trace, 
-                        OM_TF_TRANS);
+                        actor_attr, 
+                        trace_attr);
 
     // Create steep timer
     om_timer_ctor(&self->steep_timer, EVT_ONE_SECOND, "ONE_SEC",  &self->base);

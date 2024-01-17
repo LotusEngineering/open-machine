@@ -22,10 +22,18 @@ OM_STATE_DECLARE(Blinky, Off, OM_TOP_STATE);
 OM_STATE_DECLARE(Blinky, On,  OM_TOP_STATE);
 
 
-void blinky_ctor(Blinky* self,const char* name, OmTrace* trace, Led_ID led_id, uint32_t blink_time_ms)
+void blinky_init(Blinky* self,
+                    Led_ID led_id,  
+                    uint32_t blink_time_ms,  
+                    OmActorAttr* actor_attr, 
+                    OmTraceAttr* trace_attr) 
+
 {
-    // Call base actor trace constructor, only show transitions
-    om_actor_ctor_trace(&self->base, OM_INIT_CAST(blinky_init_trans), name, trace, OM_TF_TRANS);
+    // Call base actor trace init
+    om_actor_init(&self->base, 
+                    OM_INIT_CAST(blinky_init_trans),
+                    actor_attr,
+                    trace_attr);
 
     om_timer_ctor(&self->timer, EVT_TIMEOUT, "TIMEOUT", &self->base);
 

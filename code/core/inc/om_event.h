@@ -16,6 +16,7 @@ enum OmReservedSignals
     OM_EVT_ENTER,  ///< State Entry Action
     OM_EVT_INIT,   ///< Initial transition
     OM_EVT_EXIT,   ///< State Exit Action
+    OM_EVT_ACTOR_STOP, ///< Event used to stop actor thread
     OM_EVT_USER,   ///< Start of user defined event signals
 };
 

@@ -80,18 +80,6 @@ OmState state_name_ = { (OmStateHandler)OM_CONCAT(state_name_, _handler), parent
 /// @note This is to called in a OmState handler function 
 #define OM_TRANS(new_state_)  (((OmHsm*)self)->target_state = &new_state_, OM_RES_TRANSITION)
 
-/// @brief Flags used to control what is traced
-typedef enum 
-{
-    OM_TF_NONE = 0x00,
-    OM_TF_ENTER = 0x01, ///< Entry of whole machine
-    OM_TF_HANDLED = 0x02,
-    OM_TF_IGNORED = 0x04,
-    OM_TF_TRANS = 0x08,
-    OM_TF_EXIT = 0x10,
-    OM_TF_UNHANDLED = 0x20,
-    OM_TF_ALL = OM_TF_ENTER | OM_TF_HANDLED | OM_TF_IGNORED | OM_TF_TRANS | OM_TF_EXIT | OM_TF_UNHANDLED
-}OmTraceFlags;
 
 /// @brief Defines HSM data structure
 typedef struct OmHsm_t
@@ -109,6 +97,10 @@ typedef struct OmHsm_t
     OmTraceFlags trace_flags;
 }OmHsm;
 
+/// @brief Construct state machine without tracing
+/// @param self State machine
+/// @param trace_attr Trace attributes
+void om_hsm_init(OmHsm * const self, OmInitHandler initial_trans, OmTraceAttr * trace_attr);
 
 /// @brief Construct state machine without tracing
 /// @param self State machine
@@ -121,7 +113,11 @@ void om_hsm_ctor(OmHsm * const self, OmInitHandler initial_trans);
 /// @param name Machine name
 /// @param trace Trace suppier
 /// @param flags Trace flags
-void om_hsm_ctor_trace(OmHsm * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags);
+void om_hsm_ctor_trace(OmHsm * const self, 
+                        OmInitHandler initial_trans, 
+                        const char* name, 
+                        OmTrace* trace, 
+                        OmTraceFlags flags);
 
 
 /// @brief Gets active state of machine

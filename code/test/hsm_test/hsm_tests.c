@@ -10,7 +10,7 @@
 #include "hsm.h"
 
 // Set assert file name
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_FILE_NAME();
 
 // Tracing suppoprt
 #define TRACE_LIST_SIZE 48
@@ -39,7 +39,7 @@ TEST_SETUP(hsm_tests)
     om_trace_ctor(&test_trace, trace_buffer, TRACE_LIST_SIZE);
 
     // Construct the test machine
-    hsm_ctor(&hsm, &test_trace);
+    hsm_init(&hsm, &test_trace);
 }
 
 TEST_TEAR_DOWN(hsm_tests)
@@ -80,8 +80,12 @@ TEST(hsm_tests, init_test)
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:om_hsm_dispatch:EVT_A:Ignored", trace.message);
 
-    // Initialize the state machine
+    TEST_ASSERT_EQUAL(om_hsm_is_active(&hsm.base), false);
+
+    // Enter the state machine
     om_hsm_enter(&hsm.base);
+
+    TEST_ASSERT_EQUAL(om_hsm_is_active(&hsm.base), true);
 
     // Check traces
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
@@ -467,6 +471,8 @@ TEST(hsm_tests, exit_with_signal_test)
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S1:OM_EVT_EXIT:Handled", trace.message);
 
+    TEST_ASSERT_EQUAL(om_hsm_is_active(&hsm.base), false);
+
     // Make sure exit code was supplied
     TEST_ASSERT_EQUAL_INT(om_hsm_get_exit_code(&hsm.base), -1);
 
@@ -490,6 +496,10 @@ TEST(hsm_tests, exit_with_function_call_test)
     // Call Exit function with code -2
     om_hsm_exit(&hsm.base, -2);
 
+    
+    TEST_ASSERT(om_trace_read(&test_trace, &trace));
+    TEST_ASSERT_EQUAL_STRING("Hsm:om_hsm_exit()", trace.message);
+
     TEST_ASSERT(om_trace_read(&test_trace, &trace));
     TEST_ASSERT_EQUAL_STRING("Hsm:S111:OM_EVT_EXIT:Handled", trace.message);
 
@@ -501,6 +511,8 @@ TEST(hsm_tests, exit_with_function_call_test)
 
     // Should be at top of machine
     TEST_ASSERT(om_trace_read(&test_trace, &trace) == false);
+
+    TEST_ASSERT_EQUAL(om_hsm_is_active(&hsm.base), false);
 
     // Make sure exit code was supplied
     TEST_ASSERT_EQUAL_INT(om_hsm_get_exit_code(&hsm.base), -2);

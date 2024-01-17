@@ -12,7 +12,7 @@
 #include "om_timer.h"
 #include "om_pool.h"
 
-OM_ASSERT_SET_FILE_NAME();
+OM_ASSERT_FILE_NAME();
 
 /**
  * @brief Actor Port definition for Lite port (no message queues, no memory pools)
@@ -56,7 +56,7 @@ void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t sta
 
 void om_actor_stop(OmActor* self)
 {
-    // Enter the state machine
+    // Exit the state machine
     om_hsm_exit(&self->base, 0);
 }
 
