@@ -23,15 +23,15 @@ OM_ASSERT_SET_FILE_NAME("om_actor_posix.c");
 static void * om_actor_event_loop(void* argument);
 
 #if 0
-void om_actor_ctor(OmActor* self, OmInitHandler initial_trans)
+void om_actor_init(OmActor* self, OmInitHandler initial_trans)
 {
-    om_actor_ctor_trace(self, initial_trans, NULL, NULL, OM_TF_NONE);
+    om_actor_init_trace(self, initial_trans, NULL, NULL, OM_TF_NONE);
 }
 
-void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags)
+void om_actor_init_trace(OmActor * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags)
 {
     // Call base machine trace constructor
-    om_hsm_ctor_trace(&self->base, initial_trans, name, trace, flags);
+    om_hsm_init_trace(&self->base, initial_trans, name, trace, flags);
 
     // Set Actor's trace
     self->trace = trace;

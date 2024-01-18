@@ -37,7 +37,7 @@ void hsm_init(Hsm * const self, OmTrace* trace)
 
 #if 0
     // Call base trace constructor with all tracing enabled
-    om_hsm_ctor_trace(&self->base, 
+    om_hsm_init_trace(&self->base, 
             OM_INIT_CAST(Hsm_init_trans), 
             "Hsm", 
             trace,

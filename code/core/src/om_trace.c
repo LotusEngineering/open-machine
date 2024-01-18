@@ -10,7 +10,7 @@
 #include "om_trace.h"
 
 
-void om_trace_ctor(OmTrace* self, OmTraceLogEntry* buffer, size_t buffer_size)
+void om_trace_init(OmTrace* self, OmTraceLogEntry* buffer, size_t buffer_size)
 {
     self->entry_list = buffer;
     self->entry_list_size = buffer_size;

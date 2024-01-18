@@ -23,7 +23,7 @@ Blinky blink_green;
 void application_start(int priority)
 {
     // Init tracing
-    om_trace_ctor(&application_trace, trace_buffer, TRACE_LIST_SIZE);
+    om_trace_init(&application_trace, trace_buffer, TRACE_LIST_SIZE);
 
     // Create actors, inject the LED they should blink
     OmActorAttr actor_attr = {.priority = priority, 

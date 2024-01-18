@@ -9,6 +9,7 @@
 #include "board.h"
 #include "shared_signals.h"
 
+OM_ASSERT_SET_FILE_NAME("user_interface.c");
 
 // If there are no button presses in config mode for this time, go back to idle
 #define CONFIG_INACTIVITY_TIMEOUT_MSEC  10000
@@ -33,16 +34,19 @@ OM_STATE_DECLARE(UserInterface, ui_config, OM_TOP_STATE);
 
 
 
-void ui_ctor(UserInterface* self, OmBus* button_bus, OmActor* brew_control,  OmTrace* trace)
+void ui_init(UserInterface* self, 
+                OmBus* button_bus, 
+                OmActor* brew_control,  
+                OmActorAttr* actor_attr, 
+                OmTraceAttr* trace_attr)
 {
-    // Call base actor trace constructor, only show transitions
-    om_actor_ctor_trace(&self->base, 
-                        OM_INIT_CAST(ui_init_trans), 
-                        "UI", 
-                        trace, 
-                        OM_TF_TRANS);
+    // Call base actor init
+    om_actor_init(&self->base, 
+                    OM_INIT_CAST(ui_init_trans), 
+                    actor_attr, 
+                    trace_attr);
 
-    om_timer_ctor(&self->status_timer, EVT_STATUS_TIMEOUT, "StatusTimeout", &self->base);
+    om_timer_init(&self->status_timer, EVT_STATUS_TIMEOUT, "StatusTimeout", &self->base);
 
     self->button_bus = button_bus;
     self->brew_control = brew_control;
@@ -62,7 +66,6 @@ OmStateResult ui_init_trans(UserInterface* self)
 OM_STATE_DEFINE(UserInterface, ui_idle)
 {
     OmStateResult result = OM_RES_IGNORED;
-    static bool first_release = true;
 
     switch(event->signal)
     {
@@ -71,21 +74,16 @@ OM_STATE_DEFINE(UserInterface, ui_idle)
             result = OM_RES_HANDLED;
         break;
         case EVT_BUTTON_RELEASE:
+        {
+            // Start brew control actor
+            om_actor_start(self->brew_control);
 
-            // Ignore first release on power up 
-            if (!first_release)
-            {
-
-                // Start brew control
-                om_actor_start(self->brew_control, priority + 1, 16, 128 * 8);
-
-                // Send a brew request to the brew control
-                BrewRequestEvent* request = brew_request_event_new(self->selected_tea, &self->base);
-                om_actor_message(self->brew_control, (OmEvent *)(request));
-                
-                result = OM_TRANS(ui_brewing);
-            }
-            first_release = false;
+            // Send a brew request to the brew control
+            BrewRequestEvent* request = brew_request_event_new(self->selected_tea, &self->base);
+            om_actor_message(self->brew_control, (OmEvent *)(request));
+            
+            result = OM_TRANS(ui_brewing);
+        }
 
         break;
         case EVT_BUTTON_HELD:
@@ -100,8 +98,10 @@ OM_STATE_DEFINE(UserInterface, ui_idle)
                 case TEA_TYPE_GREEN:
                     result = OM_TRANS(ui_green);
                 break;
+                default:
+                    OM_ERROR();
+                break;
             }
-
         break;
 
         default:
@@ -146,6 +146,18 @@ OM_STATE_DEFINE(UserInterface, ui_brewing)
 
         case EVT_STATUS_TIMEOUT:
             board_set_leds(BOARD_LED_ALL_OFF);
+            result = OM_RES_HANDLED;
+        break;
+
+        case EVT_BUTTON_RELEASE:
+
+            // Go back to idle
+            result = OM_TRANS(ui_idle);;
+
+        break;
+        case OM_EVT_EXIT:
+            // Stop the brew control
+            om_actor_stop(self->brew_control);
             result = OM_RES_HANDLED;
         break;
         default:

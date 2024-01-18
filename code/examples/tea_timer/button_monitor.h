@@ -19,6 +19,9 @@ typedef struct
 }ButtonMonitor;
 
 
-void button_monitor_ctor(ButtonMonitor* self, OmBus* button_bus, OmTrace* trace);
+void button_monitor_init(ButtonMonitor* self, 
+                        OmBus* button_bus,  // Event bus to publish to
+                        OmActorAttr* actor_attr, 
+                        OmTraceAttr* trace_attr);
 
 #endif //BUTTON_MONITOR_H_ 

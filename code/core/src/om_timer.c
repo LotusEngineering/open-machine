@@ -17,7 +17,7 @@ static int om_timer_count = 0;
 static OmMutex om_timer_mutex;
 
 
-void om_timer_ctor(OmTimer* self, OmSignal signal, const char* name, OmActor* actor)
+void om_timer_init(OmTimer* self, OmSignal signal, const char* name, OmActor* actor)
 {
     // If this is the first timer constructed, init mutex
     if(om_timer_count == 0)
@@ -41,7 +41,7 @@ void om_timer_ctor(OmTimer* self, OmSignal signal, const char* name, OmActor* ac
     om_mutex_unlock(&om_timer_mutex);
 }
 
-void om_timer_ctor_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm * hsm)
+void om_timer_init_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm * hsm)
 {
     // If this is the first timer constructed, init mutex
     if(om_timer_count == 0)

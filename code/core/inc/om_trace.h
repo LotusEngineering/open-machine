@@ -58,7 +58,7 @@ typedef struct
 /// @param self 
 /// @param buffer 
 /// @param buffer_size 
-void om_trace_ctor(OmTrace* self, OmTraceLogEntry* buffer, size_t buffer_size);
+void om_trace_init(OmTrace* self, OmTraceLogEntry* buffer, size_t buffer_size);
 
 /// @brief Function to trace an integer
 /// @param self 

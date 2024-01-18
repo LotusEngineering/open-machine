@@ -9,7 +9,7 @@
 
 OM_ASSERT_SET_FILE_NAME("om_bus.c");
 
-void om_bus_ctor(OmBus* self)
+void om_bus_init(OmBus* self)
 {
     om_mutex_init(&self->mutex);
 

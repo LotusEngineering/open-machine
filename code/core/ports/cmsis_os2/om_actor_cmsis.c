@@ -20,28 +20,6 @@ OM_ASSERT_SET_FILE_NAME("om_actor_cmsis.c");
 /// @param argument 
 static void om_actor_event_loop(void* argument);
 
-#if 0
-void om_actor_ctor(OmActor* self, OmInitHandler initial_trans)
-{
-    om_actor_ctor_trace(self, initial_trans, NULL, NULL, OM_TF_NONE);
-}
-
-void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags)
-{
-    // Call base machine trace constructor
-    om_hsm_ctor_trace(&self->base, initial_trans, name, trace, flags);
-
-    // Set Actor's trace
-    self->trace = trace;
-
-    // Set port values
-    self->port.thread_attr.name = self->base.name;
-    self->port.thread_attr.stack_size = 0;
-    self->port.thread_attr.priority = (osPriority_t) osPriorityNormal;
-    self->port.thread_id = NULL;
-    self->port.queue_id = NULL; 
-}
-#endif
 
 void om_actor_init(OmActor* const self,
                    OmInitHandler initial_trans, 
@@ -58,7 +36,14 @@ void om_actor_init(OmActor* const self,
     self->stack_size = actor_attr->stack_size;
 
     // Set port values
-    self->port.thread_attr.name = trace_attr->name;
+    if(trace_attr != NULL)
+    {
+        self->port.thread_attr.name = trace_attr->name;
+    }
+    else
+    {
+        self->port.thread_attr.name = "NotTraced";
+    }
     self->port.thread_attr.stack_size = self->stack_size;
     self->port.thread_attr.priority = (osPriority_t) self->priority;
     self->port.thread_id = NULL;
@@ -86,16 +71,14 @@ void om_actor_stop(OmActor* self)
     // Send stop message to queue
     om_actor_send_stop_msg_(self);
 
-    osThreadJoin(self->port.thread_id);
-    osMessageQueueDelete(self->port.queue_id);
-    self->port.thread_id = NULL;
-    self->port.queue_id = NULL; 
 }
 
 void om_actor_message(OmActor* self, OmEvent *  message)
 {
 
     OM_ASSERT(self != NULL);
+
+    // Thread must be started before you can message to it
     OM_ASSERT(self->port.thread_id != NULL);
     OM_ASSERT(self->port.queue_id != NULL);
 
@@ -129,4 +112,12 @@ void om_actor_event_loop(void* argument)
         om_actor_dispatch_(self, event);
                
     }// while
+
+    // Delete message queue
+    osMessageQueueDelete(self->port.queue_id);
+    self->port.thread_id = NULL;
+    self->port.queue_id = NULL; 
+
+    osThreadExit();
+
 }

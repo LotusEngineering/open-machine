@@ -21,9 +21,9 @@ typedef struct
     OmMutex mutex;
 }OmBus;
 
-/// @brief Constructs a message bus
+/// @brief Initialize message bus
 /// @param self 
-void om_bus_ctor(OmBus* self);
+void om_bus_init(OmBus* self);
 
 /// @brief Subscribes an actor to a message bus
 /// @param self 

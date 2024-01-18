@@ -39,23 +39,26 @@ OM_STATE_DECLARE(ButtonMonitor, Released, OM_TOP_STATE);
 
 
 
-void button_monitor_ctor(ButtonMonitor* self, OmBus* button_bus, OmTrace* trace)
+void button_monitor_init(ButtonMonitor* self, 
+                            OmBus* button_bus, 
+                            OmActorAttr* actor_attr, 
+                            OmTraceAttr* trace_attr)
 {
     self->debounce_counter = 0;
     self->button_bus = button_bus;
 
-    // Call base actor trace constructor
-    om_actor_ctor_trace(&self->base, 
-                        OM_INIT_CAST(button_monitor_init_trans), 
-                        "ButtonMonitor", 
-                        trace, 
-                        OM_TF_NONE);
+    // Call base actor init
+    om_actor_init(&self->base, 
+                    OM_INIT_CAST(button_monitor_init_trans), 
+                    actor_attr, 
+                    trace_attr);
+
 
     // Create periodic timer
-    om_timer_ctor(&self->scan_timer, EVT_SCAN_TIMEOUT,"ScanTimeout", &self->base);
+    om_timer_init(&self->scan_timer, EVT_SCAN_TIMEOUT,"ScanTimeout", &self->base);
 
     // Create oneshot timer
-    om_timer_ctor(&self->held_timer, EVT_HELD_TIMEOUT,"HeldTimeout",  &self->base);
+    om_timer_init(&self->held_timer, EVT_HELD_TIMEOUT,"HeldTimeout",  &self->base);
 
 }
 

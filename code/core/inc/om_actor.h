@@ -60,24 +60,6 @@ typedef struct
 /// Helper macro to send an event message to an actor
 #define OMA_MSG(target_, event_) om_actor_message((OmActor*)(target_), (OmEvent*)(event_))
 
-#if 0
-/// @brief Constructs an actor without any tracing
-/// @param self 
-/// @param initial_trans 
-void om_actor_ctor(OmActor* self, OmInitHandler initial_trans);
-
-/// @brief Constructs an actor with tracing support
-/// @param self 
-/// @param initial_trans 
-/// @param name 
-/// @param trace 
-/// @param flags 
-void om_actor_ctor_trace(OmActor * const self, 
-                            OmInitHandler initial_trans, 
-                            const char* name, 
-                            OmTrace* trace, 
-                            OmTraceFlags flags);
-#endif
 
 /// @brief Actor initialization
 /// @param self 

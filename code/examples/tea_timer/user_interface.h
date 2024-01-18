@@ -44,7 +44,7 @@ state Brewing{
   Brewing: exit: Stop LED timer
 }
 state Done
-Done: enter: Turn all LEDs on
+  Done: enter: Turn all LEDs on
 
 [*] --> Idle: Subscribe to Button Bus
 Idle --> Brewing: BUTTON_RELEASE
@@ -63,6 +63,11 @@ Config -> Idle : TIMEOUT
 
 */
 
-void ui_ctor(UserInterface* self, OmBus* button_bus, OmActor* brew_control, OmTrace* trace);
+void ui_init(UserInterface* self, 
+            OmBus* button_bus, 
+            OmActor* brew_control, 
+            OmActorAttr* actor_attr, 
+            OmTraceAttr* trace_attr);
+
 
 #endif //USER_INTERFACE_H_ 

@@ -27,13 +27,13 @@ BrewControl brew_control;
 void application_start(int priority)
 {
     // Init tracing
-    om_trace_ctor(&application_trace, trace_buffer, TRACE_LIST_SIZE);
+    om_trace_init(&application_trace, trace_buffer, TRACE_LIST_SIZE);
 
     // Init memory pool
     om_pool_init();
 
     // Init Event Buses
-    om_bus_ctor(&button_bus);
+    om_bus_init(&button_bus);
 
     // Create actors, inject any dependencies
     OmActorAttr actor_attr = {.priority = priority, 
@@ -42,8 +42,9 @@ void application_start(int priority)
     OmTraceAttr trace_attr = {.name = OM_NAME_OF(button_mon), 
                                 .trace = &application_trace, 
                                 .flags = OM_TF_TRANS};
-    // Init button monitor
-    button_monitor_init(&button_mon, &button_bus, &actor_attr, &trace_attr);
+
+    // Init button monitor, with no tracing as it is noisy
+    button_monitor_init(&button_mon, &button_bus, &actor_attr, NULL);
     
     // Init brew control
     actor_attr.priority = priority + 1;
@@ -57,9 +58,12 @@ void application_start(int priority)
 
 
     // Start actors
-    om_actor_start(&button_mon.base, priority, 16, 128 * 8);
-    om_actor_start(&user_interface.base, priority - 1, 16, 128 * 8);
-    om_actor_start(&brew_control.base, priority + 1, 16, 128 * 8);
+    om_actor_start(&button_mon.base);
+    om_actor_start(&user_interface.base);
+  
+#if 0 // To show dynamic starting and stopping of actors this was moved to the UI
+    om_actor_start(&brew_control.base);
+#endif
 }
 
 

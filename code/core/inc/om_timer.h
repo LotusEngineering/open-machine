@@ -59,19 +59,19 @@ typedef struct
 /// Helper macro for casting timer events
 #define OM_TIME_EVENT_CAST(event_name_) ((OmTimer *)event_name_)
 
-/// @brief Constructs a timer event used with actor message callback
+/// @brief Initialize a timer event used with actor message callback
 /// @param self 
 /// @param signal 
 /// @param name 
 /// @param actor 
-void om_timer_ctor(OmTimer* self, OmSignal signal, const char* name, OmActor* actor);
+void om_timer_init(OmTimer* self, OmSignal signal, const char* name, OmActor* actor);
 
-/// @brief Constructs a timer for use with HSM dispatch callback
+/// @brief Initialize a timer for use with HSM dispatch callback
 /// @param self 
 /// @param signal 
 /// @param name 
 /// @param hsm 
-void om_timer_ctor_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm * hsm);
+void om_timer_init_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm * hsm);
 
 /// @brief Starts a timer
 /// @param self 

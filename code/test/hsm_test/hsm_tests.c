@@ -36,7 +36,7 @@ TEST_SETUP(hsm_tests)
     assert_hit = false;
 
     // Construct Trace
-    om_trace_ctor(&test_trace, trace_buffer, TRACE_LIST_SIZE);
+    om_trace_init(&test_trace, trace_buffer, TRACE_LIST_SIZE);
 
     // Construct the test machine
     hsm_init(&hsm, &test_trace);

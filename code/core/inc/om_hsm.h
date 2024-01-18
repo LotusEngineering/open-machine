@@ -51,7 +51,7 @@ typedef struct OmState
 /// @param self 
 /// @param parent 
 /// @param name 
-void om_state_ctor(OmState* self, OmState* parent, const char* name);
+void om_state_init(OmState* self, OmState* parent, const char* name);
 
 
 // Helper macro to concatenate two tokens
@@ -101,23 +101,6 @@ typedef struct OmHsm_t
 /// @param self State machine
 /// @param trace_attr Trace attributes
 void om_hsm_init(OmHsm * const self, OmInitHandler initial_trans, OmTraceAttr * trace_attr);
-
-/// @brief Construct state machine without tracing
-/// @param self State machine
-/// @param initial_trans Intial transition handler
-void om_hsm_ctor(OmHsm * const self, OmInitHandler initial_trans);
-
-/// @brief Construct state machine with tracing
-/// @param self State machine
-/// @param initial_trans Intial transition handler
-/// @param name Machine name
-/// @param trace Trace suppier
-/// @param flags Trace flags
-void om_hsm_ctor_trace(OmHsm * const self, 
-                        OmInitHandler initial_trans, 
-                        const char* name, 
-                        OmTrace* trace, 
-                        OmTraceFlags flags);
 
 
 /// @brief Gets active state of machine

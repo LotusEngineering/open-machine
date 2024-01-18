@@ -49,7 +49,7 @@ void brew_control_init(BrewControl* self,
                         trace_attr);
 
     // Create steep timer
-    om_timer_ctor(&self->steep_timer, EVT_ONE_SECOND, "ONE_SEC",  &self->base);
+    om_timer_init(&self->steep_timer, EVT_ONE_SECOND, "ONE_SEC",  &self->base);
 }
 
 OmStateResult brew_control_init_trans(BrewControl* self)
@@ -112,6 +112,10 @@ OM_STATE_DEFINE(BrewControl, brew_steeping)
                 om_actor_message(self->client, (OmEvent*)&BrewCompleteEvent);
                 result = OM_TRANS(brew_idle);
             }
+        break;
+        case OM_EVT_EXIT:
+                om_timer_stop(&self->steep_timer);
+                result = OM_RES_HANDLED;
         break;
         default:
             result = OM_RES_IGNORED;

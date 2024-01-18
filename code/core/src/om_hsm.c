@@ -45,24 +45,6 @@ void om_hsm_init(OmHsm * const self, OmInitHandler initial_trans, OmTraceAttr * 
     }
 }
 
-void om_hsm_ctor(OmHsm * const self, OmInitHandler initial_trans)
-{
-    om_hsm_ctor_trace(self, initial_trans, NULL, NULL, OM_TF_NONE);
-}
-
-void om_hsm_ctor_trace(OmHsm * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags)
-{
-    self->current_state = OM_TOP_STATE;
-    self->target_state = OM_TOP_STATE;
-    self->is_active = false;
-    self->exit_code = 0;
-
-    self->initial_trans = initial_trans;
-    self->name = name;
-    self->trace = trace;
-    self->trace_flags = flags;
-}
-
 bool om_hsm_is_active(OmHsm* const self)
 {
     return self->is_active;

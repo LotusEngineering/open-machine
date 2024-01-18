@@ -35,7 +35,7 @@ void blinky_init(Blinky* self,
                     actor_attr,
                     trace_attr);
 
-    om_timer_ctor(&self->timer, EVT_TIMEOUT, "TIMEOUT", &self->base);
+    om_timer_init(&self->timer, EVT_TIMEOUT, "TIMEOUT", &self->base);
 
     self->led_id = led_id;
     self->blink_time_ms = blink_time_ms;

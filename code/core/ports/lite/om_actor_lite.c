@@ -26,30 +26,20 @@ typedef struct OmActorPort
 static OmActorPort dummy;
 
 
-
-void om_actor_ctor(OmActor* self, OmInitHandler initial_trans)
+void om_actor_init(OmActor* const self,
+                   OmInitHandler initial_trans, 
+                   OmActorAttr* actor_attr,
+                   OmTraceAttr* trace_attr )
 {
-    om_actor_ctor_trace(self, initial_trans, NULL, NULL, OM_TF_NONE);
-}
-
-void om_actor_ctor_trace(OmActor * const self, OmInitHandler initial_trans, const char* name, OmTrace* trace, OmTraceFlags flags)
-{
-    // Call base machine trace constructor
-    om_hsm_ctor_trace(&self->base, initial_trans, name, trace, flags);
-
-    // Set Actor's trace
-    self->trace = trace;
+    // Call base hsm init
+    om_hsm_init(&self->base, initial_trans, trace_attr);
 
     // No "port" for the lite version, it's just state machines
     self->port = &dummy;
 }
 
-void om_actor_start(OmActor* self, int priority, size_t queue_size, uint32_t stack_size)
+void om_actor_start(OmActor* self)
 {
-    (void)priority;
-    (void)queue_size;
-    (void)stack_size;
-
     // Enter the state machine
     om_hsm_enter(&self->base);
 }
