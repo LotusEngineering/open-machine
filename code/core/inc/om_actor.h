@@ -17,7 +17,7 @@
 struct OmState;
 struct OmEvent;
 
-// OS Port specific actor data
+// Forward declare OS Port specific actor data
 typedef struct OmActorPort OmActorPort;
 
 typedef struct 
@@ -29,12 +29,6 @@ typedef struct
     OmActorPort port;
 }OmActor;
 
-/// @brief Base class to be used by application code for sending responses
-typedef struct 
-{
-    OmEvent base;
-    OmActor* sender;
-}OmMessageEvent;
 
 /// @brief  Actor initialization attributes
 typedef struct 
@@ -44,6 +38,12 @@ typedef struct
     uint32_t stack_size;
 }OmActorAttr;
 
+/// @brief Base class to be used by application code for sending requests
+typedef struct 
+{
+    OmEvent base;
+    OmActor* client;
+}OmRequestEvent;
 
 /// Helper macro to trace arbitray string
 #define OMA_TRACE_STR(string_) om_trace_string(self->base.trace, string_)

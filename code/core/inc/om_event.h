@@ -47,5 +47,4 @@ typedef struct
 #define OM_EVENT_CAST(event_type_) ((event_type_ const * const)(event))
 
 
-
 #endif //OM_EVENT_H_
