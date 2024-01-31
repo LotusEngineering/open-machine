@@ -10,17 +10,16 @@
 #include "main.h"
 #include "om_i2c_control.h"
 
-typedef struct OmI2C
+
+typedef struct OmI2CStm32
 {
+    OmI2C base;
     I2C_HandleTypeDef* handle;
-    OmActor* client;
-    OmEvent const * ok_event;
-    OmEvent const * error_event;
-}OmI2C;
+}OmI2CStm32;
 
 /// @brief Port specific init function
 /// @param i2c 
 /// @param handle 
-void om_i2c_control_init(OmI2C* i2c, I2C_HandleTypeDef* handle);
+void om_i2c_control_stm32_init(OmI2CStm32* self, I2C_HandleTypeDef* handle);
 
 #endif //OM_PAL_PORT_H_

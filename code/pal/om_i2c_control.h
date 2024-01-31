@@ -10,27 +10,34 @@
 
 #include "om_event.h"
 #include "om_actor.h"
-#include "om_pal_port.h"
 
+typedef struct OmI2C
+{
+    OmActor* client;
+    OmEvent const * ok_event;
+    OmEvent const * error_event;
+}OmI2C;
 
-void om_i2c_control_attach(OmI2C* i2c,
+void om_i2c_control_init(OmI2C* self);
+
+void om_i2c_control_attach(OmI2C* self,
                             OmActor* client,
                             OmEvent const * ok_event,
                             OmEvent const * error_event);
 
 
 
-void om_i2c_control_write_memory(OmI2C* i2c, 
+void om_i2c_control_write_memory(OmI2C* self, 
                                     uint16_t device_address, 
                                     uint32_t memory_address, 
-                                    uint8_t memory_address_width, 
+                                    uint8_t memory_address_width,
                                     uint8_t* data, 
                                     uint16_t data_size);
 
-void om_i2c_control_read_memory(OmI2C* i2c, 
+void om_i2c_control_read_memory(OmI2C* self, 
                                     uint16_t device_address, 
                                     uint32_t memory_address, 
-                                    uint8_t memory_address_width, 
+                                    uint8_t memory_address_width,
                                     uint8_t* data, 
                                     uint16_t data_size);
 
