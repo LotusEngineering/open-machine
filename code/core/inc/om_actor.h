@@ -49,13 +49,13 @@ typedef struct
 #define OMA_TRACE_STR(string_) om_trace_string(self->base.trace, string_)
 
 /// Helper macro to trace a string variable
-#define OMA_TRACE_VAL_STR(string_) OM_TRACE_VAL_STR(self->base.trace, string_)
+#define OMA_TRACE_VAL_STR(string_) OM_TRACE_VAL_STR(self->base.base.trace, string_)
 
 /// Helper macro to trace an integer variable as a decimal
-#define OMA_TRACE_VAL_DEC(string_) OM_TRACE_VAL_DEC(self->base.trace, string_)
+#define OMA_TRACE_VAL_DEC(string_) OM_TRACE_VAL_DEC(self->base.base.trace, string_)
 
 /// Helper macro to trace an integer variable as a hexadecimal
-#define OMA_TRACE_VAL_HEX(string_) OM_TRACE_VAL_HEX(self->base.trace, string_)
+#define OMA_TRACE_VAL_HEX(string_) OM_TRACE_VAL_HEX(self->base.base.trace, string_)
 
 /// Helper macro to send an event message to an actor
 #define OMA_MSG(target_, event_) om_actor_message((OmActor*)(target_), (OmEvent*)(event_))
