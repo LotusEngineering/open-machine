@@ -10,12 +10,14 @@
 
 #include "om_event.h"
 #include "om_actor.h"
+#include "om_pal_port.h"
 
-typedef struct OmI2C
+typedef struct OmI2C_t
 {
     OmActor* client;
     OmEvent const * ok_event;
     OmEvent const * error_event;
+    OmI2CPort port;
 }OmI2C;
 
 void om_i2c_control_init(OmI2C* self);
