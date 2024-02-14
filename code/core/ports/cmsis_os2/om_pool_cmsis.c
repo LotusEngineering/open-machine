@@ -54,6 +54,9 @@ void om_pool_init(void)
 OmPoolEvent* om_pool_alloc(size_t event_size, OmSignal signal, const char* name)
 {
     OmPoolEvent* new_event = NULL;
+    
+    // You must call om_pool_init() or you must allocate a block size > 0
+    OM_ASSERT(om_pool_table[0].block_size > 0);
 
     for(int idx = 0; idx < OM_POOL_NUM_POOLS; idx++)
     {
@@ -71,8 +74,7 @@ OmPoolEvent* om_pool_alloc(size_t event_size, OmSignal signal, const char* name)
             new_event->base.signal = signal;
             new_event->base.name = name;
             new_event->reference_count = 0;
-            new_event->port->pool_id = om_pool_table[idx].pool_id;
-
+            new_event->port = &om_pool_table[idx];
             break;
         }
     }
