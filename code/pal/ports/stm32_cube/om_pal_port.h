@@ -44,4 +44,17 @@ typedef struct OmGpio_t OmGpio;
 /// @param event_pin_mask pin mask that triggers rising or falling edge event
 void om_i2c_gpio_stm32_init(OmGpio* self, GPIO_TypeDef* handle, uint16_t event_pin_mask);
 
+
+// PWM /////////////////////////////////////////////////////////////////////////
+// Forward declare
+typedef struct OmPwm_t OmPwm;
+
+typedef struct 
+{
+    TIM_HandleTypeDef *htim;
+    uint32_t channel;
+}OmPwmPort;
+
+void om_pwm_stm32_init(OmPwm* self, TIM_HandleTypeDef *htim, uint32_t channel);
+
 #endif //OM_PAL_PORT_H_
