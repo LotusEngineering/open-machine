@@ -14,4 +14,7 @@ typedef struct OmPwm_t
 void om_pwm_start(OmPwm* self, uint32_t percent_x100);
 
 void om_pwm_set_duty(OmPwm* self, uint32_t percent_x100);
+
+void om_pwm_stop(OmPwm* self);
+
 #endif

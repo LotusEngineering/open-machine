@@ -11,7 +11,7 @@ static OmGpio* om_gpio_instance_table[OM_GPIO_STM32_MAX_INST];
 static int om_gpio_instance_count = 0;
 
 
-void om_i2c_gpio_stm32_init(OmGpio* self, GPIO_TypeDef* handle, uint16_t event_pin_mask)
+void om_gpio_stm32_init(OmGpio* self, GPIO_TypeDef* handle, uint16_t event_pin_mask)
 {
     OM_ASSERT(om_gpio_instance_count <= OM_GPIO_STM32_MAX_INST);
 
@@ -20,6 +20,7 @@ void om_i2c_gpio_stm32_init(OmGpio* self, GPIO_TypeDef* handle, uint16_t event_p
 
     // Increase instance count
     om_gpio_instance_count++;
+    OM_ASSERT(om_gpio_instance_count <= OM_GPIO_STM32_MAX_INST);
 
     // Init common members
     om_gpio_init(self);

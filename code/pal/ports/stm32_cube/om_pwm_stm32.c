@@ -46,3 +46,8 @@ void om_pwm_set_duty(OmPwm* self, uint32_t percent_x100)
     }
 
 }
+
+void om_pwm_stop(OmPwm* self)
+{
+    HAL_TIM_PWM_Stop(self->port.htim, self->port.channel);
+}

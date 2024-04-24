@@ -6,6 +6,8 @@
 #ifndef OM_PAL_PORT_H_
 #define OM_PAL_PORT_H_
 
+#include <stdint.h>
+
 // The processor specific hal is provided in the generated "main.h"
 #include "main.h" 
 
@@ -42,7 +44,7 @@ typedef struct OmGpio_t OmGpio;
 /// @param self 
 /// @param handle 
 /// @param event_pin_mask pin mask that triggers rising or falling edge event
-void om_i2c_gpio_stm32_init(OmGpio* self, GPIO_TypeDef* handle, uint16_t event_pin_mask);
+void om_gpio_stm32_init(OmGpio* self, GPIO_TypeDef* handle, uint16_t event_pin_mask);
 
 
 // PWM /////////////////////////////////////////////////////////////////////////
