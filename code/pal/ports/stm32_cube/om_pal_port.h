@@ -57,6 +57,24 @@ typedef struct
     uint32_t channel;
 }OmPwmPort;
 
+
+
 void om_pwm_stm32_init(OmPwm* self, TIM_HandleTypeDef *htim, uint32_t channel);
+
+
+// UART /////////////////////////////////////////////////////////////////////////
+typedef struct 
+{
+    UART_HandleTypeDef* handle;
+}OmUartPort;
+
+// Forward declare
+typedef struct OmUart_t OmUart;
+
+/// @brief Port specific init function
+/// @param self 
+/// @param handle 
+void om_uart_stm32_init(OmUart* self, UART_HandleTypeDef* handle);
+
 
 #endif //OM_PAL_PORT_H_
