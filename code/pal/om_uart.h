@@ -28,14 +28,21 @@ void om_uart_attach(OmUart* self,
                             OmEvent const * error_event);
 
 
-
+/// @brief Non-blocking write to UART
+/// @param self UART instance
+/// @param data Data to write
+/// @param data_size Data size
 void om_uart_write(OmUart* self, 
-                                    uint8_t* data, 
-                                    uint16_t data_size);
+                    uint8_t* data, 
+                    uint16_t data_size);
 
-uint16_t om_uart_read(OmUart* self, 
-                                    uint8_t* data, 
-                                    uint16_t data_size);
+/// @brief Non-blocking read from UART
+/// @param self UART instance
+/// @param data Data to read
+/// @param data_size Data size
+void om_uart_read(OmUart* self, 
+                        uint8_t* data, 
+                        uint16_t data_size);
 
 
 #endif// OM_UART_H_

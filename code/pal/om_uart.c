@@ -8,7 +8,7 @@ void om_uart_init(OmUart* self)
 }
 
 
-void om_uart_attach(OmI2C* self,
+void om_uart_attach(OmUart* self,
                             OmActor * client,
                             OmEvent const * ok_event,
                             OmEvent const * error_event)
