@@ -52,36 +52,33 @@ void om_uart_read(OmUart* self,
     }
 }
 
-/////////////////// Private Functions ////////////////////////////
-static inline void om_uart_stm32_send_ok_(UART_HandleTypeDef *huart)
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-    // Find matching base instance and send OK event
+    // Find matching base instance and send Error event
     for(int idx = 0; idx < om_uart_instance_count; idx++)
     {
         if( (om_uart_instance_table[idx]->port.handle == huart) &&
             (om_uart_instance_table[idx]->client != NULL) )
         {
             OMA_MSG(om_uart_instance_table[idx]->client, 
-                    om_uart_instance_table[idx]->ok_event);
+                    om_uart_instance_table[idx]->rx_data_event);
         } 
     }
 }
 
-#if 0
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    om_uart_stm32_send_ok_(huart);
-}
-#endif
-
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
-{
-    om_uart_stm32_send_ok_(huart);
-}
-
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-    om_uart_stm32_send_ok_(huart);
+    // Find matching base instance and send Error event
+    for(int idx = 0; idx < om_uart_instance_count; idx++)
+    {
+        if( (om_uart_instance_table[idx]->port.handle == huart) &&
+            (om_uart_instance_table[idx]->client != NULL) )
+        {
+            OMA_MSG(om_uart_instance_table[idx]->client, 
+                    om_uart_instance_table[idx]->tx_done_event);
+        } 
+    }
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)

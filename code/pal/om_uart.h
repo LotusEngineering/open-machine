@@ -15,7 +15,8 @@
 typedef struct OmUart_t
 {
     OmActor* client;
-    OmEvent const * ok_event;
+    OmEvent const * tx_done_event;
+    OmEvent const * rx_data_event;
     OmEvent const * error_event;
     OmUartPort port;
 }OmUart;
@@ -24,7 +25,8 @@ void om_uart_init(OmUart* self);
 
 void om_uart_attach(OmUart* self,
                             OmActor* client,
-                            OmEvent const * ok_event,
+                            OmEvent const * tx_done_event,
+                            OmEvent const * rx_data_event,
                             OmEvent const * error_event);
 
 
