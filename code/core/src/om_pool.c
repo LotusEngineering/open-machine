@@ -4,6 +4,9 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+/////////////// NOTE DO NOT COMPILE THIS FILE //////////////////////
+// This is the start of a generic memory pool implementation that is not yet finished
+
 #include <stdint.h>
 #include "om_pool.h"
 #include "om_assert.h"
@@ -17,6 +20,7 @@ typedef struct OmPoolBlock {
     struct OmPoolBlock* next;
 } OmPoolBlock;
 
+// See Note above if you get a redefinition error for this struct!
 typedef struct OmPoolPort
 {
 //    uint8_t* block_storage;
