@@ -3,6 +3,7 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
+#include <stdbool.h>
 
 #include "om.h"
 #include "om_config.h"
@@ -15,14 +16,16 @@ OM_ASSERT_SET_FILE_NAME("om_timer.c");
 static OmTimer* om_timer_table[OM_TIMER_MAX_TIMERS];
 static int om_timer_count = 0;
 static OmMutex om_timer_mutex;
+static bool om_timer_mutex_initialized = false;
 
 
 void om_timer_init(OmTimer* self, OmSignal signal, const char* name, OmActor* actor)
 {
-    // If this is the first timer constructed, init mutex
-    if(om_timer_count == 0)
+    // Init mutex if need be
+    if(!om_timer_mutex_initialized)
     {
         om_mutex_init(&om_timer_mutex);
+        om_timer_mutex_initialized = true;
     }
     om_mutex_lock(&om_timer_mutex);
 
@@ -43,10 +46,11 @@ void om_timer_init(OmTimer* self, OmSignal signal, const char* name, OmActor* ac
 
 void om_timer_init_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm * hsm)
 {
-    // If this is the first timer constructed, init mutex
-    if(om_timer_count == 0)
+    // Init mutex if need be
+    if(!om_timer_mutex_initialized)
     {
         om_mutex_init(&om_timer_mutex);
+        om_timer_mutex_initialized = true;
     }
     om_mutex_lock(&om_timer_mutex);
 
@@ -102,6 +106,13 @@ void om_timer_stop(OmTimer* self)
 
 void om_timer_tick(uint32_t elapsed_msec)
 {
+    // Init mutex if need be
+    if(!om_timer_mutex_initialized)
+    {
+        om_mutex_init(&om_timer_mutex);
+        om_timer_mutex_initialized = true;
+    }
+
     om_mutex_lock(&om_timer_mutex);
     for(int idx = 0; idx < om_timer_count; idx++)
     {
