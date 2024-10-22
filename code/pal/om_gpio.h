@@ -11,7 +11,7 @@
 
 #include "om_event.h"
 #include "om_actor.h"
-#include "om_pal_port.h" // Should define any bit masks required by application layer
+#include "om_pal_port_gpio.h" // Should define any bit masks required by application layer
 
 
 typedef struct OmGpio_t

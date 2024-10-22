@@ -4,7 +4,7 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 #include "om_i2c_control.h"
-#include "om_pal_port.h"
+#include "om_pal_port_i2c.h"
 #include "om.h"
 
 OM_ASSERT_SET_FILE_NAME("om_i2c_control_stm32.c");

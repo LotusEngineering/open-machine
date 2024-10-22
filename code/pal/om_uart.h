@@ -10,7 +10,7 @@
 
 #include "om_event.h"
 #include "om_actor.h"
-#include "om_pal_port.h"
+#include "om_pal_port_uart.h"
 
 typedef struct OmUart_t
 {

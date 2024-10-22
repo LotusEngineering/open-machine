@@ -1,5 +1,5 @@
 #include "om_pwm.h"
-#include "om_pal_port.h"
+#include "om_pal_port_pwm.h"
 #include "om_assert.h"
 
 OM_ASSERT_SET_FILE_NAME("om_pwm_stm32.c");

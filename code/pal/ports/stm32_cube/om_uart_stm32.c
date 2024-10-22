@@ -4,7 +4,7 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 #include "om_uart.h"
-#include "om_pal_port.h"
+#include "om_pal_port_uart.h"
 #include "om.h"
 
 OM_ASSERT_SET_FILE_NAME("om_uart_stm32.c");
@@ -38,6 +38,7 @@ void om_uart_write(OmUart* self,
 {
     if (HAL_UART_Transmit_DMA(self->port.handle, data, data_size) != HAL_OK)
     {
+        // Did you enable the UART DMA (tx/rx) and Global Usart interrupt in the CubeMX configuration?
         OM_ERROR(); // Send error event
     }
 }

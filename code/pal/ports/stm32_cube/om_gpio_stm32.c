@@ -1,7 +1,7 @@
 #include "om_assert.h"
 
 #include "om_gpio.h"
-#include "om_pal_port.h"
+#include "om_pal_port_gpio.h"
 
 OM_ASSERT_SET_FILE_NAME("om_gpio_stm32.c");
 

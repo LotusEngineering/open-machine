@@ -3,11 +3,8 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
-
-// This file includes all the port specific headers for the Open Machine PAL
-
-#ifndef OM_PAL_PORT_H_
-#define OM_PAL_PORT_H_
+#ifndef OM_PAL_PORT_PWM_H_
+#define OM_PAL_PORT_PWM_H_
 
 #include <stdint.h>
 
@@ -15,9 +12,15 @@
 #include "main.h" 
 
 
-#include "om_pal_port_i2c.h"
-#include "om_pal_port_gpio.h"
-#include "om_pal_port_pwm.h"
-#include "om_pal_port_uart.h"
+typedef struct 
+{
+    TIM_HandleTypeDef *htim;
+    uint32_t channel;
+}OmPwmPort;
 
-#endif //OM_PAL_PORT_H_
+// Forward declare
+typedef struct OmPwm_t OmPwm;
+
+void om_pwm_stm32_init(OmPwm* self, TIM_HandleTypeDef *htim, uint32_t channel);
+
+#endif //OM_PAL_PORT_PWM_H_
