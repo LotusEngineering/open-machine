@@ -7,6 +7,7 @@
 #define OM_PAL_PORT_UART_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 // The processor specific hal is provided in the generated "main.h"
 #include "main.h" 
@@ -14,6 +15,9 @@
 typedef struct 
 {
     UART_HandleTypeDef* handle;
+    uint8_t* rx_double_buffer;
+    size_t rx_double_buffer_size;
+    uint8_t* rx_pointer; // Pointer to where we are receiving from
 }OmUartPort;
 
 // Forward declare
@@ -22,6 +26,6 @@ typedef struct OmUart_t OmUart;
 /// @brief Port specific init function
 /// @param self 
 /// @param handle 
-void om_uart_stm32_init(OmUart* self, UART_HandleTypeDef* handle);
+void om_uart_stm32_init(OmUart* self, UART_HandleTypeDef* handle, uint8_t* rx_double_buffer, size_t rx_double_buffer_size);
 
 #endif //OM_PAL_PORT_UART_H_

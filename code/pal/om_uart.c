@@ -1,22 +1,17 @@
 #include "om_uart.h"
+#include "om_pool.h"
 
 void om_uart_init(OmUart* self)
 {
     self->client = NULL;
-    self->tx_done_event = NULL;
-    self->rx_data_event = NULL;
-    self->error_event = NULL;
+    self->rx_data_sig = OM_EVT_USER;
 }
 
 
-void om_uart_attach(OmUart* self,
-                            OmActor * client,
-                            OmEvent const * tx_done_event,
-                            OmEvent const * rx_data_event,
-                            OmEvent const * error_event)
+OmUartDataEvent* om_uart_data_event_new_(OmUart* uart, OmSignal rx_signal, uint8_t* data, size_t data_size)
 {
-    self->client = client;
-    self->tx_done_event = tx_done_event;
-    self->rx_data_event = rx_data_event;
-    self->error_event = error_event;
+    OmUartDataEvent* event = OM_POOL_EVENT_NEW(OmUartDataEvent, rx_signal); // This will cause the event to show "rx_signal" in the trace
+    event->data = data;
+    event->data_size = data_size;
+    return event;
 }
