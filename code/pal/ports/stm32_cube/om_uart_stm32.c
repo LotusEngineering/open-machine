@@ -34,6 +34,7 @@ void om_uart_stm32_init(OmUart* self, UART_HandleTypeDef* handle, uint8_t* rx_do
     // Ensure double buffer size is even
     OM_ASSERT(rx_double_buffer_size % 2 == 0);
     self->port.rx_double_buffer_size = rx_double_buffer_size;
+    self->port.dma_tx_busy = false;
 }
 
 void om_uart_attach(OmUart* self,
@@ -71,10 +72,26 @@ void om_uart_write(OmUart* self,
                     uint8_t* data, 
                     size_t data_size)
 {
-    if (HAL_UART_Transmit_DMA(self->port.handle, data, (uint16_t)data_size) != HAL_OK)
+    if (data_size == 0)
     {
-        // Did you enable the UART DMA (tx/rx) and Global Usart interrupt in the CubeMX configuration?
-        OM_ERROR(); 
+        return;
+    }
+    
+    // Wait for the DMA to complete
+    while(self->port.dma_tx_busy)
+    {
+        // Wait for the DMA to complete
+    };
+
+    HAL_StatusTypeDef status = HAL_UART_Transmit_DMA(self->port.handle, data, (uint16_t)data_size);
+    if (status != HAL_OK)
+    {
+            // Did you enable the UART DMA (tx/rx) and Global Usart interrupt in the CubeMX configuration?
+            OM_ERROR(); 
+    }
+    else
+    {
+        self->port.dma_tx_busy = true;
     }
 }
 
@@ -126,6 +143,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
         if( (om_uart_instance_table[idx]->port.handle == huart) &&
             (om_uart_instance_table[idx]->client != NULL) )
         {
+            om_uart_instance_table[idx]->port.dma_tx_busy = false;
             OMA_MSG(om_uart_instance_table[idx]->client, 
                     &om_uart_instance_table[idx]->tx_complete_event);
         } 
