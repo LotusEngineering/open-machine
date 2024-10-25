@@ -44,6 +44,7 @@ typedef struct
     size_t write_index;
     size_t read_index;
     uint64_t timestamp_usec;
+    bool is_full;
 }OmTrace;
 
 typedef struct 

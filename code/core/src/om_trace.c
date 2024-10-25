@@ -82,10 +82,14 @@ bool om_trace_fields(OmTrace* self, char const * const strings[], size_t num_str
     // Check for full
     if (next_write_index == self->read_index)
     {
+        self->is_full = true;
+
         return false;
     }
     else
     {
+        self->is_full = false;
+
         // Set timestamp   
         self->entry_list[self->write_index].timestamp_usec = self->timestamp_usec;
 
@@ -123,6 +127,7 @@ bool om_trace_read(OmTrace* self, OmTraceLogEntry* entry)
     // Check for Empty
     if (self->write_index == self->read_index)
     {
+        self->is_full = false;
         return false;
     }
 
@@ -138,6 +143,7 @@ bool om_trace_read(OmTrace* self, OmTraceLogEntry* entry)
 
     self->read_index = next_read_index;
 
+    self->is_full = false;
     return true;
 }
 
@@ -154,27 +160,7 @@ void om_trace_clear(OmTrace* self)
 
 bool om_trace_is_full(OmTrace* self)
 {
-    if (self == NULL)
-    {
-        // Tracing can be ignored for an object by setting its pointer to NULL
-        return false;
-    }
-    size_t next_write_index = self->write_index + 1;
-
-    if (next_write_index >= self->entry_list_size)
-    {
-        next_write_index = 0;
-    }
-
-    // Check for full
-    if (next_write_index == self->read_index)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return self->is_full;
 }
 
 void om_trace_set_timestamp(OmTrace* self, uint64_t timestamp_usec)
