@@ -123,12 +123,11 @@ def query_user_for_states():
     
     return states
 
-# Example usage
+# Query user for information
 if __name__ == "__main__":
     actor_name = input("Enter actor name: ")
     states = query_user_for_states()
     initial_state = input("Enter initial state: ")
-    print(states)
-
-if __name__ == "__main__":
+    #print(states)
     generate_source(actor_name, states, initial_state)
+
