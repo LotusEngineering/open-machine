@@ -11,6 +11,10 @@ OM_ASSERT_SET_FILE_NAME("om_uart_stm32.c");
 
 #define OM_UART_STM32_MAX_INST 3
 
+// Static events for attached clients
+OM_EVENT(om_uart_tx_ok_event, OM_EVT_UART_TX_OK);
+
+// Table of instances for callback event lookup
 static OmUart* om_uart_instance_table[OM_UART_STM32_MAX_INST];
 static int om_uart_instance_count = 0;
 
@@ -37,25 +41,13 @@ void om_uart_stm32_init(OmUart* self, UART_HandleTypeDef* handle, uint8_t* rx_do
     self->port.dma_tx_busy = false;
 }
 
-void om_uart_attach(OmUart* self,
-                            OmActor * client,
-                            OmSignal tx_complete_sig,
-                            OmSignal rx_data_sig,
-                            OmSignal error_sig)
+void om_uart_attach(OmUart* self, OmActor * client)
 {
+    // Only one client can be attached per uart
+    OM_ASSERT(client != NULL);
+
     self->client = client;
     
-    self->tx_complete_event.type = OM_ET_STATIC;
-    self->tx_complete_event.signal = tx_complete_sig;
-    self->tx_complete_event.name = "UART_TX_COMPLETE";
-
-    
-    self->rx_data_sig = rx_data_sig;
-
-    self->error_event.type = OM_ET_STATIC;
-    self->error_event.signal = error_sig;
-    self->error_event.name = "UART_ERROR";
-
     // First receive into the first half of the buffer
     self->port.rx_pointer = self->port.rx_double_buffer;
 
@@ -107,7 +99,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
         {
             // Create a new data event
             OmUartDataEvent* uart_data = om_uart_data_event_new_(om_uart_instance_table[idx], 
-                                                                    om_uart_instance_table[idx]->rx_data_sig, 
                                                                     om_uart_instance_table[idx]->port.rx_pointer, 
                                                                     (size_t)Size);
 
@@ -144,8 +135,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
             (om_uart_instance_table[idx]->client != NULL) )
         {
             om_uart_instance_table[idx]->port.dma_tx_busy = false;
-            OMA_MSG(om_uart_instance_table[idx]->client, 
-                    &om_uart_instance_table[idx]->tx_complete_event);
+            OMA_MSG(om_uart_instance_table[idx]->client, &om_uart_tx_ok_event);                  
         } 
     }
 }
@@ -158,8 +148,12 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
         if( (om_uart_instance_table[idx]->port.handle == huart) &&
             (om_uart_instance_table[idx]->client != NULL) )
         {
-            OMA_MSG(om_uart_instance_table[idx]->client, 
-                    &om_uart_instance_table[idx]->error_event);
+            OmUartErrorEvent* error_event = om_uart_error_event_new_(om_uart_instance_table[idx], 
+                                    huart->ErrorCode, 
+                                    "STM32 UART Error");///@TODO decode error code
+
+            // Send error event to client
+            OMA_MSG(om_uart_instance_table[idx]->client, error_event);
         } 
     }
 }

@@ -22,6 +22,6 @@ typedef struct OmI2C_t OmI2C;
 /// @brief Port specific init function
 /// @param self 
 /// @param handle 
-void om_i2c_control_stm32_init(OmI2C* self, I2C_HandleTypeDef* handle);
+void om_i2c_stm32_init(OmI2C* self, I2C_HandleTypeDef* handle);
 
 #endif //OM_PAL_PORT_I2C_H_

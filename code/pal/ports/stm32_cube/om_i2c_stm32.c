@@ -3,18 +3,23 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
-#include "om_i2c_control.h"
+
+#include "om_i2c.h"
 #include "om_pal_port_i2c.h"
 #include "om.h"
 
-OM_ASSERT_SET_FILE_NAME("om_i2c_control_stm32.c");
+OM_ASSERT_SET_FILE_NAME("om_i2c_stm32.c");
 
 #define OM_I2C_STM32_MAX_INST 6
+
+// Static events for attached clients
+OM_EVENT(om_i2c_write_ok_event, OM_EVT_I2C_WRITE_OK);
+OM_EVENT(om_i2c_read_ok_event, OM_EVT_I2C_READ_OK);
 
 static OmI2C* om_i2c_instance_table[OM_I2C_STM32_MAX_INST];
 static int om_i2c_instance_count = 0;
 
-void om_i2c_control_stm32_init(OmI2C* self, I2C_HandleTypeDef* handle)
+void om_i2c_stm32_init(OmI2C* self, I2C_HandleTypeDef* handle)
 {
     OM_ASSERT(om_i2c_instance_count <= OM_I2C_STM32_MAX_INST);
 
@@ -25,13 +30,13 @@ void om_i2c_control_stm32_init(OmI2C* self, I2C_HandleTypeDef* handle)
     om_i2c_instance_count++;
 
     // Call base class init
-    om_i2c_control_init(self);
+    om_i2c_init(self);
 
 
     self->port.handle = handle;
 }
 
-void om_i2c_control_write_memory(OmI2C* self, 
+void om_i2c_write_memory(OmI2C* self, 
                                     uint16_t device_address, 
                                     uint32_t memory_address, 
                                     uint8_t memory_address_width,
@@ -66,12 +71,12 @@ void om_i2c_control_write_memory(OmI2C* self,
 
 }
 
-void om_i2c_control_read_memory(OmI2C* self, 
-                                    uint16_t device_address, 
-                                    uint32_t memory_address, 
-                                    uint8_t memory_address_width,
-                                    uint8_t* data, 
-                                    uint16_t data_size)
+void om_i2c_read_memory(OmI2C* self, 
+                            uint16_t device_address, 
+                            uint32_t memory_address, 
+                            uint8_t memory_address_width,
+                            uint8_t* data, 
+                            uint16_t data_size)
 {
     uint16_t mem_add_size = 0;
     
@@ -106,7 +111,8 @@ void om_i2c_control_read_memory(OmI2C* self,
 
 }
 
-static inline void om_i2c_control_stm32_send_ok_(I2C_HandleTypeDef *hi2c)
+
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     // Find matching base instance and send OK event
     for(int idx = 0; idx < om_i2c_instance_count; idx++)
@@ -115,19 +121,25 @@ static inline void om_i2c_control_stm32_send_ok_(I2C_HandleTypeDef *hi2c)
             (om_i2c_instance_table[idx]->client != NULL) )
         {
             OMA_MSG(om_i2c_instance_table[idx]->client, 
-                    om_i2c_instance_table[idx]->ok_event);
+                    &om_i2c_read_ok_event);
         } 
     }
-}
 
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
-{
-    om_i2c_control_stm32_send_ok_(hi2c);
 }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-    om_i2c_control_stm32_send_ok_(hi2c);
+    // Find matching base instance and send OK event
+    for(int idx = 0; idx < om_i2c_instance_count; idx++)
+    {
+        if( (om_i2c_instance_table[idx]->port.handle == hi2c) &&
+            (om_i2c_instance_table[idx]->client != NULL) )
+        {
+            OMA_MSG(om_i2c_instance_table[idx]->client, 
+                    &om_i2c_write_ok_event);
+        } 
+    }
+
 }
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
@@ -138,8 +150,15 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
         if( (om_i2c_instance_table[idx]->port.handle == hi2c) &&
             (om_i2c_instance_table[idx]->client != NULL) )
         {
+            // Create a new error event
+            OmI2CErrorEvent* event = OM_POOL_EVENT_NEW(OmI2CErrorEvent, OM_EVT_I2C_ERROR); 
+            event->i2c = om_i2c_instance_table[idx];
+            event->error_code = hi2c->ErrorCode;
+            event->error_message = "STM32 I2C Error"; ///@TODO decode error code
+
+            // Send error event to client
             OMA_MSG(om_i2c_instance_table[idx]->client, 
-                    om_i2c_instance_table[idx]->error_event);
+                    event);
         } 
     }
 }

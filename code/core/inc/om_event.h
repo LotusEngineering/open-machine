@@ -17,6 +17,15 @@ enum OmReservedSignals
     OM_EVT_INIT,   ///< Initial transition
     OM_EVT_EXIT,   ///< State Exit Action
     OM_EVT_ACTOR_STOP, ///< Event used to stop actor thread
+
+    OM_EVT_UART_TX_OK, ///< PAL UART TX Done Success
+    OM_EVT_UART_RX_DATA, ///< PAL UART RX Data
+    OM_EVT_UART_ERROR, ///< PAL UART Error
+
+    OM_EVT_I2C_WRITE_OK, ///< PAL I2C Write Done Success
+    OM_EVT_I2C_READ_OK, ///< PAL I2C Read Done Success
+    OM_EVT_I2C_ERROR, ///< PAL I2C Error
+    
     OM_EVT_USER,   ///< Start of user defined event signals
 };
 

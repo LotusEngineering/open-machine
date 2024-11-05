@@ -30,19 +30,22 @@ typedef struct OmUartDataEvent_t
     size_t data_size;
 }OmUartDataEvent;
 
+/// @brief Event for uart error sent with OM_EVT_UART_ERROR
+typedef struct OmUartErrorEvent_t
+{
+    OmPoolEvent base;
+    OmUart* uart; ///< Uart instance 
+    uint32_t error_code;
+    const char* error_message;
+}OmUartErrorEvent;
+
 void om_uart_init(OmUart* self);
 
 /// @brief Attaches an actor to the UART and starts reception
 /// @param self 
 /// @param client 
-/// @param tx_complete_sig 
-/// @param rx_data_sig 
-/// @param error_sig 
 void om_uart_attach(OmUart* self,
-                            OmActor* client,
-                            OmSignal tx_complete_sig,
-                            OmSignal rx_data_sig,
-                            OmSignal error_sig);
+                            OmActor* client);
 
 
 /// @brief Non-blocking write to UART
@@ -54,7 +57,18 @@ void om_uart_write(OmUart* self,
                     size_t data_size);
 
 
-// Internal function to create a new event
-OmUartDataEvent* om_uart_data_event_new_(OmUart* uart, OmSignal rx_signal, uint8_t* data, size_t data_size);
+// Internal function for ports to create a new data event
+/// @param uart
+/// @param data
+/// @param data_size
+/// @return data event
+OmUartDataEvent* om_uart_data_event_new_(OmUart* uart, uint8_t* data, size_t data_size);
+
+/// @brief Interrnal function for ports to create a new error event
+/// @param uart 
+/// @param error_code 
+/// @param error_message 
+/// @return error event
+OmUartErrorEvent* om_uart_error_event_new_(OmUart* uart, uint32_t error_code, const char* error_message);
 
 #endif// OM_UART_H_

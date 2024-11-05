@@ -71,17 +71,20 @@ def generate_source(actor_name, states, initial_state):
         for super_state in states:
             source.write(f"OM_STATE_DECLARE({actor_name}, {filename}_{super_state['name']}, OM_TOP_STATE);\n")
             for sub_state in super_state["substates"]:
-                source.write(f"OM_STATE_DECLARE({actor_name}, {filename}_{sub_state}, {filename}_{super_state['name']});\n")    
+                source.write(f"OM_STATE_DECLARE({actor_name}, {filename}_{sub_state}, {filename}_{super_state['name']});\n")  
 
         # Define the init function
         source.write("\n\n\n/// Define the init function\n")
         source.write(f"void {filename}_init({actor_name} * self, OmActorAttr* actor_attr, OmTraceAttr* trace_attr)\n")
-        source.write("{\n     // Call base actor init\n")
-        source.write("     omActorInit(&self->base,\n")
-        source.write(f"                 OM_INIT_CAST({filename}_init_trans),\n") 
-        source.write("                 actor_attr,\n") 
-        source.write("                 trace_attr);\n")
-        source.write("     //om_timer_init(&self->timer, EVT_TIMEOUT, \"TIMEOUT\", &self->base)\n")                                    
+        source.write("{\n     // Self and actor attrs must not be null\n")
+        source.write("    OM_ASSERT(self != NULL);\n")
+        source.write("    OM_ASSERT(actor_attr != NULL);\n\n")
+        source.write("    // Call base actor init\n")
+        source.write("    om_actor_init(&self->base,\n")
+        source.write(f"                OM_INIT_CAST({filename}_init_trans),\n") 
+        source.write("                actor_attr,\n") 
+        source.write("                trace_attr);\n")
+        source.write("    //om_timer_init(&self->timer, EVT_TIMEOUT, \"TIMEOUT\", &self->base);\n")                                    
         source.write("}\n\n")   
 
 
@@ -105,13 +108,13 @@ def generate_source(actor_name, states, initial_state):
 def query_user_for_states():
     states = []
     while True:
-        state_name = input("Enter top state name (or empty to finish): ")
+        state_name = input("Enter super state name (or empty to finish): ")
         if len(state_name) == 0:
             break
         
         substates = []
         while True:
-            substate_name = input(f"Enter substate name for '{state_name}' (or empty to finish): ")
+            substate_name = input(f"    Enter substate name for '{state_name}' (or empty to finish): ")
             if len(substate_name) == 0:
                 break
             substates.append(substate_name)

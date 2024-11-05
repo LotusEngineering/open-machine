@@ -23,7 +23,7 @@ typedef enum
     OM_TF_HANDLED = 0x02,
     OM_TF_IGNORED = 0x04,
     OM_TF_TRANS = 0x08,
-    OM_TF_EXIT = 0x10,
+    OM_TF_EXIT = 0x10, ///< Exit of whole machine
     OM_TF_UNHANDLED = 0x20,
     OM_TF_ALL = OM_TF_ENTER | OM_TF_HANDLED | OM_TF_IGNORED | OM_TF_TRANS | OM_TF_EXIT | OM_TF_UNHANDLED
 }OmTraceFlags;
