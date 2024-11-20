@@ -18,8 +18,8 @@
 typedef struct OmI2C_t
 {
     OmActor* client;
-    OmEvent const * ok_event;
-    OmEvent const * error_event;
+//    OmEvent const * ok_event;
+//    OmEvent const * error_event;
     OmI2CPort port;
 }OmI2C;
 

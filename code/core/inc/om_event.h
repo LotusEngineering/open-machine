@@ -25,6 +25,9 @@ enum OmReservedSignals
     OM_EVT_I2C_WRITE_OK, ///< PAL I2C Write Done Success
     OM_EVT_I2C_READ_OK, ///< PAL I2C Read Done Success
     OM_EVT_I2C_ERROR, ///< PAL I2C Error
+
+    OM_EVT_GPIO_HIGH_EVENT, ///< PAL GPIO Event
+    OM_EVT_GPIO_LOW_EVENT, ///< PAL GPIO Event
     
     OM_EVT_USER,   ///< Start of user defined event signals
 };

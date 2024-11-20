@@ -46,7 +46,7 @@ typedef struct
 }OmRequestEvent;
 
 /// Helper macro to trace arbitray string
-#define OMA_TRACE_STR(string_) om_trace_string(self->base.trace, string_)
+#define OMA_TRACE_STR(string_) om_trace_string(self->base.base.trace, string_)
 
 /// Helper macro to trace a string variable
 #define OMA_TRACE_VAL_STR(string_) OM_TRACE_VAL_STR(self->base.base.trace, string_)
