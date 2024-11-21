@@ -39,7 +39,7 @@ void om_i2c_attach(OmI2C* self,
                     OmActor* client);
 
 
-/// @brief Write data to I2C device and send OM_EVT_I2C_WRITE_DONE when complete
+/// @brief Async Write data to I2C device and send OM_EVT_I2C_WRITE_DONE when complete
 /// @param self 
 /// @param device_address 
 /// @param memory_address 
@@ -53,7 +53,7 @@ void om_i2c_write_memory(OmI2C* self,
                             uint8_t* data, 
                             uint16_t data_size);
 
-/// @brief Read data from I2C device and send OM_EVT_I2C_READ_DONE or OM_EVT_I2C_ERROR when complete
+/// @brief Async Read data from I2C device and send OM_EVT_I2C_READ_DONE or OM_EVT_I2C_ERROR when complete
 /// @param self 
 /// @param device_address 
 /// @param memory_address 
@@ -67,5 +67,39 @@ void om_i2c_read_memory(OmI2C* self,
                             uint8_t* data, 
                             uint16_t data_size);
 
+
+/// @brief Sync Write data to I2C device and return when complete
+/// @param self 
+/// @param device_address 
+/// @param memory_address 
+/// @param memory_address_width 
+/// @param data 
+/// @param data_size 
+/// @param timeout_ms, how long to wait for write to complete
+/// @return Non-zero on error
+int om_i2c_write_memory_sync(OmI2C* self, 
+                            uint16_t device_address, 
+                            uint32_t memory_address, 
+                            uint8_t memory_address_width,
+                            uint8_t* data, 
+                            uint16_t data_size,
+                            uint32_t timeout_ms);
+
+/// @brief Sync read data from I2C device and return when complete
+/// @param self 
+/// @param device_address 
+/// @param memory_address 
+/// @param memory_address_width 
+/// @param data 
+/// @param data_size 
+/// @param timeout_ms 
+/// @return Non-zero on error
+int om_i2c_read_memory_sync(OmI2C* self, 
+                            uint16_t device_address, 
+                            uint32_t memory_address, 
+                            uint8_t memory_address_width,
+                            uint8_t* data, 
+                            uint16_t data_size,
+                            uint32_t timeout_ms);
 
 #endif// OM_I2C_H_
