@@ -6,6 +6,7 @@
 
 #include "om_bus.h"
 #include "om_assert.h"
+#include "om_pool.h"
 
 OM_ASSERT_SET_FILE_NAME("om_bus.c");
 
@@ -81,16 +82,13 @@ bool om_bus_publish(OmBus* self, OmEvent * event)
 
     if (published_count == 0)
     {
-        om_mutex_unlock(&self->mutex);
-        return false;
-
-#if 0
-        ///@TODO
+        // If the event is dynamic and unused, then immediately free the memory
         if ((event->type == OM_ET_POOL) && (OM_POOL_EVENT_CAST(event)->reference_count == 0))
         {
-            om_pool_free(OM_POOL_EVENT_CAST(event));
+            om_pool_free(OM_POOL_EVENT_CAST(event)); 
         }        
-#endif
+        om_mutex_unlock(&self->mutex);
+        return false;
     }
     else
     {
