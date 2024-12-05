@@ -11,6 +11,8 @@ static OmGpio* om_gpio_instance_table[OM_GPIO_STM32_MAX_INST];
 static int om_gpio_instance_count = 0;
 
 
+
+
 void om_gpio_stm32_init(OmGpio* self, GPIO_TypeDef* handle, uint16_t event_pin_mask)
 {
     OM_ASSERT(om_gpio_instance_count <= OM_GPIO_STM32_MAX_INST);

@@ -62,14 +62,14 @@ typedef struct
 /// @brief Initialize a timer event used with actor message callback
 /// @param self 
 /// @param signal 
-/// @param name 
+/// @param name Signal name
 /// @param actor 
 void om_timer_init(OmTimer* self, OmSignal signal, const char* name, OmActor* actor);
 
 /// @brief Initialize a timer for use with HSM dispatch callback
 /// @param self 
 /// @param signal 
-/// @param name 
+/// @param name Signal name
 /// @param hsm 
 void om_timer_init_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm * hsm);
 
