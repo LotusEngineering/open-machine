@@ -41,12 +41,18 @@ void om_uart_stm32_init(OmUart* self, UART_HandleTypeDef* handle, uint8_t* rx_do
     self->port.dma_tx_busy = false;
 }
 
-void om_uart_attach(OmUart* self, OmActor * client)
+void om_uart_attach(OmUart* self, OmActor * client,
+                    OmEvent* tx_complete_event,
+                    OmEvent* rx_data_event,
+                    OmEvent* error_event)
 {
     // Only one client can be attached per uart
     OM_ASSERT(client != NULL);
 
     self->client = client;
+    self->tx_complete_event = tx_complete_event;
+    self->rx_data_event = rx_data_event;
+    self->error_event = error_event;
     
     // First receive into the first half of the buffer
     self->port.rx_pointer = self->port.rx_double_buffer;
@@ -131,11 +137,21 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
     // Find matching base instance and send Error event
     for(int idx = 0; idx < om_uart_instance_count; idx++)
     {
+
         if( (om_uart_instance_table[idx]->port.handle == huart) &&
             (om_uart_instance_table[idx]->client != NULL) )
         {
             om_uart_instance_table[idx]->port.dma_tx_busy = false;
-            OMA_MSG(om_uart_instance_table[idx]->client, &om_uart_tx_ok_event);                  
+
+            if(om_uart_instance_table[idx]->tx_complete_event != NULL)
+            {
+                OMA_MSG(om_uart_instance_table[idx]->client, om_uart_instance_table[idx]->tx_complete_event);                  
+            }
+            else
+            {
+                // Use default event
+                OMA_MSG(om_uart_instance_table[idx]->client, &om_uart_tx_ok_event);                  
+            }
         } 
     }
 }

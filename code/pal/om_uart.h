@@ -17,15 +17,16 @@
 typedef struct OmUart_t
 {
     OmActor* client;
-    OmEvent  tx_complete_event;
-    OmSignal rx_data_sig;
-    OmEvent error_event;
+    OmEvent* tx_complete_event;
+    OmEvent* rx_data_event;
+    OmEvent* error_event;
     OmUartPort port;
 }OmUart;
 
 typedef struct OmUartDataEvent_t
 {
     OmPoolEvent base;
+    OmUart* uart; ///< Uart instance 
     uint8_t * data;
     size_t data_size;
 }OmUartDataEvent;
@@ -44,8 +45,14 @@ void om_uart_init(OmUart* self);
 /// @brief Attaches an actor to the UART and starts reception
 /// @param self 
 /// @param client 
+/// @param tx_complete_event Transmit complete event or NULL for default OM_EVT_UART_TX_OK
+/// @param rx_data_event Receive data or NULL for default OM_EVT_UART_RX_DATA
+/// @param error_event Error event or NULL for default OM_EVT_UART_ERROR
 void om_uart_attach(OmUart* self,
-                            OmActor* client);
+                    OmActor* client,
+                    OmEvent* tx_complete_event,
+                    OmEvent* rx_data_event,
+                    OmEvent* error_event);
 
 
 /// @brief Non-blocking write to UART

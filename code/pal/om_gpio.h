@@ -24,6 +24,11 @@ typedef struct OmGpio_t
 
 void om_gpio_init(OmGpio* self);
 
+/// @brief Attach a client to receive events when GPIO changes
+/// @param self 
+/// @param client 
+/// @param rising_edge_event Signal to send or set to NULL for default OM_EVT_GPIO_HIGH_EVENT
+/// @param falling_edge_event Signal to send or set to NULL for default OM_EVT_GPIO_LOW_EVENT
 void om_gpio_attach(OmGpio* self,
                         OmActor* client,
                         OmEvent const * rising_edge_event,

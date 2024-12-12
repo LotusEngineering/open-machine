@@ -18,8 +18,9 @@
 typedef struct OmI2C_t
 {
     OmActor* client;
-//    OmEvent const * ok_event;
-//    OmEvent const * error_event;
+    OmEvent const * read_ok_event;
+    OmEvent const * write_ok_event;
+    OmEvent const * error_event;
     OmI2CPort port;
 }OmI2C;
 
@@ -36,7 +37,11 @@ void om_i2c_init(OmI2C* self);
 
 /// @brief Attaches an actor to the I2C 
 void om_i2c_attach(OmI2C* self,
-                    OmActor* client);
+                    OmActor* client,
+                    OmEvent const * read_ok_event,
+                    OmEvent const * write_ok_event,
+                    OmEvent const * error_event);
+
 
 
 /// @brief Async Write data to I2C device and send OM_EVT_I2C_WRITE_DONE when complete
