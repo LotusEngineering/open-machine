@@ -8,7 +8,7 @@
 #include "om_pal_port_i2c.h"
 #include "om.h"
 
-OM_ASSERT_SET_FILE_NAME("om_i2c_stm32.c");
+OM_ASSERT_SET_FILE_NAME("om_can_stm32.c");
 
 #define OM_I2C_STM32_MAX_INST 6
 

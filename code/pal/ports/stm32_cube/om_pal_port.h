@@ -19,5 +19,6 @@
 #include "om_pal_port_gpio.h"
 #include "om_pal_port_pwm.h"
 #include "om_pal_port_uart.h"
+#include "om_pal_port_cat.h"
 
 #endif //OM_PAL_PORT_H_

@@ -10,7 +10,7 @@ void om_i2c_attach(OmI2C* self,
                     OmActor * client,
                     OmEvent const * read_ok_event,
                     OmEvent const * write_ok_event,
-                    OmEvent const * error_event);
+                    OmEvent const * error_event)
 
 {
     self->client = client;
