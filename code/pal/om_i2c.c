@@ -3,6 +3,9 @@
 void om_i2c_init(OmI2C* self)
 {
     self->client = NULL;
+    self->read_ok_event = NULL;
+    self->write_ok_event = NULL;
+    self->error_event = NULL;
 }
 
 

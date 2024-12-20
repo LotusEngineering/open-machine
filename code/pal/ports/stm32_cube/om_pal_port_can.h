@@ -25,4 +25,4 @@ typedef struct OmCan_t OmCan;
 /// @param handle 
 void om_can_stm32_init(OmCan* self, CAN_HandleTypeDef* handle);
 
-#endif //OM_PAL_PORT_I2C_H_
+#endif //OM_PAL_PORT_CAN_H_

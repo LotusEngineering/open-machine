@@ -4,37 +4,37 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-#include "om_i2c.h"
-#include "om_pal_port_i2c.h"
+#include "om_can.h"
+#include "om_pal_port_can.h"
 #include "om.h"
 
 OM_ASSERT_SET_FILE_NAME("om_can_stm32.c");
 
-#define OM_I2C_STM32_MAX_INST 6
+#define OM_CAN_STM32_MAX_INST 6
 
 // Static events for attached clients
 OM_EVENT(om_i2c_write_ok_event, OM_EVT_I2C_WRITE_OK);
 OM_EVENT(om_i2c_read_ok_event, OM_EVT_I2C_READ_OK);
 
-static OmI2C *om_i2c_instance_table[OM_I2C_STM32_MAX_INST];
-static int om_i2c_instance_count = 0;
+static OmCan *om_can_instance_table[OM_CAN_STM32_MAX_INST];
+static int om_can_instance_count = 0;
 
-void om_i2c_stm32_init(OmI2C *self, I2C_HandleTypeDef *handle)
+void om_can_stm32_init(OmCan *self, CAN_HandleTypeDef *handle)
 {
-    OM_ASSERT(om_i2c_instance_count <= OM_I2C_STM32_MAX_INST);
+    OM_ASSERT(om_can_instance_count <= OM_CAN_STM32_MAX_INST);
 
     // Add instance to table for callback event lookup
-    om_i2c_instance_table[om_i2c_instance_count] = self;
+    om_can_instance_table[om_can_instance_count] = self;
 
     // Increase instance count
-    om_i2c_instance_count++;
+    om_can_instance_count++;
 
     // Call base class init
-    om_i2c_init(self);
+    om_can_init(self);
 
     self->port.handle = handle;
 }
-
+#if 0
 void om_i2c_write_memory(OmI2C *self,
                          uint16_t device_address,
                          uint32_t memory_address,
@@ -198,22 +198,22 @@ int om_i2c_read_memory_sync(OmI2C* self,
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     // Find matching base instance and send OK event
-    for (int idx = 0; idx < om_i2c_instance_count; idx++)
+    for (int idx = 0; idx < om_can_instance_count; idx++)
     {
-        if ((om_i2c_instance_table[idx]->port.handle == hi2c) &&
-            (om_i2c_instance_table[idx]->client != NULL))
+        if ((om_can_instance_table[idx]->port.handle == hi2c) &&
+            (om_can_instance_table[idx]->client != NULL))
         {
-            if(om_i2c_instance_table[idx]->read_ok_event == NULL)
+            if(om_can_instance_table[idx]->read_ok_event == NULL)
             {
                 // Send the default event
-                OMA_MSG(om_i2c_instance_table[idx]->client,
+                OMA_MSG(om_can_instance_table[idx]->client,
                         &om_i2c_read_ok_event);
             }
             else
             {
                 // Send the custom event
-                OMA_MSG(om_i2c_instance_table[idx]->client,
-                        om_i2c_instance_table[idx]->read_ok_event);
+                OMA_MSG(om_can_instance_table[idx]->client,
+                        om_can_instance_table[idx]->read_ok_event);
 
             }
         }
@@ -223,22 +223,22 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
     // Find matching base instance and send OK event
-    for (int idx = 0; idx < om_i2c_instance_count; idx++)
+    for (int idx = 0; idx < om_can_instance_count; idx++)
     {
-        if ((om_i2c_instance_table[idx]->port.handle == hi2c) &&
-            (om_i2c_instance_table[idx]->client != NULL))
+        if ((om_can_instance_table[idx]->port.handle == hi2c) &&
+            (om_can_instance_table[idx]->client != NULL))
         {
-            if(om_i2c_instance_table[idx]->write_ok_event == NULL)
+            if(om_can_instance_table[idx]->write_ok_event == NULL)
             {
                 // Send the default event
-                OMA_MSG(om_i2c_instance_table[idx]->client,
+                OMA_MSG(om_can_instance_table[idx]->client,
                         &om_i2c_write_ok_event);
             }
             else
             {
                 // Send the custom event
-                OMA_MSG(om_i2c_instance_table[idx]->client,
-                        om_i2c_instance_table[idx]->write_ok_event);
+                OMA_MSG(om_can_instance_table[idx]->client,
+                        om_can_instance_table[idx]->write_ok_event);
 
             }
         }
@@ -248,13 +248,13 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 {
     // Find matching base instance and send Error event
-    for (int idx = 0; idx < om_i2c_instance_count; idx++)
+    for (int idx = 0; idx < om_can_instance_count; idx++)
     {
-        if ((om_i2c_instance_table[idx]->port.handle == hi2c) &&
-            (om_i2c_instance_table[idx]->client != NULL))
+        if ((om_can_instance_table[idx]->port.handle == hi2c) &&
+            (om_can_instance_table[idx]->client != NULL))
         {
             OmI2CErrorEvent *event = NULL;
-            if (om_i2c_instance_table[idx]->error_event == NULL)
+            if (om_can_instance_table[idx]->error_event == NULL)
             {
                 // Create a new default error event
                 event = OM_POOL_EVENT_NEW(OmI2CErrorEvent, OM_EVT_I2C_ERROR);
@@ -263,16 +263,18 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
             {
                 // Create custom error event
                 event = (OmI2CErrorEvent*)om_pool_alloc(sizeof(OmI2CErrorEvent), 
-                                                        om_i2c_instance_table[idx]->error_event->signal, 
-                                                        om_i2c_instance_table[idx]->error_event->name);
+                                                        om_can_instance_table[idx]->error_event->signal, 
+                                                        om_can_instance_table[idx]->error_event->name);
             }
-            event->i2c = om_i2c_instance_table[idx];
+            event->i2c = om_can_instance_table[idx];
             event->error_code = hi2c->ErrorCode;
             event->error_message = "STM32 I2C Error"; ///@TODO decode error code
 
             // Send error event to client
-            OMA_MSG(om_i2c_instance_table[idx]->client, event);
+            OMA_MSG(om_can_instance_table[idx]->client, event);
 
         }
     }
 }
+
+#endif

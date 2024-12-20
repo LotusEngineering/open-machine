@@ -5,13 +5,14 @@
 
 #include "om_event.h"
 #include "om_actor.h"
-#include "om_pal_can_port.h"
+#include "om_pal_port_can.h"
+#include "om_pool.h"
 
 
 #define OM_CAN_MAX_DATA_LENGTH 8
 typedef uint32_t CanID;
 
-struct OmCanFrame_t
+typedef struct OmCanFrame_t
 {
     CanID    ID;
     uint8_t  Data[OM_CAN_MAX_DATA_LENGTH];
@@ -60,6 +61,6 @@ void om_can_close(OmCan* self);
 
 void om_can_set_filters(OmCan* self, Filter const * const pFilterList, int numFilters);
 
-bool om_can_send(OmCan* self, Frame const * const pFrame);
+bool om_can_send(OmCan* self, OmCanFrame const * const pFrame);
 
 #endif //OM_CAN_H_
