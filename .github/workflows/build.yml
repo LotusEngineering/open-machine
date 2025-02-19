@@ -60,7 +60,7 @@ jobs:
         cp ./code/examples/tea_timer/tea_timer_h743/build/tea_timer_h743.elf ./release/tea_timer_h743.elf
         echo ${{ github.sha }} > ./release/github_sha.txt
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: Open Machine Release
         path: |
