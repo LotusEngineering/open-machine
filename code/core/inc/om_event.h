@@ -28,6 +28,10 @@ enum OmReservedSignals
 
     OM_EVT_GPIO_HIGH_EVENT, ///< PAL GPIO Event
     OM_EVT_GPIO_LOW_EVENT, ///< PAL GPIO Event
+
+    OM_EVT_CAN_TX_OK, ///< PAL CAN TX Done Success
+    OM_EVT_CAN_RX_DATA, ///< PAL CAN RX Data
+    OM_EVT_CAN_ERROR, ///< PAL CAN Error
     
     OM_EVT_USER,   ///< Start of user defined event signals
 };
