@@ -1,5 +1,7 @@
 #include "om_can.h"
+#include "om.h"
 
+OM_ASSERT_SET_FILE_NAME("om_can.c");
 
 void om_can_init(OmCan* self)
 {
@@ -16,6 +18,8 @@ void om_can_attach(OmCan* self,
                     OmEvent const * rx_data_event,
                     OmEvent const * error_event)
 {
+    // Sorry only one client at a time
+    OM_ASSERT(self->client == NULL);
     self->client = client;
     self->tx_complete_event = tx_complete_event;
     self->rx_data_event = rx_data_event;

@@ -2,6 +2,7 @@
 #define OM_CAN_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "om_event.h"
 #include "om_actor.h"
@@ -10,11 +11,11 @@
 
 
 #define OM_CAN_MAX_DATA_LENGTH 8
-typedef uint32_t CanID;
+typedef uint32_t OmCanID;
 
 typedef struct OmCanFrame_t
 {
-    CanID    ID;
+    OmCanID    ID;
     uint8_t  Data[OM_CAN_MAX_DATA_LENGTH];
     uint8_t  DataLength;
 }OmCanFrame;
@@ -38,18 +39,19 @@ typedef struct OmCanErrorEvent_t
 }OmCanErrorEvent;
 
 
-typedef struct Filter_t
+typedef struct OmCanFilter_t
 {
-    CanID ID;
-    CanID Mask;
-}Filter;
+    OmCanID id;
+    OmCanID mask;
+    bool is_extended;
+}OmCanFilter;
 
 typedef struct OmCan_t
 {
     OmActor* client;
-    OmEvent* tx_complete_event;
-    OmEvent* rx_data_event; ///< Set to
-    OmEvent* error_event;
+    OmEvent const * tx_complete_event;
+    OmEvent const * rx_data_event; ///< Set to
+    OmEvent const * error_event;
     OmCanPort port;
 }OmCan;
 
@@ -75,7 +77,7 @@ void om_can_attach(OmCan* self,
 
 void om_can_close(OmCan* self);
 
-void om_can_set_filters(OmCan* self, Filter const * const pFilterList, int numFilters);
+void om_can_set_filters(OmCan* self, OmCanFilter const * const pFilterList, int numFilters);
 
 bool om_can_send(OmCan* self, OmCanFrame const * const pFrame);
 
