@@ -15,9 +15,10 @@ typedef uint32_t OmCanID;
 
 typedef struct OmCanFrame_t
 {
-    OmCanID    ID;
-    uint8_t  Data[OM_CAN_MAX_DATA_LENGTH];
-    uint8_t  DataLength;
+    OmCanID  id;
+    uint8_t  data[OM_CAN_MAX_DATA_LENGTH];
+    uint8_t  data_length;
+    bool     id_is_extended;
 }OmCanFrame;
 
 
@@ -77,8 +78,17 @@ void om_can_attach(OmCan* self,
 
 void om_can_close(OmCan* self);
 
-void om_can_set_filters(OmCan* self, OmCanFilter const * const pFilterList, int numFilters);
+void om_can_set_filters(OmCan* self, OmCanFilter const * const filter_list, int filter_count);
 
-bool om_can_send(OmCan* self, OmCanFrame const * const pFrame);
+bool om_can_send(OmCan* self, OmCanFrame const * const frame);
+
+
+
+// Internal function for ports to create a new data event
+/// @param 
+/// @param data
+/// @param data_size
+/// @return data event
+OmCanDataEvent* om_can_data_event_new_(OmCan* self);
 
 #endif //OM_CAN_H_

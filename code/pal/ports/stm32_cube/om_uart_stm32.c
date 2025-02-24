@@ -134,7 +134,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-    // Find matching base instance and send Error event
+    // Find matching base instance and send Transmission Complete event
     for(int idx = 0; idx < om_uart_instance_count; idx++)
     {
 
