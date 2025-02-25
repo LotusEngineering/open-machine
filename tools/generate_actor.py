@@ -71,7 +71,7 @@ def generate_source(actor_name, states, initial_state):
         for super_state in states:
             source.write(f"OM_STATE_DECLARE({actor_name}, {filename}_{super_state['name']}, OM_TOP_STATE);\n")
             for sub_state in super_state["substates"]:
-                source.write(f"OM_STATE_DECLARE({actor_name}, {filename}_{sub_state}, {filename}_{super_state['name']});\n")  
+                source.write(f"OM_STATE_DECLARE({actor_name}, {filename}_{sub_state}, &{filename}_{super_state['name']});\n")  
 
         # Define the init function
         source.write("\n\n\n/// Define the init function\n")
