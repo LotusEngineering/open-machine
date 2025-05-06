@@ -8,6 +8,9 @@
 
 #include <stdint.h>
 
+// Forward Declare
+//typedef struct I2C_HandleTypeDef_t I2C_HandleTypeDef;
+
 // The processor specific hal is provided in the generated "main.h"
 #include "main.h" 
 

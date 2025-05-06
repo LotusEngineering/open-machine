@@ -8,8 +8,14 @@
 
 #include <stdint.h>
 
+// Forward Declare
+//typedef struct GPIO_TypeDef_t GPIO_TypeDef;
+
 // The processor specific hal is provided in the generated "main.h"
 #include "main.h" 
+
+#ifndef GPIO_TypeDef
+#endif
 
 typedef struct 
 {

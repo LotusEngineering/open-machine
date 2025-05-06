@@ -7,6 +7,7 @@
 #include "om_pal_port_uart.h"
 #include "om.h"
 
+
 OM_ASSERT_SET_FILE_NAME("om_uart_stm32.c");
 
 #define OM_UART_STM32_MAX_INST 3

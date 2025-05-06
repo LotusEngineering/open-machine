@@ -10,6 +10,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+// Forward Declare
+//typedef struct UART_HandleTypeDef_t UART_HandleTypeDef;
+
 // The processor specific hal is provided in the generated "main.h"
 #include "main.h" 
 

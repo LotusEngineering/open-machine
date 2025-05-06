@@ -3,6 +3,7 @@
 #include "om_gpio.h"
 #include "om_pal_port_gpio.h"
 
+
 OM_ASSERT_SET_FILE_NAME("om_gpio_stm32.c");
 
 #define OM_GPIO_STM32_MAX_INST 32

@@ -2,6 +2,7 @@
 #include "om_pal_port_pwm.h"
 #include "om_assert.h"
 
+
 OM_ASSERT_SET_FILE_NAME("om_pwm_stm32.c");
 
 void om_pwm_stm32_init(OmPwm* self, TIM_HandleTypeDef *htim, uint32_t channel)

@@ -14,11 +14,10 @@
 // The processor specific hal is provided in the generated "main.h"
 #include "main.h" 
 
-
 #include "om_pal_port_i2c.h"
 #include "om_pal_port_gpio.h"
 #include "om_pal_port_pwm.h"
 #include "om_pal_port_uart.h"
-#include "om_pal_port_cat.h"
+#include "om_pal_port_can.h"
 
 #endif //OM_PAL_PORT_H_
