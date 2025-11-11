@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 // Forward Declare
-typedef struct CAN_HandleTypeDef_t CAN_HandleTypeDef;
+//typedef struct CAN_HandleTypeDef_t CAN_HandleTypeDef;
 
 // The processor specific hal is provided in the generated "main.h"
 #include "main.h" 
