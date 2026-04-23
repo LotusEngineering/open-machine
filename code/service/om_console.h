@@ -53,32 +53,37 @@ typedef struct OmConsole
 /// @param uart UART instance to use for communication
 /// @param commands Array of console commands   
 /// @param command_count Number of commands in the array
-void om_console_init(OmConsole* self, OmUart *uart, OmConsoleCommand *commands, size_t command_count);
+void om_console_init(OmConsole* self, 
+                     OmUart *uart, 
+                     OmConsoleCommand *commands, 
+                     size_t command_count,
+                     OmActorAttr *actor_attr,
+                     OmTraceAttr *trace_attr);
 
 /// @brief Send a string immediately over UART
 /// @param self Console instance
 /// @param str String to send
 /// This is a helper function for sending strings without buffering, useful for prompts and immediate responses
-void sendString(OmConsole *self, const char *str);
+void send_str(OmConsole *self, const char *str);
 
 /// @brief Start a new transmission with the given string
 /// @param self Console instance
 /// @param str String to start the transmission with
-void tx_start(OmConsole *self, const char *str);
+void tx_buf_start(OmConsole *self, const char *str);
 
 /// @brief Append a string to the current transmission
 /// @param self Console instance    
 /// @param str String to append
-void tx_append(OmConsole *self, const char *str);
+void tx_buf_append(OmConsole *self, const char *str);
 
 /// @brief Append an integer to the current transmission
 /// @param self Console instance
 /// @param value Integer value to append
-void tx_append_int(OmConsole *self, int value, int base);
+void tx_buf_append_int(OmConsole *self, int value, int base);
 
 /// @brief End the current transmission with the given string and send it
 /// @param self Console instance
 /// @param str String to end the transmission with
-void tx_end(OmConsole *self, const char *str);
+void tx_buf_send(OmConsole *self, const char *str);
 
 #endif // OM_CONSOLE_SERVICE_H

@@ -2,17 +2,33 @@
 #include <string.h>
 #include <stdio.h>
 
-OM_ASSERT_FILE_NAME();
+//OM_ASSERT_FILE_NAME();
 
 // Local function prototypes
 static void processCommand(OmConsole *self, const char *commandLine);
 static void sendPrompt(OmConsole *self);
 
+// Declare Init trans
+OmStateResult console_init_trans(OmConsole *self);
+
+
 // Declare the states
 OM_STATE_DECLARE(OmConsole, om_console_super, OM_TOP_STATE);
 
 
-void om_console_init(OmConsole* self, OmUart *uart, OmConsoleCommand *commands, size_t command_count) {
+void om_console_init(OmConsole* self, 
+                     OmUart *uart, 
+                     OmConsoleCommand *commands, 
+                     size_t command_count,
+                     OmActorAttr *actor_attr,
+                     OmTraceAttr *trace_attr)
+{
+    // Call base actor trace init
+    om_actor_init(&self->base,
+                  OM_INIT_CAST(console_init_trans),
+                  actor_attr,
+                  trace_attr);
+                     
     self->uart = uart;
     self->commands = commands;
     self->command_count = command_count;
@@ -22,7 +38,15 @@ void om_console_init(OmConsole* self, OmUart *uart, OmConsoleCommand *commands, 
     memset(self->tx_buffer, 0, CONSOLE_TX_BUFFER_SIZE);
 }
 
+// Initial transition handler
+OmStateResult console_init_trans(OmConsole *self)
+{
+    OmStateResult result = OM_TRANS(om_console_super);
 
+    return result;
+}
+
+// Super state 
 OM_STATE_DEFINE(OmConsole, om_console_super)
 {
     OmStateResult result = OM_RES_IGNORED;
@@ -37,7 +61,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
         if ((uart_data->data_size == 3) && (uart_data->data[0] == 0x1B) && (uart_data->data[1] == 0x5B) && (uart_data->data[2] == 0x41))
         {
             // Up arrow, repeat last command
-            sendString(self, self->cmd_buffer);
+            send_str(self, self->cmd_buffer);
             self->cmd_buffer_index = strlen(self->cmd_buffer);
         }
         else
@@ -48,7 +72,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
                 {
                     // Process command
                     self->cmd_buffer[self->cmd_buffer_index] = '\0';
-                    sendString(self, "\r\n");
+                    send_str(self, "\r\n");
                     processCommand(self, self->cmd_buffer);
                     self->cmd_buffer_index = 0;
                 }
@@ -58,7 +82,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
                     if (self->cmd_buffer_index > 0)
                     {
                         self->cmd_buffer_index--;
-                        sendString(self, "\b \b");
+                        send_str(self, "\b \b");
                     }
                 }
                 else
@@ -70,7 +94,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
                     if (self->cmd_buffer_index >= CONSOLE_CMD_BUFFER_SIZE)
                     {
                         // Buffer overflow
-                        sendString(self, "\r\nCommand too long\r\n");
+                        send_str(self, "\r\nCommand too long\r\n");
                         sendPrompt(self);
                         self->cmd_buffer_index = 0;
                     }
@@ -87,54 +111,36 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
     return result;
 }
 
-void sendString(OmConsole *self, const char *str)
+void send_str(OmConsole *self, const char *str)
 {
     om_uart_write(self->uart, (uint8_t *)str, strlen(str));
 }
 
-void tx_start(OmConsole *self, const char *str)
-{
-    self->tx_buffer_index = 0;
-    tx_append(self, str);
-}
-
-void tx_append(OmConsole *self, const char *str)
-{
-    size_t len = strlen(str);
-    if (self->tx_buffer_index + len < CONSOLE_TX_BUFFER_SIZE)
-    {
-        memcpy(&self->tx_buffer[self->tx_buffer_index], str, len);
-        self->tx_buffer_index += len;
-    }
-    else
-    {
-        // Trying to write too much data at once
-        OM_ERROR();
-    }
-}
-
-void tx_append_int(OmConsole *self, int value, int base) 
-{
-    char temp_buff[60];
-    om_trace_itoa(value, temp_buff, base);
-
-    size_t len = strlen(temp_buff);
-    if (self->tx_buffer_index + len < CONSOLE_TX_BUFFER_SIZE)
-    {
-        memcpy(&self->tx_buffer[self->tx_buffer_index], temp_buff, len);
-        self->tx_buffer_index += len;
-    }
-    else
-    {
-        // Trying to write too much data at once
-        OM_ERROR();
-    }
-}
-
-void tx_end(OmConsole *self, const char *str)
-{
-    tx_append(self, str);
+void tx_buf_start(OmConsole *self, const char *str) {
+    snprintf(self->tx_buffer, CONSOLE_TX_BUFFER_SIZE, "%s", str);
+    self->tx_buffer_index = strlen(self->tx_buffer);
     om_uart_write(self->uart, (uint8_t *)self->tx_buffer, self->tx_buffer_index);
+}
+
+void tx_buf_append(OmConsole *self, const char *str) {
+    size_t len = strlen(str);
+    if (self->tx_buffer_index + len < CONSOLE_TX_BUFFER_SIZE) {
+        strcat(self->tx_buffer, str);
+        self->tx_buffer_index += len;
+    }
+}
+
+void tx_buf_append_int(OmConsole *self, int value, int base) {
+    char int_buffer[32];
+    snprintf(int_buffer, sizeof(int_buffer), (base == 16) ? "%x" : "%d", value);
+    tx_buf_append(self, int_buffer);
+}
+
+void tx_buf_send(OmConsole *self, const char *str) {
+    tx_buf_append(self, str);
+    om_uart_write(self->uart, (uint8_t *)self->tx_buffer, self->tx_buffer_index);
+    self->tx_buffer_index = 0;
+    memset(self->tx_buffer, 0, CONSOLE_TX_BUFFER_SIZE);
 }
 
 
@@ -176,9 +182,9 @@ void processCommand(OmConsole *self, const char *commandLine)
     }
 
     // Command not found, send error message
-    tx_start(self, "Unknown command: ");
-    tx_append(self, command);
-    tx_end(self, "\r\n");
+    tx_buf_start(self, "Unknown command: ");
+    tx_buf_append(self, command);
+    tx_buf_send(self, "\r\n");
     sendPrompt(self);
 }
 
