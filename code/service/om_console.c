@@ -1,12 +1,15 @@
 #include "om_console.h"
+#include "om_uart.h"
 #include <string.h>
 #include <stdio.h>
 
 //OM_ASSERT_FILE_NAME();
 
+
+
 // Local function prototypes
-static void processCommand(OmConsole *self, const char *commandLine);
-static void sendPrompt(OmConsole *self);
+static void _om_console_send_prompt(OmConsole *self);
+static void _om_console_process_cmd(OmConsole *self, const char *commandLine);
 
 // Declare Init trans
 OmStateResult console_init_trans(OmConsole *self);
@@ -20,6 +23,7 @@ void om_console_init(OmConsole* self,
                      OmUart *uart, 
                      OmConsoleCommand *commands, 
                      size_t command_count,
+                     bool interactive_mode,
                      OmActorAttr *actor_attr,
                      OmTraceAttr *trace_attr)
 {
@@ -32,17 +36,17 @@ void om_console_init(OmConsole* self,
     self->uart = uart;
     self->commands = commands;
     self->command_count = command_count;
+    self->interactive_mode = interactive_mode;
     self->cmd_buffer_index = 0;
     self->tx_buffer_index = 0;
-    memset(self->cmd_buffer, 0, CONSOLE_CMD_BUFFER_SIZE);
-    memset(self->tx_buffer, 0, CONSOLE_TX_BUFFER_SIZE);
+    memset(self->cmd_buffer, 0, OM_CONSOLE_CMD_BUFFER_SIZE);
+    memset(self->tx_buffer, 0, OM_CONSOLE_TX_BUFFER_SIZE);
 }
 
 // Initial transition handler
 OmStateResult console_init_trans(OmConsole *self)
 {
     OmStateResult result = OM_TRANS(om_console_super);
-
     return result;
 }
 
@@ -53,6 +57,13 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
     switch (event->signal)
     {
     case OM_EVT_ENTER:
+        om_uart_attach(self->uart, (OmActor *)self, NULL, NULL, NULL);
+        if (self->interactive_mode)
+        {
+            // Send welcome message
+            om_console_send_str(self, "\r\nWelcome to Open Machine Console!\r\n");
+            _om_console_send_prompt(self);
+        }
         result = OM_RES_HANDLED;
         break;
 
@@ -61,7 +72,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
         if ((uart_data->data_size == 3) && (uart_data->data[0] == 0x1B) && (uart_data->data[1] == 0x5B) && (uart_data->data[2] == 0x41))
         {
             // Up arrow, repeat last command
-            send_str(self, self->cmd_buffer);
+            om_console_send_str(self, self->cmd_buffer);
             self->cmd_buffer_index = strlen(self->cmd_buffer);
         }
         else
@@ -72,30 +83,43 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
                 {
                     // Process command
                     self->cmd_buffer[self->cmd_buffer_index] = '\0';
-                    send_str(self, "\r\n");
-                    processCommand(self, self->cmd_buffer);
+                    om_console_send_str(self, "\r\n");
+                    _om_console_process_cmd(self, self->cmd_buffer);
                     self->cmd_buffer_index = 0;
                 }
-                else if (uart_data->data[i] == '\b' || uart_data->data[i] == 0x7F) // Handle backspace
+                else if (self->interactive_mode && (uart_data->data[i] == '\b' || uart_data->data[i] == 0x7F) ) // Handle backspace
                 {
                     // Backspace
                     if (self->cmd_buffer_index > 0)
                     {
                         self->cmd_buffer_index--;
-                        send_str(self, "\b \b");
+                        om_console_send_str(self, "\b \b");
                     }
                 }
                 else
                 {
-                    // Echo character back to terminal
+                    // Store character in command buffer
                     self->cmd_buffer[self->cmd_buffer_index] = (char)uart_data->data[i];
-                    om_uart_write(self->uart, &uart_data->data[i], 1);
                     self->cmd_buffer_index++;
-                    if (self->cmd_buffer_index >= CONSOLE_CMD_BUFFER_SIZE)
+
+                    // Echo character back to terminal
+                    if(self->interactive_mode)
                     {
-                        // Buffer overflow
-                        send_str(self, "\r\nCommand too long\r\n");
-                        sendPrompt(self);
+                        om_uart_write(self->uart, &uart_data->data[i], 1);
+                    }
+
+                    // Buffer overflow check
+                    if (self->cmd_buffer_index >= OM_CONSOLE_CMD_BUFFER_SIZE)
+                    {
+                        if (self->interactive_mode)
+                        {
+                            om_console_send_str(self, "\r\nCommand too long\r\n");
+                            _om_console_send_prompt(self);
+                        }
+                        else 
+                        {
+                            om_console_send_str(self, "NAK,Length\r\n");
+                        }
                         self->cmd_buffer_index = 0;
                     }
                 }
@@ -111,89 +135,10 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
     return result;
 }
 
-void send_str(OmConsole *self, const char *str)
-{
-    om_uart_write(self->uart, (uint8_t *)str, strlen(str));
-}
-
-void tx_buf_start(OmConsole *self, const char *str) {
-    snprintf(self->tx_buffer, CONSOLE_TX_BUFFER_SIZE, "%s", str);
-    self->tx_buffer_index = strlen(self->tx_buffer);
-    om_uart_write(self->uart, (uint8_t *)self->tx_buffer, self->tx_buffer_index);
-}
-
-void tx_buf_append(OmConsole *self, const char *str) {
-    size_t len = strlen(str);
-    if (self->tx_buffer_index + len < CONSOLE_TX_BUFFER_SIZE) {
-        strcat(self->tx_buffer, str);
-        self->tx_buffer_index += len;
-    }
-}
-
-void tx_buf_append_int(OmConsole *self, int value, int base) {
-    char int_buffer[32];
-    snprintf(int_buffer, sizeof(int_buffer), (base == 16) ? "%x" : "%d", value);
-    tx_buf_append(self, int_buffer);
-}
-
-void tx_buf_send(OmConsole *self, const char *str) {
-    tx_buf_append(self, str);
-    om_uart_write(self->uart, (uint8_t *)self->tx_buffer, self->tx_buffer_index);
-    self->tx_buffer_index = 0;
-    memset(self->tx_buffer, 0, CONSOLE_TX_BUFFER_SIZE);
-}
-
-
-
-
-//////////////// Internal helper functions ////////////////
-static void sendPrompt(OmConsole *self)
-{
-    om_uart_write(self->uart, (uint8_t *)"> ", 2);
-}
-
-
-void processCommand(OmConsole *self, const char *commandLine)
-{
-    char command[CONSOLE_TX_BUFFER_SIZE];
-    const char *args = strchr(commandLine, ' ');
-
-    // If there are arguments, split the command and args, otherwise the whole line is the command
-    if (args)
-    {
-        size_t commandLength = args - commandLine;
-        strncpy(command, commandLine, commandLength);
-        command[commandLength] = '\0';
-        args++; // Skip the space
-    }
-    else
-    {
-        strncpy(command, commandLine, CONSOLE_TX_BUFFER_SIZE);
-        args = "";
-    }
-
-    // Find and execute the command
-    for (size_t i = 0; i < self->command_count; i++) {
-        if (strcmp(self->commands[i].command, command) == 0) {
-            self->commands[i].callback(self, command);
-            sendPrompt(self);
-            return;
-        }
-    }
-
-    // Command not found, send error message
-    tx_buf_start(self, "Unknown command: ");
-    tx_buf_append(self, command);
-    tx_buf_send(self, "\r\n");
-    sendPrompt(self);
-}
-
-#define MAX_ARGS 10
-
-void parseArgs(const char *args, char *argv[], int *argc)
+void om_console_parse_args(const char *args, char *argv[], int *argc)
 {
     *argc = 0;
-    while (*args && *argc < MAX_ARGS)
+    while (*args && *argc < OM_CONSOLE_MAX_ARGS)
     {
         while (*args == ' ')
             args++; // Skip leading spaces
@@ -213,29 +158,105 @@ void parseArgs(const char *args, char *argv[], int *argc)
 }
 
 
+void om_console_send_str(OmConsole *self, const char *str)
+{
+    om_uart_write(self->uart, (uint8_t *)str, strlen(str));
+}
 
-/////////////
-static void om_console_execute_command(OmConsole *self, const char *cmd) {
+void om_console_tx_buf_start(OmConsole *self, const char *str) {
+    snprintf(self->tx_buffer, OM_CONSOLE_TX_BUFFER_SIZE, "%s", str);
+    self->tx_buffer_index = strlen(self->tx_buffer);
+}
+
+void om_console_tx_buf_append(OmConsole *self, const char *str) {
+    size_t len = strlen(str);
+    if (self->tx_buffer_index + len < OM_CONSOLE_TX_BUFFER_SIZE) {
+        strcat(self->tx_buffer, str);
+        self->tx_buffer_index += len;
+    }
+}
+
+void om_console_tx_buf_append_int(OmConsole *self, int value, int base) {
+    char int_buffer[32];
+    snprintf(int_buffer, sizeof(int_buffer), (base == 16) ? "%x" : "%d", value);
+    om_console_tx_buf_append(self, int_buffer);
+}
+
+void om_console_tx_buf_send(OmConsole *self, const char *str) {
+    om_console_tx_buf_append(self, str);
+    om_uart_write(self->uart, (uint8_t *)self->tx_buffer, self->tx_buffer_index);
+    self->tx_buffer_index = 0;
+}
+
+
+
+
+//////////////// Internal helper functions ////////////////
+static void _om_console_send_prompt(OmConsole *self)
+{
+    om_uart_write(self->uart, (uint8_t *)"> ", 2);
+}
+
+
+void _om_console_process_cmd(OmConsole *self, const char *commandLine)
+{
+    char command[OM_CONSOLE_TX_BUFFER_SIZE];
+    const char *args = strchr(commandLine, ' ');
+
+    // If there are arguments, split the command and args, otherwise the whole line is the command
+    if (args)
+    {
+        size_t commandLength = args - commandLine;
+        strncpy(command, commandLine, commandLength);
+        command[commandLength] = '\0';
+        args++; // Skip the space
+    }
+    else
+    {
+        strncpy(command, commandLine, OM_CONSOLE_TX_BUFFER_SIZE);
+        args = "";
+    }
+
+    // Find and execute the command
     for (size_t i = 0; i < self->command_count; i++) {
-        if (strcmp(self->commands[i].command, cmd) == 0) {
-            self->commands[i].callback(self, cmd);
+        if (strcmp(self->commands[i].command, command) == 0) {
+            if (!self->interactive_mode)
+            {
+                // In non-interactive mode, send ACK for valid command before executing
+                om_console_send_str(self, "ACK\r\n");
+            }   
+            
+            self->commands[i].callback(self, command);
+            
+            if(self->interactive_mode)
+            {
+                // Send prompt after command execution in interactive mode
+                _om_console_send_prompt(self);
+            }
+
             return;
         }
     }
-    snprintf(self->tx_buffer, CONSOLE_TX_BUFFER_SIZE, "Unknown command: %s\n", cmd);
-    om_uart_write(self->uart, (uint8_t *)self->tx_buffer, strlen(self->tx_buffer));
-}
 
-void om_console_process_input(OmConsole *self, const char *input) {
-    for (size_t i = 0; input[i] != '\0'; i++) {
-        char c = input[i];
-        if (c == '\n') {
-            self->cmd_buffer[self->cmd_buffer_index] = '\0';
-            om_console_execute_command(self, self->cmd_buffer);
-            self->cmd_buffer_index = 0;
-            memset(self->cmd_buffer, 0, CONSOLE_CMD_BUFFER_SIZE);
-        } else if (self->cmd_buffer_index < CONSOLE_CMD_BUFFER_SIZE - 1) {
-            self->cmd_buffer[self->cmd_buffer_index++] = c;
-        }
+    if (self->interactive_mode)
+    {
+        // Command not found, send error message
+        om_console_tx_buf_start(self, "Unknown command: ");
+        om_console_tx_buf_append(self, command);
+        om_console_tx_buf_send(self, "\r\n");
+        _om_console_send_prompt(self);
+
+    }
+    else 
+    {
+        // Command not found, send NAK message
+        om_console_tx_buf_start(self, "NAK,Unknown command: ");
+        om_console_tx_buf_append(self, command);
+        om_console_tx_buf_send(self, "\r\n");    
     }
 }
+
+
+
+
+
