@@ -13,9 +13,10 @@
 
 
 
-/// Forward declaree the console structure
+/// Forward declare the console structure
 typedef struct OmConsole OmConsole;
 
+/// Callback type for console command handlers
 typedef void (*OmConsoleCallback)(OmConsole *self, const char *args);
 
 /// Command structure for console commands

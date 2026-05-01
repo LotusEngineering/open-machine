@@ -201,19 +201,22 @@ static void _om_console_send_prompt(OmConsole *self)
 void _om_console_process_cmd(OmConsole *self, const char *commandLine)
 {
     char command[OM_CONSOLE_TX_BUFFER_SIZE];
+
+    // Try and find space to split command and args
     const char *args = strchr(commandLine, ' ');
 
     // If there are arguments, split the command and args, otherwise the whole line is the command
-    if (args)
+    if (args != NULL)
     {
         size_t commandLength = args - commandLine;
         strncpy(command, commandLine, commandLength);
         command[commandLength] = '\0';
-        args++; // Skip the space
+        args++; // Skip the space to point at first argument
     }
     else
     {
         strncpy(command, commandLine, OM_CONSOLE_TX_BUFFER_SIZE);
+        // No arguments, set args to empty string
         args = "";
     }
 
@@ -226,7 +229,7 @@ void _om_console_process_cmd(OmConsole *self, const char *commandLine)
                 om_console_send_str(self, "ACK\r\n");
             }   
             
-            self->commands[i].callback(self, command);
+            self->commands[i].callback(self, args);
             
             if(self->interactive_mode)
             {
