@@ -12,7 +12,7 @@ static void _om_console_send_prompt(OmConsole *self);
 static void _om_console_process_cmd(OmConsole *self, const char *commandLine);
 
 // Declare Init trans
-OmStateResult console_init_trans(OmConsole *self);
+OmStateResult om_console_init_trans(OmConsole *self);
 
 
 // Declare the states
@@ -29,7 +29,7 @@ void om_console_init(OmConsole* self,
 {
     // Call base actor trace init
     om_actor_init(&self->base,
-                  OM_INIT_CAST(console_init_trans),
+                  OM_INIT_CAST(om_console_init_trans),
                   actor_attr,
                   trace_attr);
                      
@@ -44,7 +44,7 @@ void om_console_init(OmConsole* self,
 }
 
 // Initial transition handler
-OmStateResult console_init_trans(OmConsole *self)
+OmStateResult om_console_init_trans(OmConsole *self)
 {
     OmStateResult result = OM_TRANS(om_console_super);
     return result;

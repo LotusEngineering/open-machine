@@ -33,6 +33,8 @@ enum OmReservedSignals
     OM_EVT_CAN_RX_DATA, ///< PAL CAN RX Data
     OM_EVT_CAN_ERROR, ///< PAL CAN Error
     
+    OM_EVT_TRACE_SVC_TICK, ///< Internal event used by trace service to trigger pulling trace messages
+
     OM_EVT_USER,   ///< Start of user defined event signals
 };
 

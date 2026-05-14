@@ -32,7 +32,7 @@ bool om_queue_put(OmQueue* self, OmEvent const *const event)
     else
     {
         // Copy into storage
-        self->store[self->write_index] = event;
+        self->store[self->write_index] = (OmEvent *)event;
 
         // Update next write index
         self->write_index = next_write_index;
