@@ -37,7 +37,7 @@ typedef struct OmTraceSvc
 {
     OmActor base;
     OmTracePrintf printf;
-    OmTrace trace;
+    OmTrace* trace;
     uint32_t trace_rate_msec;
     OmTimer timer;
 }OmTraceSvc;

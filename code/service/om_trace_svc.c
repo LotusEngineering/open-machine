@@ -4,6 +4,9 @@
 #include "om_trace.h"
 #include "om_timer.h"
 
+// Set assert file name for this file
+OM_ASSERT_FILE_NAME();
+
 // Declare Init trans
 OmStateResult om_trace_svc_init_trans(OmTraceSvc *self);
 
@@ -22,8 +25,12 @@ void om_trace_svc_init(OmTraceSvc* self,
                   actor_attr,
                   trace_attr);
 
+    // printf and trace are required
+    OM_ASSERT(printf != NULL);
+    OM_ASSERT(trace != NULL);
+
     self->printf = printf;
-    self->trace = *trace;
+    self->trace = trace;
     self->trace_rate_msec = trace_rate_msec;
     
     om_timer_init(&self->timer, 
@@ -59,11 +66,11 @@ OM_STATE_DEFINE(OmTraceSvc, om_trace_svc_super)
             // {
             //     self->printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
             // }
-            if(om_trace_is_full(&self->trace))
+            if(om_trace_is_full(self->trace))
             {
                 self->printf("WARNING!! Trace Buffer is Full!\n");
             }
-            if(om_trace_read(&self->trace, &trace_record))
+            if(om_trace_read(self->trace, &trace_record))
             {
                 self->printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
             }
