@@ -45,12 +45,10 @@ typedef struct OmTraceSvc
 /// @brief Initialize the trace service
 /// @param self Trace instance
 /// @param printf Printf function to use for logging/tracing messages
-/// @param trace Trace instance to use to pull trace messages from
 /// @param actor_attr Actor attributes for the trace's internal actor (priority, stack size, queue size)
 /// @param trace_attr Trace attributes for the trace's internal actor (name, trace buffer, trace flags)
 void om_trace_svc_init(OmTraceSvc* self, 
                        OmTracePrintf printf,
-                       OmTrace* trace,
                        uint32_t trace_rate_msec,
                        OmActorAttr* actor_attr,
                        OmTraceAttr* trace_attr);

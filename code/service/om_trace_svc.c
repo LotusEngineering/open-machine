@@ -15,7 +15,6 @@ OM_STATE_DECLARE(OmTraceSvc, om_trace_svc_super, OM_TOP_STATE);
 
 void om_trace_svc_init(OmTraceSvc* self, 
                        OmTracePrintf printf,
-                       OmTrace* trace,
                        uint32_t trace_rate_msec,
                        OmActorAttr* actor_attr,
                        OmTraceAttr* trace_attr)
@@ -25,12 +24,14 @@ void om_trace_svc_init(OmTraceSvc* self,
                   actor_attr,
                   trace_attr);
 
-    // printf and trace are required
+    // printf is required
     OM_ASSERT(printf != NULL);
-    OM_ASSERT(trace != NULL);
-
     self->printf = printf;
-    self->trace = trace;
+
+    // Trace is required
+    OM_ASSERT(trace_attr != NULL);
+    self->trace = trace_attr->trace;
+
     self->trace_rate_msec = trace_rate_msec;
     
     om_timer_init(&self->timer, 
@@ -61,6 +62,7 @@ OM_STATE_DEFINE(OmTraceSvc, om_trace_svc_super)
 
     case OM_EVT_TRACE_SVC_TICK:
         {
+            #if 1
             OmTraceLogEntry trace_record;
             // while(om_trace_read(&self->trace, &trace_record))
             // {
@@ -74,6 +76,7 @@ OM_STATE_DEFINE(OmTraceSvc, om_trace_svc_super)
             {
                 self->printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
             }
+            #endif
         result = OM_RES_HANDLED;
         }
         break;
