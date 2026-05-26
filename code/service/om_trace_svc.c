@@ -62,12 +62,7 @@ OM_STATE_DEFINE(OmTraceSvc, om_trace_svc_super)
 
     case OM_EVT_TRACE_SVC_TICK:
         {
-            #if 1
             OmTraceLogEntry trace_record;
-            // while(om_trace_read(&self->trace, &trace_record))
-            // {
-            //     self->printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
-            // }
             if(om_trace_is_full(self->trace))
             {
                 self->printf("WARNING!! Trace Buffer is Full!\n");
@@ -76,10 +71,10 @@ OM_STATE_DEFINE(OmTraceSvc, om_trace_svc_super)
             {
                 self->printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
             }
-            #endif
-        result = OM_RES_HANDLED;
+            result = OM_RES_HANDLED;
         }
         break;
+        
     case OM_EVT_EXIT:
         // Stop trace timer
         om_timer_stop(&self->timer);
