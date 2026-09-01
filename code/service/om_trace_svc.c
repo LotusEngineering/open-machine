@@ -62,6 +62,7 @@ OM_STATE_DEFINE(OmTraceSvc, om_trace_svc_super)
 
     case OM_EVT_TRACE_SVC_TICK:
         {
+            om_trace_tick(self->trace, self->trace_rate_msec);
             OmTraceLogEntry trace_record;
             if(om_trace_is_full(self->trace))
             {
@@ -69,7 +70,7 @@ OM_STATE_DEFINE(OmTraceSvc, om_trace_svc_super)
             }
             if(om_trace_read(self->trace, &trace_record))
             {
-                self->printf("%lu:%s\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
+                self->printf("%lu:%s\r\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
             }
             result = OM_RES_HANDLED;
         }
