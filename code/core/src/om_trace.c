@@ -56,6 +56,9 @@ bool om_trace_string(OmTrace* self, char const * const string)
 
         // Copy string into list
         strncpy(self->entry_list[self->write_index].message, string, OM_TRACE_MAX_MESSAGE_LENGTH);
+        
+        // Guarantee null-termination
+        self->entry_list[self->write_index].message[OM_TRACE_MAX_MESSAGE_LENGTH - 1] = '\0'; 
 
         // Update next write index
         self->write_index = next_write_index;
@@ -107,6 +110,8 @@ bool om_trace_fields(OmTrace* self, char const * const strings[], size_t num_str
                 space_left -= 1;
             }
         }
+        // Guarantee null-termination
+        self->entry_list[self->write_index].message[OM_TRACE_MAX_MESSAGE_LENGTH - 1] = '\0'; 
 
         // Update next write index
         self->write_index = next_write_index;
