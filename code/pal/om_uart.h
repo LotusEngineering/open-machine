@@ -12,6 +12,7 @@
 #include "om_event.h"
 #include "om_pool.h"
 #include "om_actor.h"
+#include "om_config.h"
 #include "om_pal_port_uart.h"
 
 typedef struct OmUart_t
@@ -20,6 +21,7 @@ typedef struct OmUart_t
     OmEvent* tx_complete_event;
     OmEvent* rx_data_event;
     OmEvent* error_event;
+    char printf_buffer[OM_UART_PRINTF_BUFFER_SIZE]; ///< Format buffer used by om_uart_printf()
     OmUartPort port;
 }OmUart;
 
@@ -62,6 +64,15 @@ void om_uart_attach(OmUart* self,
 void om_uart_write(OmUart* self, 
                     uint8_t* data, 
                     size_t data_size);
+
+
+/// @brief Formats a printf style string and writes it to the UART
+/// @note Formatting uses a per instance buffer of OM_UART_PRINTF_BUFFER_SIZE bytes,
+///       output longer than that is truncated.
+/// @param self UART instance
+/// @param format printf style format string
+/// @return Number of characters written, or a negative value on a formatting error
+int om_uart_printf(OmUart* self, const char* format, ...);
 
 
 // Internal function for ports to create a new data event

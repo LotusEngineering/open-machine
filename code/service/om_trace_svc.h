@@ -1,6 +1,7 @@
 #ifndef OM_TRACE_SVC_H
 #define OM_TRACE_SVC_H
 #include "om.h"
+#include "om_uart.h"
 #include <stdint.h>
 
 
@@ -37,12 +38,13 @@ typedef struct OmTraceSvc
 {
     OmActor base;
     OmTracePrintf printf;
+    OmUart* uart;
     OmTrace* trace;
     uint32_t trace_rate_msec;
     OmTimer timer;
 }OmTraceSvc;
 
-/// @brief Initialize the trace service
+/// @brief Initialize the trace service using a printf function for logging/printing trace messages.
 /// @param self Trace instance
 /// @param printf Printf function to use for logging/tracing messages
 /// @param actor_attr Actor attributes for the trace's internal actor (priority, stack size, queue size)
@@ -53,6 +55,17 @@ void om_trace_svc_init(OmTraceSvc* self,
                        OmActorAttr* actor_attr,
                        OmTraceAttr* trace_attr);
 
+
+///@ brief Initialize the trace service using a UART for logging/printing trace messages.
+/// @param self Trace instance
+/// @param uart UART instance to use for logging/tracing messages
+/// @param actor_attr Actor attributes for the trace's internal actor (priority, stack size, queue size)
+/// @param trace_attr Trace attributes for the trace's internal actor (name, trace buffer, trace flags)
+void om_trace_svc_init_uart( OmTraceSvc* self,
+                             OmUart* uart,
+                             uint32_t trace_rate_msec,
+                             OmActorAttr* actor_attr,
+                             OmTraceAttr* trace_attr);
 
 
 

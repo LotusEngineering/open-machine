@@ -41,6 +41,35 @@ void om_trace_svc_init(OmTraceSvc* self,
 
 }
 
+void om_trace_svc_init_uart( OmTraceSvc* self,
+                             OmUart* uart,
+                             uint32_t trace_rate_msec,
+                             OmActorAttr* actor_attr,
+                             OmTraceAttr* trace_attr)
+{
+
+    om_actor_init(&self->base,
+                  OM_INIT_CAST(om_trace_svc_init_trans),
+                  actor_attr,
+                  trace_attr);
+
+    // uart is required
+    OM_ASSERT(uart != NULL);
+    self->printf = NULL;
+    self->uart = uart;
+
+    // Trace is required
+    OM_ASSERT(trace_attr != NULL);
+    self->trace = trace_attr->trace;
+
+    self->trace_rate_msec = trace_rate_msec;
+    
+    om_timer_init(&self->timer, 
+            OM_EVT_TRACE_SVC_TICK, 
+              OM_NAME_OF(OM_EVT_TRACE_SVC_TICK), 
+             &self->base);
+}
+
 OmStateResult om_trace_svc_init_trans(OmTraceSvc *self)
 {
     OmStateResult result = OM_TRANS(om_trace_svc_super);
@@ -66,11 +95,25 @@ OM_STATE_DEFINE(OmTraceSvc, om_trace_svc_super)
             OmTraceLogEntry trace_record;
             if(om_trace_is_full(self->trace))
             {
-                self->printf("WARNING!! Trace Buffer is Full!\n");
+                if (self->printf)
+                {
+                    self->printf("WARNING!! Trace Buffer is Full!\n");
+                }
+                else if (self->uart)
+                {
+                    om_uart_printf(self->uart, "WARNING!! Trace Buffer is Full!\n");
+                }
             }
             if(om_trace_read(self->trace, &trace_record))
             {
-                self->printf("%lu:%s\r\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
+                if (self->printf)
+                {
+                    self->printf("%lu:%s\r\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
+                }
+                else if (self->uart)
+                {
+                    om_uart_printf(self->uart, "%lu:%s\r\n", (uint32_t)trace_record.timestamp_usec, trace_record.message);
+                }
             }
             result = OM_RES_HANDLED;
         }

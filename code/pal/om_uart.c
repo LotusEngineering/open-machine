@@ -1,5 +1,7 @@
 #include "om_uart.h"
 #include "om_pool.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 void om_uart_init(OmUart* self)
 {
@@ -9,6 +11,30 @@ void om_uart_init(OmUart* self)
     self->error_event = NULL;
 }
 
+
+int om_uart_printf(OmUart* self, const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    int length = vsnprintf(self->printf_buffer, sizeof(self->printf_buffer), format, args);
+    va_end(args);
+
+    if (length < 0)
+    {
+        // Formatting error, nothing to send
+        return length;
+    }
+
+    // vsnprintf returns the length the output would have been, clamp to what fit
+    if ((size_t)length >= sizeof(self->printf_buffer))
+    {
+        length = (int)sizeof(self->printf_buffer) - 1;
+    }
+
+    om_uart_write(self, (uint8_t*)self->printf_buffer, (size_t)length);
+
+    return length;
+}
 
 OmUartDataEvent* om_uart_data_event_new_(OmUart* self, uint8_t* data, size_t data_size)
 {

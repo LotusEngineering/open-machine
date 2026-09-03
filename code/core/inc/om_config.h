@@ -63,6 +63,12 @@
 #endif
 
 
+/// UART printf buffer size, one per UART instance, used to format om_uart_printf output
+#ifndef OM_UART_PRINTF_BUFFER_SIZE
+    #define OM_UART_PRINTF_BUFFER_SIZE 128
+#endif
+
+
 /// Console Service Command buffer size for storing incoming commands
 #ifndef OM_CONSOLE_CMD_BUFFER_SIZE
     #define OM_CONSOLE_CMD_BUFFER_SIZE 80
