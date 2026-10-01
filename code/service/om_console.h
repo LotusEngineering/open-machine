@@ -17,7 +17,7 @@
 typedef struct OmConsole OmConsole;
 
 /// Callback type for console command handlers
-typedef void (*OmConsoleCallback)(OmConsole *self, const char *args);
+typedef void (*OmConsoleCallback)(OmConsole *self, const char * command,  const char *args);
 
 /// Command structure for console commands
 typedef struct {

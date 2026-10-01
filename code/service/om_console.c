@@ -229,7 +229,7 @@ void _om_console_process_cmd(OmConsole *self, const char *commandLine)
                 om_console_send_str(self, "ACK\r\n");
             }   
             
-            self->commands[i].callback(self, args);
+            self->commands[i].callback(self, self->commands[i].command, args);
             
             if(self->interactive_mode)
             {
