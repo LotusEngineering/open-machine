@@ -8,6 +8,7 @@
 
 
 // Local function prototypes
+static void _om_console_write(OmConsole *self, const uint8_t *data, size_t data_size);
 static void _om_console_send_prompt(OmConsole *self);
 static void _om_console_process_cmd(OmConsole *self, const char *commandLine);
 
@@ -17,11 +18,13 @@ OmStateResult om_console_init_trans(OmConsole *self);
 
 // Declare the states
 OM_STATE_DECLARE(OmConsole, om_console_super, OM_TOP_STATE);
+OM_STATE_DECLARE(OmConsole, om_console_idle, &om_console_super);
+OM_STATE_DECLARE(OmConsole, om_console_help, &om_console_super);
 
 
-void om_console_init(OmConsole* self, 
-                     OmUart *uart, 
-                     OmConsoleCommand *commands, 
+void om_console_init(OmConsole* self,
+                     OmUart *uart,
+                     OmConsoleCommand *commands,
                      size_t command_count,
                      bool interactive_mode,
                      OmActorAttr *actor_attr,
@@ -32,13 +35,16 @@ void om_console_init(OmConsole* self,
                   OM_INIT_CAST(om_console_init_trans),
                   actor_attr,
                   trace_attr);
-                     
+
     self->uart = uart;
     self->commands = commands;
     self->command_count = command_count;
     self->interactive_mode = interactive_mode;
     self->cmd_buffer_index = 0;
     self->tx_buffer_index = 0;
+    self->help_requested = false;
+    self->help_index = 0;
+    self->tx_pending = 0;
     memset(self->cmd_buffer, 0, OM_CONSOLE_CMD_BUFFER_SIZE);
     memset(self->tx_buffer, 0, OM_CONSOLE_TX_BUFFER_SIZE);
 }
@@ -50,7 +56,7 @@ OmStateResult om_console_init_trans(OmConsole *self)
     return result;
 }
 
-// Super state 
+// Super state
 OM_STATE_DEFINE(OmConsole, om_console_super)
 {
     OmStateResult result = OM_RES_IGNORED;
@@ -67,6 +73,33 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
         result = OM_RES_HANDLED;
         break;
 
+    case OM_EVT_INIT:
+        result = OM_TRANS(om_console_idle);
+        break;
+
+    case OM_EVT_UART_TX_OK:
+        // Track completed writes so the help state knows when the UART is idle
+        if (self->tx_pending > 0)
+        {
+            self->tx_pending--;
+        }
+        result = OM_RES_HANDLED;
+        break;
+
+    default:
+        result = OM_RES_IGNORED;
+        break;
+    }
+
+    return result;
+}
+
+// Idle state, receives and executes commands
+OM_STATE_DEFINE(OmConsole, om_console_idle)
+{
+    OmStateResult result = OM_RES_IGNORED;
+    switch (event->signal)
+    {
     case OM_EVT_UART_RX_DATA:
         OmUartDataEvent const *const uart_data = OM_EVENT_CAST(OmUartDataEvent);
         if ((uart_data->data_size == 3) && (uart_data->data[0] == 0x1B) && (uart_data->data[1] == 0x5B) && (uart_data->data[2] == 0x41))
@@ -77,7 +110,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
         }
         else
         {
-            for (size_t i = 0; i < uart_data->data_size; i++)
+            for (size_t i = 0; (i < uart_data->data_size) && !self->help_requested; i++)
             {
                 if (uart_data->data[i] == '\r' || uart_data->data[i] == '\n')
                 {
@@ -105,7 +138,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
                     // Echo character back to terminal
                     if(self->interactive_mode)
                     {
-                        om_uart_write(self->uart, &uart_data->data[i], 1);
+                        _om_console_write(self, &uart_data->data[i], 1);
                     }
 
                     // Buffer overflow check
@@ -116,7 +149,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
                             om_console_send_str(self, "\r\nCommand too long\r\n");
                             _om_console_send_prompt(self);
                         }
-                        else 
+                        else
                         {
                             om_console_send_str(self, "NAK,Length\r\n");
                         }
@@ -125,8 +158,80 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
                 }
             }
         }
+
+        if (self->help_requested)
+        {
+            // Any input after the help command in this event is dropped
+            self->help_requested = false;
+            result = OM_TRANS(om_console_help);
+        }
+        else
+        {
+            result = OM_RES_HANDLED;
+        }
+        break;
+
+    default:
+        result = OM_RES_IGNORED;
+        break;
+    }
+
+    return result;
+}
+
+// Help state, sends one help line per completed UART write
+OM_STATE_DEFINE(OmConsole, om_console_help)
+{
+    OmStateResult result = OM_RES_IGNORED;
+    switch (event->signal)
+    {
+    case OM_EVT_ENTER:
+        self->help_index = 0;
+        om_console_send_str(self, self->interactive_mode ? "Available commands:\r\n" : "ACK\r\nAvailable commands:\r\n");
         result = OM_RES_HANDLED;
         break;
+
+    case OM_EVT_UART_TX_OK:
+        if (self->tx_pending > 0)
+        {
+            self->tx_pending--;
+        }
+
+        // Only reuse tx_buffer once every earlier write, including echo and prompt, has finished
+        if (self->tx_pending == 0)
+        {
+            if (self->help_index < self->command_count)
+            {
+                OmConsoleCommand const *const cmd = &self->commands[self->help_index];
+                int length = snprintf(self->tx_buffer, OM_CONSOLE_TX_BUFFER_SIZE, "  %s: %s\r\n", cmd->command, cmd->description);
+                if (length >= OM_CONSOLE_TX_BUFFER_SIZE)
+                {
+                    length = OM_CONSOLE_TX_BUFFER_SIZE - 1;
+                }
+                self->help_index++;
+                _om_console_write(self, (const uint8_t *)self->tx_buffer, (size_t)length);
+                result = OM_RES_HANDLED;
+            }
+            else
+            {
+                if (self->interactive_mode)
+                {
+                    _om_console_send_prompt(self);
+                }
+                result = OM_TRANS(om_console_idle);
+            }
+        }
+        else
+        {
+            result = OM_RES_HANDLED;
+        }
+        break;
+
+    case OM_EVT_UART_RX_DATA:
+        // Input received while help is being sent is dropped
+        result = OM_RES_HANDLED;
+        break;
+
     default:
         result = OM_RES_IGNORED;
         break;
@@ -160,7 +265,7 @@ void om_console_parse_args(const char *args, char *argv[], int *argc)
 
 void om_console_send_str(OmConsole *self, const char *str)
 {
-    om_uart_write(self->uart, (uint8_t *)str, strlen(str));
+    _om_console_write(self, (const uint8_t *)str, strlen(str));
 }
 
 void om_console_tx_buf_start(OmConsole *self, const char *str) {
@@ -184,7 +289,7 @@ void om_console_tx_buf_append_int(OmConsole *self, int value, int base) {
 
 void om_console_tx_buf_send(OmConsole *self, const char *str) {
     om_console_tx_buf_append(self, str);
-    om_uart_write(self->uart, (uint8_t *)self->tx_buffer, self->tx_buffer_index);
+    _om_console_write(self, (const uint8_t *)self->tx_buffer, self->tx_buffer_index);
     self->tx_buffer_index = 0;
 }
 
@@ -192,9 +297,20 @@ void om_console_tx_buf_send(OmConsole *self, const char *str) {
 
 
 //////////////// Internal helper functions ////////////////
+static void _om_console_write(OmConsole *self, const uint8_t *data, size_t data_size)
+{
+    if (data_size == 0)
+    {
+        // om_uart_write sends nothing, so no OM_EVT_UART_TX_OK will follow
+        return;
+    }
+    self->tx_pending++;
+    om_uart_write(self->uart, (uint8_t *)data, data_size);
+}
+
 static void _om_console_send_prompt(OmConsole *self)
 {
-    om_uart_write(self->uart, (uint8_t *)"> ", 2);
+    _om_console_write(self, (const uint8_t *)"> ", 2);
 }
 
 
@@ -220,6 +336,13 @@ void _om_console_process_cmd(OmConsole *self, const char *commandLine)
         args = "";
     }
 
+    // Built-in help, sent line by line from the help state (which also sends the ACK and prompt)
+    if (strcmp(command, "help") == 0)
+    {
+        self->help_requested = true;
+        return;
+    }
+
     // Find and execute the command
     for (size_t i = 0; i < self->command_count; i++) {
         if (strcmp(self->commands[i].command, command) == 0) {
@@ -227,10 +350,10 @@ void _om_console_process_cmd(OmConsole *self, const char *commandLine)
             {
                 // In non-interactive mode, send ACK for valid command before executing
                 om_console_send_str(self, "ACK\r\n");
-            }   
-            
+            }
+
             self->commands[i].callback(self, self->commands[i].command, args);
-            
+
             if(self->interactive_mode)
             {
                 // Send prompt after command execution in interactive mode
@@ -250,14 +373,15 @@ void _om_console_process_cmd(OmConsole *self, const char *commandLine)
         _om_console_send_prompt(self);
 
     }
-    else 
+    else
     {
         // Command not found, send NAK message
         om_console_tx_buf_start(self, "NAK,Unknown command: ");
         om_console_tx_buf_append(self, command);
-        om_console_tx_buf_send(self, "\r\n");    
+        om_console_tx_buf_send(self, "\r\n");
     }
 }
+
 
 
 

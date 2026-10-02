@@ -27,27 +27,22 @@ typedef struct {
 }OmConsoleCommand;
 
 /// Simple console service that processes commands received over UART
-/// The console listens for commands terminated by a newline character and executes the corresponding callback  
+/// The console listens for commands terminated by a newline character and executes the corresponding callback
+///
+/// A "help" command is built in and lists every command in the table with its description.
+/// Help lines are sent one at a time, each after the previous OM_EVT_UART_TX_OK, so the
+/// shared tx_buffer is never rewritten while the UART DMA is still reading it. Do not add
+/// "help" to the command table; it is handled before the table is searched.
+///
 /// Example usage:
 /// @code
 /// OmConsoleCommand commands[] = {
-///     {"help", console_help_command, "Show help message"},
+///     {"status", console_status_command, "Show system status"},
 /// };
 ///
 /// OmConsole console;
-/// om_console_init(&console, &uart, commands, true, sizeof(commands)/sizeof(commands[0]), actor_attr, trace_attr);
+/// om_console_init(&console, &uart, commands, sizeof(commands)/sizeof(commands[0]), true, actor_attr, trace_attr);
 /// om_actor_start(&console.base);
-/// 
-// void console_help_command(OmConsole *self, const char *args) {
-///    om_console_send_str(self, "Available commands:\r\n");
-///    for (size_t i = 0; i < self->command_count; i++) {
-///        om_console_tx_buf_start(self, "  ");
-///        om_console_tx_buf_append(self, self->commands[i].command);
-///        om_console_tx_buf_append(self, ": ");
-///        om_console_tx_buf_append(self, self->commands[i].description);
-///        om_console_tx_buf_send(self, "\r\n");
-///    }
-///}
 /// @endcode
 
 typedef struct OmConsole
@@ -61,6 +56,9 @@ typedef struct OmConsole
     int tx_buffer_index;
     size_t command_count;
     OmConsoleCommand* commands;
+    bool help_requested;  ///< Set by the built-in help command, triggers the transition to the help state
+    size_t help_index;    ///< Next command table entry to send while in the help state
+    int tx_pending;       ///< Console writes started whose OM_EVT_UART_TX_OK has not yet been received
 }OmConsole;
 
 /// @brief Initialize the console service
