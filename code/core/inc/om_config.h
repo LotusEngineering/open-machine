@@ -74,11 +74,6 @@
     #define OM_CONSOLE_CMD_BUFFER_SIZE 80
 #endif
 
-/// Console Service Transmit buffer size for building responses before sending over UART
-#ifndef OM_CONSOLE_TX_BUFFER_SIZE
-    #define OM_CONSOLE_TX_BUFFER_SIZE 256
-#endif
-
 /// Console Service Maximum number of arguments for console commands
 #ifndef OM_CONSOLE_MAX_ARGS
     #define OM_CONSOLE_MAX_ARGS 10

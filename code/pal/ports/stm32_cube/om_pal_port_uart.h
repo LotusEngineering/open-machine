@@ -22,7 +22,7 @@ typedef struct
     uint8_t* rx_double_buffer;
     size_t rx_double_buffer_size;
     uint8_t* rx_pointer; // Pointer to where we are receiving from
-    bool dma_tx_busy;
+    volatile bool dma_tx_busy; // Cleared from the TX complete interrupt
 }OmUartPort;
 
 // Forward declare

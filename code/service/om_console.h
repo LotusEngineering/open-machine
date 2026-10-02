@@ -31,8 +31,10 @@ typedef struct {
 ///
 /// A "help" command is built in and lists every command in the table with its description.
 /// Help lines are sent one at a time, each after the previous OM_EVT_UART_TX_OK, so the
-/// shared tx_buffer is never rewritten while the UART DMA is still reading it. Do not add
-/// "help" to the command table; it is handled before the table is searched.
+/// console actor is not blocked while a long help list goes out. Do not add "help" to the
+/// command table; it is handled before the table is searched.
+///
+/// Command callbacks send their output with om_uart_printf(self->uart, ...).
 ///
 /// Example usage:
 /// @code
@@ -43,6 +45,10 @@ typedef struct {
 /// OmConsole console;
 /// om_console_init(&console, &uart, commands, sizeof(commands)/sizeof(commands[0]), true, actor_attr, trace_attr);
 /// om_actor_start(&console.base);
+///
+/// void console_status_command(OmConsole *self, const char *command, const char *args) {
+///     om_uart_printf(self->uart, "Uptime: %lu seconds\r\n", uptime);
+/// }
 /// @endcode
 
 typedef struct OmConsole
@@ -52,13 +58,10 @@ typedef struct OmConsole
     bool interactive_mode;
     char cmd_buffer[OM_CONSOLE_CMD_BUFFER_SIZE];
     int cmd_buffer_index;
-    char tx_buffer[OM_CONSOLE_TX_BUFFER_SIZE];
-    int tx_buffer_index;
     size_t command_count;
     OmConsoleCommand* commands;
     bool help_requested;  ///< Set by the built-in help command, triggers the transition to the help state
     size_t help_index;    ///< Next command table entry to send while in the help state
-    int tx_pending;       ///< Console writes started whose OM_EVT_UART_TX_OK has not yet been received
 }OmConsole;
 
 /// @brief Initialize the console service
@@ -84,32 +87,5 @@ void om_console_init(OmConsole* self,
 /// @param argv Array to store the parsed arguments
 /// @param argc Pointer to store the number of parsed arguments
 void om_console_parse_args(const char *args, char *argv[], int *argc);
-
-
-/// @brief Send a string immediately over UART
-/// @param self Console instance
-/// @param str String to send
-/// This is a helper function for sending strings without buffering, useful for prompts and immediate responses
-void om_console_send_str(OmConsole *self, const char *str);
-
-/// @brief Start a new transmission with the given string
-/// @param self Console instance
-/// @param str String to start the transmission with
-void om_console_tx_buf_start(OmConsole *self, const char *str);
-
-/// @brief Append a string to the current transmission
-/// @param self Console instance    
-/// @param str String to append
-void om_console_tx_buf_append(OmConsole *self, const char *str);
-
-/// @brief Append an integer to the current transmission
-/// @param self Console instance
-/// @param value Integer value to append
-void om_console_tx_buf_append_int(OmConsole *self, int value, int base);
-
-/// @brief End the current transmission with the given string and send it
-/// @param self Console instance
-/// @param str String to end the transmission with
-void om_console_tx_buf_send(OmConsole *self, const char *str);
 
 #endif // OM_CONSOLE_SERVICE_H

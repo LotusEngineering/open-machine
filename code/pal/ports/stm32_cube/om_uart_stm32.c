@@ -76,11 +76,7 @@ void om_uart_write(OmUart* self,
         return;
     }
     
-    // Wait for the DMA to complete
-    while(self->port.dma_tx_busy)
-    {
-        // Wait for the DMA to complete
-    };
+    om_uart_wait_tx_idle(self);
 
     HAL_StatusTypeDef status = HAL_UART_Transmit_DMA(self->port.handle, data, (uint16_t)data_size);
     if (status != HAL_OK)
@@ -92,6 +88,14 @@ void om_uart_write(OmUart* self,
     {
         self->port.dma_tx_busy = true;
     }
+}
+
+void om_uart_wait_tx_idle(OmUart* self)
+{
+    while(self->port.dma_tx_busy)
+    {
+        // Wait for the DMA to complete
+    };
 }
 
 

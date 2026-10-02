@@ -66,9 +66,15 @@ void om_uart_write(OmUart* self,
                     size_t data_size);
 
 
+/// @brief Blocks until any write in progress has finished sending
+/// @param self UART instance
+void om_uart_wait_tx_idle(OmUart* self);
+
+
 /// @brief Formats a printf style string and writes it to the UART
 /// @note Formatting uses a per instance buffer of OM_UART_PRINTF_BUFFER_SIZE bytes,
-///       output longer than that is truncated.
+///       output longer than that is truncated. Waits for the previous write to finish
+///       before formatting, so back-to-back calls never overwrite data still being sent.
 /// @param self UART instance
 /// @param format printf style format string
 /// @return Number of characters written, or a negative value on a formatting error

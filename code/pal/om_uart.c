@@ -14,6 +14,9 @@ void om_uart_init(OmUart* self)
 
 int om_uart_printf(OmUart* self, const char* format, ...)
 {
+    // printf_buffer may still be in use by the previous write
+    om_uart_wait_tx_idle(self);
+
     va_list args;
     va_start(args, format);
     int length = vsnprintf(self->printf_buffer, sizeof(self->printf_buffer), format, args);
