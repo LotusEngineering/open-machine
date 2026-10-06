@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "om.h"
 #include "om_uart.h"
+#include "om_bus.h"
 #include "om_config.h"
 
 /// @file om_console.h
@@ -25,6 +26,16 @@ typedef struct {
     OmConsoleCallback callback; // Function to call when command is executed
     const char *description; // Description of the command for help text
 }OmConsoleCommand;
+
+/// Callback type for events received from a bus subscribed with om_console_event_subscribe().
+/// Runs on the console's thread; the event is only valid for the duration of the call.
+typedef void (*OmConsoleEventCallback)(OmConsole *self, OmEvent const *event);
+
+/// One bus subscription made with om_console_event_subscribe()
+typedef struct {
+    OmBus *bus;                      // Bus the console is subscribed to
+    OmConsoleEventCallback callback; // Function to call when an event arrives from the bus
+}OmConsoleSubscription;
 
 /// Simple console service that processes commands received over UART
 /// The console listens for commands terminated by a newline character and executes the corresponding callback
@@ -62,6 +73,8 @@ typedef struct OmConsole
     OmConsoleCommand* commands;
     bool help_requested;  ///< Set by the built-in help command, triggers the transition to the help state
     size_t help_index;    ///< Next command table entry to send while in the help state
+    OmConsoleSubscription subscriptions[OM_CONSOLE_MAX_BUS_SUBSCRIPTIONS];
+    size_t subscription_count;
 }OmConsole;
 
 /// @brief Initialize the console service
@@ -79,6 +92,31 @@ void om_console_init(OmConsole* self,
                      bool interactive_mode, 
                      OmActorAttr *actor_attr,
                      OmTraceAttr *trace_attr);
+
+/// @brief Subscribe the console to a message bus and call callback for each event published on it
+///
+/// Up to OM_CONSOLE_MAX_BUS_SUBSCRIPTIONS buses can be subscribed. Only user signals
+/// (>= OM_EVT_USER) are passed to callbacks. Events do not record which bus they were
+/// published on, so every distinct callback is called once for each user event the
+/// console receives; callbacks should ignore signals they do not recognize.
+///
+/// Call after om_console_init(), either before the console is started or from a
+/// console command callback (the subscription table is not locked).
+/// @param self Console instance
+/// @param bus Bus to subscribe to
+/// Asserts if bus or callback is NULL, the table is full, or bus is already subscribed.
+/// @param callback Function called with each event received from the bus
+void om_console_event_subscribe(OmConsole *self, OmBus *bus, OmConsoleEventCallback callback);
+
+/// @brief Unsubscribe the console from a bus subscribed with om_console_event_subscribe()
+///
+/// Events from the bus already in the console's queue are still delivered to any
+/// remaining callbacks; with no subscriptions left they are dropped.
+/// Same calling rules as om_console_event_subscribe(). Asserts if the console is not
+/// subscribed to bus.
+/// @param self Console instance
+/// @param bus Bus to unsubscribe from
+void om_console_event_unsubscribe(OmConsole *self, OmBus *bus);
 
 
 

@@ -3,13 +3,14 @@
 #include <string.h>
 #include <stdio.h>
 
-//OM_ASSERT_FILE_NAME();
+OM_ASSERT_FILE_NAME();
 
 
 
 // Local function prototypes
 static void _om_console_send_prompt(OmConsole *self);
 static void _om_console_process_cmd(OmConsole *self, const char *commandLine);
+static void _om_console_dispatch_bus_event(OmConsole *self, OmEvent const *event);
 
 // Declare Init trans
 OmStateResult om_console_init_trans(OmConsole *self);
@@ -43,6 +44,51 @@ void om_console_init(OmConsole* self,
     self->help_requested = false;
     self->help_index = 0;
     memset(self->cmd_buffer, 0, OM_CONSOLE_CMD_BUFFER_SIZE);
+    memset(self->subscriptions, 0, sizeof(self->subscriptions));
+    self->subscription_count = 0;
+}
+
+void om_console_event_subscribe(OmConsole *self, OmBus *bus, OmConsoleEventCallback callback)
+{
+    OM_ASSERT(bus != NULL);
+    OM_ASSERT(callback != NULL);
+    // Raise OM_CONSOLE_MAX_BUS_SUBSCRIPTIONS if this fires
+    OM_ASSERT(self->subscription_count < OM_CONSOLE_MAX_BUS_SUBSCRIPTIONS);
+
+    // Subscribing twice would deliver every event from this bus twice
+    for (size_t i = 0; i < self->subscription_count; i++)
+    {
+        OM_ASSERT(self->subscriptions[i].bus != bus);
+    }
+
+    self->subscriptions[self->subscription_count].bus = bus;
+    self->subscriptions[self->subscription_count].callback = callback;
+    self->subscription_count++;
+
+    om_bus_subscribe(bus, &self->base);
+}
+
+void om_console_event_unsubscribe(OmConsole *self, OmBus *bus)
+{
+    size_t i = 0;
+    while ((i < self->subscription_count) && (self->subscriptions[i].bus != bus))
+    {
+        i++;
+    }
+
+    // Not subscribed to this bus
+    OM_ASSERT(i < self->subscription_count);
+
+    om_bus_unsubscribe(bus, &self->base);
+
+    // Shift the rest down so the table stays packed
+    for (size_t j = i + 1; j < self->subscription_count; j++)
+    {
+        self->subscriptions[j - 1] = self->subscriptions[j];
+    }
+    self->subscription_count--;
+    self->subscriptions[self->subscription_count].bus = NULL;
+    self->subscriptions[self->subscription_count].callback = NULL;
 }
 
 // Initial transition handler
@@ -74,7 +120,16 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
         break;
 
     default:
-        result = OM_RES_IGNORED;
+        // Anything with a user signal arrived from a subscribed bus
+        if ((event->signal >= OM_EVT_USER) && (self->subscription_count > 0))
+        {
+            _om_console_dispatch_bus_event(self, event);
+            result = OM_RES_HANDLED;
+        }
+        else
+        {
+            result = OM_RES_IGNORED;
+        }
         break;
     }
 
@@ -238,6 +293,30 @@ void om_console_parse_args(const char *args, char *argv[], int *argc)
 static void _om_console_send_prompt(OmConsole *self)
 {
     om_uart_printf(self->uart, "> ");
+}
+
+static void _om_console_dispatch_bus_event(OmConsole *self, OmEvent const *event)
+{
+    // The event does not say which bus it came from, so offer it to every callback,
+    // skipping one already called for an earlier subscription
+    for (size_t i = 0; i < self->subscription_count; i++)
+    {
+        OmConsoleEventCallback callback = self->subscriptions[i].callback;
+        bool already_called = false;
+        for (size_t j = 0; j < i; j++)
+        {
+            if (self->subscriptions[j].callback == callback)
+            {
+                already_called = true;
+                break;
+            }
+        }
+
+        if (!already_called)
+        {
+            callback(self, event);
+        }
+    }
 }
 
 
