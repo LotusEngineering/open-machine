@@ -8,7 +8,6 @@ OM_ASSERT_FILE_NAME();
 
 
 // Local function prototypes
-static void _om_console_send_prompt(OmConsole *self);
 static void _om_console_process_cmd(OmConsole *self, const char *commandLine);
 static void _om_console_dispatch_bus_event(OmConsole *self, OmEvent const *event);
 
@@ -110,7 +109,7 @@ OM_STATE_DEFINE(OmConsole, om_console_super)
         {
             // Send welcome message
             om_uart_printf(self->uart, "\r\nWelcome to Open Machine Console!\r\n");
-            _om_console_send_prompt(self);
+            om_console_send_prompt(self);
         }
         result = OM_RES_HANDLED;
         break;
@@ -189,7 +188,7 @@ OM_STATE_DEFINE(OmConsole, om_console_idle)
                         if (self->interactive_mode)
                         {
                             om_uart_printf(self->uart, "\r\nCommand too long\r\n");
-                            _om_console_send_prompt(self);
+                            om_console_send_prompt(self);
                         }
                         else
                         {
@@ -245,7 +244,7 @@ OM_STATE_DEFINE(OmConsole, om_console_help)
         {
             if (self->interactive_mode)
             {
-                _om_console_send_prompt(self);
+                om_console_send_prompt(self);
             }
             result = OM_TRANS(om_console_idle);
         }
@@ -286,15 +285,18 @@ void om_console_parse_args(const char *args, char *argv[], int *argc)
     }
 }
 
+void om_console_send_prompt(OmConsole *self)
+{
+    if (self->interactive_mode)
+    {
+        om_uart_printf(self->uart, "> ");
+    }
+}
+
 
 
 
 //////////////// Internal helper functions ////////////////
-static void _om_console_send_prompt(OmConsole *self)
-{
-    om_uart_printf(self->uart, "> ");
-}
-
 static void _om_console_dispatch_bus_event(OmConsole *self, OmEvent const *event)
 {
     // The event does not say which bus it came from, so offer it to every callback,
@@ -358,12 +360,11 @@ void _om_console_process_cmd(OmConsole *self, const char *commandLine)
                 om_uart_printf(self->uart, "ACK\r\n");
             }
 
-            self->commands[i].callback(self, self->commands[i].command, args);
-
-            if(self->interactive_mode)
+            // A callback returns false when its output is still to come; it then sends
+            // the prompt itself once that output is done
+            if (self->commands[i].callback(self, self->commands[i].command, args))
             {
-                // Send prompt after command execution in interactive mode
-                _om_console_send_prompt(self);
+                om_console_send_prompt(self);
             }
 
             return;
@@ -374,7 +375,7 @@ void _om_console_process_cmd(OmConsole *self, const char *commandLine)
     {
         // Command not found, send error message
         om_uart_printf(self->uart, "Unknown command: %s\r\n", command);
-        _om_console_send_prompt(self);
+        om_console_send_prompt(self);
     }
     else
     {

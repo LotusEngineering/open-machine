@@ -17,8 +17,12 @@
 /// Forward declare the console structure
 typedef struct OmConsole OmConsole;
 
-/// Callback type for console command handlers
-typedef void (*OmConsoleCallback)(OmConsole *self, const char * command,  const char *args);
+/// Callback type for console command handlers.
+/// Return true to have the console send the prompt when the callback returns. Return false
+/// when the command's output is still to come (e.g. it is waiting on a reply from another
+/// actor); the command then sends the prompt itself with om_console_send_prompt() once its
+/// output is done. Ignored in non-interactive mode, which sends no prompts.
+typedef bool (*OmConsoleCallback)(OmConsole *self, const char * command,  const char *args);
 
 /// Command structure for console commands
 typedef struct {
@@ -45,7 +49,8 @@ typedef struct {
 /// console actor is not blocked while a long help list goes out. Do not add "help" to the
 /// command table; it is handled before the table is searched.
 ///
-/// Command callbacks send their output with om_uart_printf(self->uart, ...).
+/// Command callbacks send their output with om_uart_printf(self->uart, ...) and return
+/// true to have the console send the prompt afterwards.
 ///
 /// Example usage:
 /// @code
@@ -57,8 +62,9 @@ typedef struct {
 /// om_console_init(&console, &uart, commands, sizeof(commands)/sizeof(commands[0]), true, actor_attr, trace_attr);
 /// om_actor_start(&console.base);
 ///
-/// void console_status_command(OmConsole *self, const char *command, const char *args) {
+/// bool console_status_command(OmConsole *self, const char *command, const char *args) {
 ///     om_uart_printf(self->uart, "Uptime: %lu seconds\r\n", uptime);
+///     return true;
 /// }
 /// @endcode
 
@@ -118,6 +124,12 @@ void om_console_event_subscribe(OmConsole *self, OmBus *bus, OmConsoleEventCallb
 /// @param bus Bus to unsubscribe from
 void om_console_event_unsubscribe(OmConsole *self, OmBus *bus);
 
+/// @brief Send the prompt. Does nothing in non-interactive mode.
+///
+/// For a command callback that returned false: call this once its deferred output has
+/// been sent. Must be called on the console's thread, e.g. from an event callback.
+/// @param self Console instance
+void om_console_send_prompt(OmConsole *self);
 
 
 /// @brief Parse command arguments from a command line
