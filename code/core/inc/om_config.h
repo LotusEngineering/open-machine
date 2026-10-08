@@ -81,7 +81,7 @@
 
 /// Console Service Maximum number of message buses the console can subscribe to with om_console_event_subscribe()
 #ifndef OM_CONSOLE_MAX_BUS_SUBSCRIPTIONS
-    #define OM_CONSOLE_MAX_BUS_SUBSCRIPTIONS 2
+    #define OM_CONSOLE_MAX_BUS_SUBSCRIPTIONS 4
 #endif
 
 
