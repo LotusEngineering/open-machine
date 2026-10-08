@@ -66,7 +66,7 @@ void om_timer_init_hsm(OmTimer* self, OmSignal signal, const char* name, OmHsm *
     self->callback_type = OM_TIMER_CB_HSM;
     self->callback.hsm = hsm;
     self->state = OM_TS_STOPPED;
-    om_mutex_lock(&om_timer_mutex);
+    om_mutex_unlock(&om_timer_mutex);
 }
 
 void om_timer_start(OmTimer* self, OmTimerMode mode, uint32_t time_msec)
