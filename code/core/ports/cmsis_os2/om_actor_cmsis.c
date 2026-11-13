@@ -96,7 +96,7 @@ void om_actor_message(OmActor* self, OmEvent *  message)
 void om_actor_event_loop(void* argument)
 {
     osStatus_t status;
-    OmEvent * event;
+    OmEvent const * event;
     OmActor* self = (OmActor*)argument;
     
     // Enter the state machine

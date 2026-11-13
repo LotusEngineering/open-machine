@@ -125,7 +125,7 @@ void om_actor_message(OmActor* self, OmEvent *  message)
 //////////////////// Private Functions //////////////////////////
 void * om_actor_event_loop(void* argument)
 {
-    OmEvent * event;
+    OmEvent const * event;
     OmActor* self = (OmActor*)argument;
     
     // Enter the state machine
@@ -141,8 +141,11 @@ void * om_actor_event_loop(void* argument)
         }
         pthread_mutex_unlock(&self->port.q_mutex);
         
-        // Dispatch
-        om_actor_dispatch_(self, event);
-               
+        // Dispatch. The queue holds events as const, but dispatch updates a
+        // pool event's reference count, so it takes them mutable
+        om_actor_dispatch_(self, (OmEvent *)event);
+
     }// while
+
+    return NULL;
 }
